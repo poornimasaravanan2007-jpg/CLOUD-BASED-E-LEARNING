@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Classes — CloudLearn</title>
+  <meta name="description" content="Schedule, manage, and join live classes on CloudLearn using Jitsi Meet." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/teacher.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Live Class Cards ── */
+    .live-class-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .live-class-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .live-class-card.live-now {
+      border-left: 4px solid var(--danger);
+      animation: livePulse 2s ease infinite;
+    }
+    .live-class-card.upcoming {
+      border-left: 4px solid var(--primary);
+    }
+    .live-class-card.ended {
+      border-left: 4px solid var(--gray-300);
+      opacity: .75;
+    }
+    @keyframes livePulse {
+      0%, 100% { box-shadow: var(--shadow-sm); }
+      50% { box-shadow: 0 0 20px rgba(239,68,68,.15); }
+    }
+    .lc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+    .lc-title { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+    .lc-course { font-size: .8rem; color: var(--primary); font-weight: 600; }
+    .lc-desc { font-size: .85rem; color: var(--gray-500); margin-bottom: 16px; line-height: 1.5; }
+    .lc-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+    .lc-meta-item { display: flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--gray-600); }
+    .lc-meta-item i { color: var(--gray-400); font-size: .85rem; }
+    .lc-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); animation: blink 1s infinite; margin-right: 6px; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+
+    /* ── Countdown Timer ── */
+    .countdown-wrap { display: flex; gap: 8px; margin-bottom: 16px; }
+    .cd-unit { text-align: center; background: var(--gray-50); border-radius: var(--radius-md); padding: 8px 12px; min-width: 56px; }
+    .cd-val { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; color: var(--primary); line-height: 1; }
+    .cd-label { font-size: .65rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+
+    /* ── Status Badges ── */
+    .status-live { background: #fee2e2; color: #dc2626; }
+    .status-upcoming { background: #ede9fe; color: var(--primary); }
+    .status-ended { background: var(--gray-100); color: var(--gray-500); }
+
+    /* ── Grid ── */
+    .live-classes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
+    @media (max-width: 640px) { .live-classes-grid { grid-template-columns: 1fr; } }
+
+    /* ── Topbar ── */
+    .topbar { position: sticky; top: 0; z-index: 400; height: 68px; background: var(--white); border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; box-shadow: var(--shadow-sm); }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .page-title { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--gray-900); }
+    .page-sub { font-size: .8rem; color: var(--gray-500); }
+    .content-area { padding: 28px; }
+
+    /* ── Filter Pills ── */
+    .filter-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-pill { padding: 8px 18px; border-radius: var(--radius-full); font-size: .82rem; font-weight: 600; cursor: pointer; transition: var(--transition); background: var(--white); color: var(--gray-500); border: 2px solid var(--gray-200); }
+    .filter-pill:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-pill.active { background: var(--grad-primary); color: var(--white); border-color: transparent; box-shadow: 0 4px 12px rgba(79,70,229,.3); }
+
+    /* ── Jitsi Embed ── */
+    .jitsi-frame-wrap { position: relative; width: 100%; padding-top: 56.25%; border-radius: var(--radius-lg); overflow: hidden; background: var(--gray-900); margin-bottom: 20px; }
+    .jitsi-frame-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR — role-sensitive, defaults teacher; JS swaps if student -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub" id="portal-label">Faculty Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag" id="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Navigation" id="sidebar-nav">
+      <!-- Injected by JS based on role -->
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Live Classes</h1>
+          <p class="page-sub">Schedule, manage, and join live sessions</p>
+        </div>
+      </div>
+      <div class="topbar-right" id="create-btn-wrap">
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal()" id="btn-create-class">
+          <i class="fas fa-video"></i> Schedule Live Class
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- Filter Pills -->
+      <div class="filter-pills">
+        <div class="filter-pill active" onclick="filterClasses('all', this)">All Classes</div>
+        <div class="filter-pill" onclick="filterClasses('live', this)"><span class="live-dot" style="animation:blink 1s infinite"></span> Live Now</div>
+        <div class="filter-pill" onclick="filterClasses('upcoming', this)">📅 Upcoming</div>
+        <div class="filter-pill" onclick="filterClasses('ended', this)">✅ Completed</div>
+      </div>
+
+      <!-- Jitsi Embed (hidden by default, shown when joining) -->
+      <div id="jitsi-section" style="display:none" class="fade-in-up">
+        <div class="card" style="padding:0; overflow:hidden; margin-bottom:24px">
+          <div style="padding:16px 20px; display:flex; justify-content:space-between; align-items:center; background:var(--gray-50); border-bottom:1px solid var(--gray-100); flex-wrap:wrap; gap:10px">
+            <div style="display:flex; align-items:center; gap:10px">
+              <span class="live-dot"></span>
+              <span style="font-weight:700; font-size:.95rem; color:var(--gray-900)" id="jitsi-title">Live Class</span>
+              <span class="badge status-live" style="font-size:.72rem">Connected to Room</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px">
+              <a id="jitsi-external-btn" href="#" target="_blank" class="btn btn-secondary btn-sm" title="Open full screen in a separate browser tab"><i class="fas fa-external-link-alt"></i> Pop Out</a>
+              <button id="jitsi-end-btn" class="btn btn-warning btn-sm" style="display:none" onclick="endClassFromPlayer()"><i class="fas fa-stop-circle"></i> End Class</button>
+              <button class="btn btn-danger btn-sm" onclick="leaveClass()"><i class="fas fa-phone-slash"></i> Leave Room</button>
+            </div>
+          </div>
+          <div class="jitsi-frame-wrap" id="jitsi-container"></div>
+        </div>
+      </div>
+
+      <!-- Live Classes Grid -->
+      <div class="live-classes-grid" id="classes-grid">
+        <!-- Skeleton loaders -->
+        <div class="live-class-card" style="opacity:.5">
+          <div style="height:16px;width:60%;background:var(--gray-100);border-radius:8px;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
+          <div style="height:12px;width:40%;background:var(--gray-100);border-radius:8px;margin-bottom:20px;animation:pulse 1.5s .1s infinite"></div>
+          <div style="height:48px;background:var(--gray-100);border-radius:8px;margin-bottom:12px;animation:pulse 1.5s .2s infinite"></div>
+          <div style="height:36px;width:50%;background:var(--gray-100);border-radius:8px;animation:pulse 1.5s .3s infinite"></div>
+        </div>
+        <div class="live-class-card" style="opacity:.5">
+          <div style="height:16px;width:60%;background:var(--gray-100);border-radius:8px;margin-bottom:12px;animation:pulse 1.5s infinite"></div>
+          <div style="height:12px;width:40%;background:var(--gray-100);border-radius:8px;margin-bottom:20px;animation:pulse 1.5s .1s infinite"></div>
+          <div style="height:48px;background:var(--gray-100);border-radius:8px;margin-bottom:12px;animation:pulse 1.5s .2s infinite"></div>
+          <div style="height:36px;width:50%;background:var(--gray-100);border-radius:8px;animation:pulse 1.5s .3s infinite"></div>
+        </div>
+      </div>
+
+      <!-- Empty state (initially hidden) -->
+      <div class="empty-state" id="empty-state" style="display:none">
+        <i class="fas fa-video" style="color:var(--gray-300)"></i>
+        <p style="margin-bottom:8px">No live classes scheduled yet.</p>
+        <p style="font-size:.85rem; color:var(--gray-400)" id="empty-sub">Check back later for upcoming sessions.</p>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════
+     CREATE / EDIT LIVE CLASS MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="create-modal" style="display:none">
+  <div class="modal-box" style="max-width:600px">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-heading); font-size:1.1rem">📹 Schedule Live Class</h3>
+      <button class="modal-close" onclick="closeCreateModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Course *</label>
+        <select class="form-control" id="lc-course">
+          <option value="">Select a course...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Class Title *</label>
+        <input type="text" class="form-control" id="lc-title" placeholder="e.g., Introduction to AWS EC2" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="lc-desc" rows="3" placeholder="Brief description of what will be covered..."></textarea>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+        <div class="form-group">
+          <label class="form-label">Date & Time *</label>
+          <input type="datetime-local" class="form-control" id="lc-datetime" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (minutes) *</label>
+          <input type="number" class="form-control" id="lc-duration" placeholder="60" min="15" max="360" value="60" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Meeting Link</label>
+        <div style="display:flex; gap:8px; align-items:center">
+          <input type="text" class="form-control" id="lc-link" placeholder="Auto-generated Jitsi Meet link" readonly style="flex:1" />
+          <button class="btn btn-secondary btn-sm" onclick="generateMeetLink()" title="Regenerate link"><i class="fas fa-sync-alt"></i></button>
+        </div>
+        <p style="font-size:.75rem; color:var(--gray-400); margin-top:6px"><i class="fas fa-info-circle"></i> A Jitsi Meet link will be auto-generated. Students will join directly from this page.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="closeCreateModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveLiveClass()" id="btn-save-class"><i class="fas fa-calendar-check"></i> Schedule Class</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+const styleEl = document.createElement('style');
+styleEl.textContent = `@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }`;
+document.head.appendChild(styleEl);
+
+// ── Auth & Sidebar Setup ─────────────────────────────────────
+requireAuth(null);
+initSidebarToggle();
+
+let currentUser = null;
+let allClasses = [];
+let currentFilter = 'all';
+let editingId = null;
+let countdownIntervals = [];
+
+document.addEventListener('userReady', async (e) => {
+  currentUser = e.detail;
+  setAvatarInitials(currentUser.name || currentUser.email);
+  document.getElementById('sidebar-name').textContent = currentUser.name || currentUser.email;
+  setupSidebar(currentUser.role);
+
+  if (currentUser.role === 'student') {
+    document.getElementById('create-btn-wrap').style.display = 'none';
+    document.getElementById('empty-sub').textContent = 'Your teachers haven\'t scheduled any live sessions yet.';
+  }
+
+  generateMeetLink();
+  await loadTeacherCourses();
+  await loadLiveClasses();
+});
+
+function setupSidebar(role) {
+  if (role === 'student') {
+    document.getElementById('sidebar').classList.remove('teacher-sidebar');
+    document.getElementById('sidebar').classList.add('student-sidebar');
+    document.querySelector('.sidebar-brand-icon').innerHTML = '<i class="fas fa-cloud"></i>';
+    document.getElementById('portal-label').textContent = 'Student Portal';
+    document.getElementById('role-tag').textContent = '🎓 Student';
+    document.getElementById('sidebar-nav').innerHTML = `
+      <div class="nav-section-label">Main Menu</div>
+      <a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <div class="nav-section-label">Learning</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-alt"></i> Study Materials</a>
+      <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quizzes</a>
+      <a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <a href="results.html" class="nav-link"><i class="fas fa-star"></i> Results</a>
+      <a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i> My Progress</a>
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link active"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    `;
+  } else {
+    document.getElementById('sidebar-nav').innerHTML = `
+      <div class="nav-section-label">Main</div>
+      <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="manage-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="create-course.html" class="nav-link"><i class="fas fa-plus-circle"></i> Create Course</a>
+      <div class="nav-section-label">Content</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-upload"></i> Manage Materials</a>
+      <a href="manage-quizzes.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+      <a href="manage-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link active"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+      <div class="nav-section-label">Students</div>
+      <a href="students.html" class="nav-link"><i class="fas fa-users"></i> Students</a>
+      <a href="student-performance.html" class="nav-link"><i class="fas fa-chart-bar"></i> Performance</a>
+      <a href="course-analytics.html" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    `;
+  }
+}
+
+// ── Load Teacher's Courses (for dropdown) ────────────────────
+async function loadTeacherCourses() {
+  if (currentUser.role !== 'teacher') return;
+  try {
+    const snap = await db.collection('courses').where('teacherId', '==', currentUser.uid).get();
+    const sel = document.getElementById('lc-course');
+    snap.forEach(doc => {
+      const c = doc.data();
+      const opt = document.createElement('option');
+      opt.value = doc.id;
+      opt.textContent = c.courseName || c.title || 'Untitled';
+      sel.appendChild(opt);
+    });
+  } catch (err) { console.error('Error loading courses:', err); }
+}
+
+// ── Generate Jitsi Meet Link ─────────────────────────────────
+function generateMeetLink() {
+  const roomId = 'CloudLearn-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 6);
+  document.getElementById('lc-link').value = `https://meet.jit.si/${roomId}`;
+}
+
+// ── Modal Controls ───────────────────────────────────────────
+function openCreateModal() {
+  editingId = null;
+  document.getElementById('lc-title').value = '';
+  document.getElementById('lc-desc').value = '';
+  document.getElementById('lc-duration').value = '60';
+  document.getElementById('lc-datetime').value = '';
+  document.getElementById('lc-course').value = '';
+  generateMeetLink();
+  document.querySelector('#create-modal .modal-header h3').textContent = '📹 Schedule Live Class';
+  document.getElementById('btn-save-class').innerHTML = '<i class="fas fa-calendar-check"></i> Schedule Class';
+  document.getElementById('create-modal').style.display = 'flex';
+}
+
+function closeCreateModal() {
+  document.getElementById('create-modal').style.display = 'none';
+}
+
+// ── Save Live Class to Firestore ─────────────────────────────
+async function saveLiveClass() {
+  const title = document.getElementById('lc-title').value.trim();
+  const desc = document.getElementById('lc-desc').value.trim();
+  const datetime = document.getElementById('lc-datetime').value;
+  const duration = parseInt(document.getElementById('lc-duration').value) || 60;
+  const courseId = document.getElementById('lc-course').value;
+  const meetLink = document.getElementById('lc-link').value;
+
+  if (!title) { showToast('Please enter a class title.', 'warning'); return; }
+  if (!datetime) { showToast('Please select a date and time.', 'warning'); return; }
+  if (!courseId) { showToast('Please select a course.', 'warning'); return; }
+
+  const courseDoc = await db.collection('courses').doc(courseId).get();
+  const courseName = courseDoc.exists ? (courseDoc.data().courseName || courseDoc.data().title || 'Course') : 'Course';
+
+  const classData = {
+    title,
+    description: desc,
+    scheduledAt: new Date(datetime),
+    duration,
+    courseId,
+    courseName,
+    meetLink,
+    teacherId: currentUser.uid,
+    teacherName: currentUser.name || currentUser.email,
+    status: 'upcoming',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  showLoading();
+  try {
+    if (editingId) {
+      delete classData.createdAt;
+      await db.collection('liveClasses').doc(editingId).update(classData);
+      showToast('Live class updated successfully!', 'success');
+    } else {
+      await db.collection('liveClasses').add(classData);
+      showToast('Live class scheduled! 🎉', 'success');
+    }
+    closeCreateModal();
+    await loadLiveClasses();
+  } catch (err) {
+    console.error('Error saving live class:', err);
+    showToast('Error saving live class. Please try again.', 'error');
+  }
+  hideLoading();
+}
+
+// ── Load All Live Classes ────────────────────────────────────
+async function loadLiveClasses() {
+  // Clear existing intervals
+  countdownIntervals.forEach(id => clearInterval(id));
+  countdownIntervals = [];
+
+  try {
+    let snap;
+    try {
+      if (currentUser.role === 'teacher') {
+        snap = await db.collection('liveClasses').where('teacherId', '==', currentUser.uid).get();
+        if (snap.empty) {
+          snap = await db.collection('liveClasses').get();
+        }
+      } else {
+        snap = await db.collection('liveClasses').get();
+      }
+    } catch (queryErr) {
+      snap = await db.collection('liveClasses').get();
+    }
+
+    allClasses = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // In-memory sort by scheduledAt
+    allClasses.sort((a, b) => {
+      const tA = a.scheduledAt?.toDate ? a.scheduledAt.toDate().getTime() : new Date(a.scheduledAt || 0).getTime();
+      const tB = b.scheduledAt?.toDate ? b.scheduledAt.toDate().getTime() : new Date(b.scheduledAt || 0).getTime();
+      return tA - tB;
+    });
+
+    // Auto-update statuses
+    const now = new Date();
+    for (const cls of allClasses) {
+      const scheduled = cls.scheduledAt?.toDate ? cls.scheduledAt.toDate() : new Date(cls.scheduledAt);
+      const endTime = new Date(scheduled.getTime() + (cls.duration || 60) * 60000);
+      let newStatus = cls.status || 'upcoming';
+
+      if (now > endTime) {
+        newStatus = 'ended';
+      } else if (now >= scheduled && now <= endTime) {
+        newStatus = 'live';
+      }
+
+      if (newStatus !== cls.status) {
+        cls.status = newStatus;
+        try { await db.collection('liveClasses').doc(cls.id).update({ status: newStatus }); } catch {}
+      }
+    }
+
+    renderClasses();
+  } catch (err) {
+    console.error('Error loading live classes:', err);
+    document.getElementById('classes-grid').innerHTML = `<div class="alert alert-danger" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px"><span><i class="fas fa-exclamation-circle" style="margin-right:8px"></i>Could not load live classes: ${err.message || 'Network error'}</span><button class="btn btn-secondary btn-sm" onclick="loadLiveClasses()"><i class="fas fa-redo"></i> Retry</button></div>`;
+  }
+}
+
+function renderClasses() {
+  const grid = document.getElementById('classes-grid');
+  const empty = document.getElementById('empty-state');
+
+  let filtered = allClasses;
+  if (currentFilter !== 'all') {
+    filtered = allClasses.filter(c => c.status === currentFilter);
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(cls => {
+    const scheduled = cls.scheduledAt?.toDate ? cls.scheduledAt.toDate() : new Date(cls.scheduledAt);
+    const endTime = new Date(scheduled.getTime() + (cls.duration || 60) * 60000);
+    const dateStr = scheduled.toLocaleDateString('en-IN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+    const timeStr = scheduled.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+    let statusBadge = '';
+    let cardClass = '';
+    if (cls.status === 'live') {
+      statusBadge = `<span class="badge status-live"><span class="live-dot"></span> LIVE NOW</span>`;
+      cardClass = 'live-now';
+    } else if (cls.status === 'upcoming') {
+      statusBadge = `<span class="badge status-upcoming"><i class="fas fa-clock" style="margin-right:4px"></i> Upcoming</span>`;
+      cardClass = 'upcoming';
+    } else {
+      statusBadge = `<span class="badge status-ended"><i class="fas fa-check" style="margin-right:4px"></i> Completed</span>`;
+      cardClass = 'ended';
+    }
+
+    let countdown = '';
+    if (cls.status === 'upcoming') {
+      countdown = `<div class="countdown-wrap" id="cd-${cls.id}"></div>`;
+    }
+
+    let actions = '';
+    const safeTitle = cls.title.replace(/'/g, "\\'");
+
+    if (currentUser.role === 'teacher') {
+      if (cls.status === 'live') {
+        actions = `
+          <button class="btn btn-primary btn-sm" onclick="joinClass('${cls.id}', '${cls.meetLink}', '${safeTitle}')"><i class="fas fa-video"></i> Enter Room / Host</button>
+          <a href="${cls.meetLink}" target="_blank" class="btn btn-secondary btn-sm" title="Open full tab"><i class="fas fa-external-link-alt"></i></a>
+          <button class="btn btn-warning btn-sm" onclick="endClassNow('${cls.id}')" title="End class session"><i class="fas fa-stop"></i> End Class</button>
+        `;
+      } else if (cls.status === 'upcoming') {
+        actions = `
+          <button class="btn btn-success btn-sm" onclick="startClassNow('${cls.id}', '${cls.meetLink}', '${safeTitle}')"><i class="fas fa-play"></i> Start Live Now</button>
+          <button class="btn btn-secondary btn-sm" onclick="editClass('${cls.id}')" title="Edit schedule"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteClass('${cls.id}')" title="Delete class"><i class="fas fa-trash"></i></button>
+        `;
+      } else {
+        actions = `
+          <a href="recordings.html?classId=${cls.id}&upload=true" class="btn btn-success btn-sm"><i class="fas fa-upload"></i> Upload Recording</a>
+          <a href="recordings.html?classId=${cls.id}" class="btn btn-secondary btn-sm"><i class="fas fa-play-circle"></i> View</a>
+        `;
+      }
+    } else {
+      // Student view
+      if (cls.status === 'live') {
+        actions = `
+          <button class="btn btn-primary btn-sm" onclick="joinClass('${cls.id}', '${cls.meetLink}', '${safeTitle}')"><i class="fas fa-video"></i> Join Live Class</button>
+          <a href="${cls.meetLink}" target="_blank" class="btn btn-secondary btn-sm" title="Open in new window"><i class="fas fa-external-link-alt"></i> Pop Out</a>
+        `;
+      } else if (cls.status === 'upcoming') {
+        actions = `
+          <button class="btn btn-outline btn-sm" onclick="joinClass('${cls.id}', '${cls.meetLink}', '${safeTitle}')"><i class="fas fa-door-open"></i> Enter Room Early</button>
+          <span style="font-size:.78rem; color:var(--gray-400); display:inline-flex; align-items:center; margin-left:6px;"><i class="fas fa-clock" style="margin-right:4px"></i>Starts ${timeStr}</span>
+        `;
+      } else {
+        actions = `<a href="recordings.html?classId=${cls.id}" class="btn btn-secondary btn-sm"><i class="fas fa-play-circle"></i> Watch Recording</a>`;
+      }
+    }
+
+    return `<div class="live-class-card ${cardClass} fade-in-up">
+      <div class="lc-header">
+        <div>
+          <div class="lc-course">${cls.courseName || 'General'}</div>
+          <div class="lc-title">${cls.title}</div>
+        </div>
+        ${statusBadge}
+      </div>
+      ${cls.description ? `<div class="lc-desc">${cls.description}</div>` : ''}
+      <div class="lc-meta">
+        <div class="lc-meta-item"><i class="fas fa-calendar"></i> ${dateStr}</div>
+        <div class="lc-meta-item"><i class="fas fa-clock"></i> ${timeStr}</div>
+        <div class="lc-meta-item"><i class="fas fa-hourglass-half"></i> ${cls.duration || 60} min</div>
+        <div class="lc-meta-item"><i class="fas fa-user-tie"></i> ${cls.teacherName || 'Instructor'}</div>
+      </div>
+      ${countdown}
+      <div class="lc-actions">${actions}</div>
+    </div>`;
+  }).join('');
+
+  // Start countdown timers for upcoming classes
+  filtered.filter(c => c.status === 'upcoming').forEach(cls => {
+    startCountdown(cls.id, cls.scheduledAt?.toDate ? cls.scheduledAt.toDate() : new Date(cls.scheduledAt));
+  });
+}
+
+// ── Countdown Timer ──────────────────────────────────────────
+function startCountdown(classId, targetDate) {
+  const el = document.getElementById('cd-' + classId);
+  if (!el) return;
+
+  function update() {
+    const now = new Date();
+    const diff = targetDate - now;
+    if (diff <= 0) {
+      el.innerHTML = '<span class="badge status-live"><span class="live-dot"></span> Starting now!</span>';
+      loadLiveClasses(); // Refresh to update status
+      return;
+    }
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    el.innerHTML = `
+      ${days > 0 ? `<div class="cd-unit"><div class="cd-val">${days}</div><div class="cd-label">Days</div></div>` : ''}
+      <div class="cd-unit"><div class="cd-val">${String(hours).padStart(2, '0')}</div><div class="cd-label">Hours</div></div>
+      <div class="cd-unit"><div class="cd-val">${String(mins).padStart(2, '0')}</div><div class="cd-label">Min</div></div>
+      <div class="cd-unit"><div class="cd-val">${String(secs).padStart(2, '0')}</div><div class="cd-label">Sec</div></div>
+    `;
+  }
+  update();
+  const interval = setInterval(update, 1000);
+  countdownIntervals.push(interval);
+}
+
+let activeClassId = null;
+
+// ── Join Class (Jitsi Embed) ─────────────────────────────────
+function joinClass(classId, meetLink, title) {
+  activeClassId = classId;
+  const section = document.getElementById('jitsi-section');
+  const container = document.getElementById('jitsi-container');
+  const externalBtn = document.getElementById('jitsi-external-btn');
+  const endBtn = document.getElementById('jitsi-end-btn');
+
+  document.getElementById('jitsi-title').textContent = title;
+  externalBtn.href = meetLink;
+
+  if (currentUser.role === 'teacher') {
+    endBtn.style.display = 'inline-flex';
+  } else {
+    endBtn.style.display = 'none';
+  }
+
+  // Extract room name from Jitsi URL
+  const roomName = meetLink.replace('https://meet.jit.si/', '');
+  const prefix = currentUser.role === 'teacher' ? 'Prof. ' : '';
+  const displayName = encodeURIComponent(prefix + (currentUser.name || currentUser.email || 'Participant'));
+  const jitsiUrl = `https://meet.jit.si/${roomName}#userInfo.displayName="${displayName}"&config.prejoinConfig.enabled=false`;
+
+  container.innerHTML = `<iframe src="${jitsiUrl}" allow="camera; microphone; display-capture; autoplay; clipboard-write" allowfullscreen style="width:100%; height:100%; border:none;"></iframe>`;
+  section.style.display = 'block';
+  section.scrollIntoView({ behavior: 'smooth' });
+}
+
+function leaveClass() {
+  if (confirm('Leave the live class room?')) {
+    document.getElementById('jitsi-container').innerHTML = '';
+    document.getElementById('jitsi-section').style.display = 'none';
+    activeClassId = null;
+    showToast('Left the live room.', 'info');
+  }
+}
+
+async function startClassNow(classId, meetLink, title) {
+  try {
+    await db.collection('liveClasses').doc(classId).update({
+      status: 'live'
+    });
+    showToast('Class is now LIVE! Connecting to room...', 'success');
+    joinClass(classId, meetLink, title);
+    loadLiveClasses();
+  } catch (err) {
+    showToast('Error starting class: ' + err.message, 'error');
+  }
+}
+
+async function endClassNow(classId) {
+  if (confirm('End this live class session? Students will be notified that the session has concluded.')) {
+    try {
+      await db.collection('liveClasses').doc(classId).update({
+        status: 'ended'
+      });
+      if (activeClassId === classId) {
+        document.getElementById('jitsi-container').innerHTML = '';
+        document.getElementById('jitsi-section').style.display = 'none';
+        activeClassId = null;
+      }
+      showToast('Class ended. You can now upload the session recording.', 'info');
+      loadLiveClasses();
+    } catch (err) {
+      showToast('Error ending class: ' + err.message, 'error');
+    }
+  }
+}
+
+function endClassFromPlayer() {
+  if (activeClassId) {
+    endClassNow(activeClassId);
+  }
+}
+
+// ── Edit Class ───────────────────────────────────────────────
+function editClass(classId) {
+  const cls = allClasses.find(c => c.id === classId);
+  if (!cls) return;
+
+  editingId = classId;
+  document.getElementById('lc-title').value = cls.title;
+  document.getElementById('lc-desc').value = cls.description || '';
+  document.getElementById('lc-duration').value = cls.duration || 60;
+  document.getElementById('lc-course').value = cls.courseId || '';
+  document.getElementById('lc-link').value = cls.meetLink || '';
+
+  const scheduled = cls.scheduledAt?.toDate ? cls.scheduledAt.toDate() : new Date(cls.scheduledAt);
+  const iso = new Date(scheduled.getTime() - scheduled.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  document.getElementById('lc-datetime').value = iso;
+
+  document.querySelector('#create-modal .modal-header h3').textContent = '✏️ Edit Live Class';
+  document.getElementById('btn-save-class').innerHTML = '<i class="fas fa-save"></i> Save Changes';
+  document.getElementById('create-modal').style.display = 'flex';
+}
+
+// ── Delete Class ─────────────────────────────────────────────
+async function deleteClass(classId) {
+  if (!confirm('Are you sure you want to delete this live class?')) return;
+  showLoading();
+  try {
+    await db.collection('liveClasses').doc(classId).delete();
+    showToast('Live class deleted.', 'success');
+    await loadLiveClasses();
+  } catch (err) {
+    showToast('Error deleting class.', 'error');
+    console.error(err);
+  }
+  hideLoading();
+}
+
+// ── Filter ───────────────────────────────────────────────────
+function filterClasses(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderClasses();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  markActiveNavLink();
+});
+</script>
+</body>
+</html>
+

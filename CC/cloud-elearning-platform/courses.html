@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Courses — CloudLearn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+  <aside class="sidebar student-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-cloud"></i></div>
+      <div class="sidebar-brand-text"><div class="brand-name">CloudLearn</div><div class="brand-sub">Student Portal</div></div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info"><div class="name" id="sidebar-name">Loading...</div><div class="role-tag">🎓 Student</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main Menu</div>
+      <a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="courses.html" class="nav-link active"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="courses.html#browse" class="nav-link"><i class="fas fa-search"></i> Browse Courses</a>
+      <div class="nav-section-label">Learning</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-alt"></i> Study Materials</a>
+      <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quizzes</a>
+      <a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <a href="results.html" class="nav-link"><i class="fas fa-star"></i> Results</a>
+      <a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i> My Progress</a>
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="student-dashboard.html#calendar" class="nav-link"><i class="fas fa-calendar-alt"></i> Calendar</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer"><button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
+  </aside>
+  <main class="main-content">
+    <header class="top-nav">
+      <div class="flex items-center gap-2">
+        <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
+        <span class="top-nav-title">My Courses</span>
+      </div>
+      <div class="top-nav-right">
+        <a href="announcements.html" class="notif-btn"><i class="fas fa-bell"></i><span class="notif-dot"></span></a>
+        <a href="profile.html" class="top-avatar user-avatar-initials">?</a>
+      </div>
+    </header>
+    <div class="page-content">
+      <!-- Search & Filter -->
+      <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px;position:relative">
+          <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gray-400)"></i>
+          <input type="text" id="course-search" class="form-control" style="padding-left:40px" placeholder="Search courses..." />
+        </div>
+        <select id="category-filter" class="form-control" style="max-width:180px">
+          <option value="">All Categories</option>
+          <option value="cloud">Cloud Computing</option>
+          <option value="ai">Artificial Intelligence</option>
+          <option value="programming">Programming</option>
+          <option value="data">Data Science</option>
+          <option value="web">Web Development</option>
+          <option value="database">Database</option>
+        </select>
+        <button id="browse-toggle" class="btn btn-primary btn-sm" onclick="toggleView()">
+          <i class="fas fa-globe"></i> Browse All
+        </button>
+      </div>
+
+      <!-- Enrolled Courses -->
+      <div id="enrolled-section">
+        <div class="section-hdr" style="margin-bottom:20px">
+          <h2 class="section-title" style="margin-bottom:0">My Enrolled Courses</h2>
+          <span id="enrolled-count" class="badge badge-primary">Loading...</span>
+        </div>
+        <div class="courses-grid" id="enrolled-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray-400)">
+            <i class="fas fa-spinner fa-spin" style="font-size:2rem"></i><p>Loading courses...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browse All Courses -->
+      <div id="browse-section" style="margin-top:40px">
+        <div class="section-hdr" style="margin-bottom:20px">
+          <h2 class="section-title" style="margin-bottom:0" id="browse-section-title">Browse All Courses</h2>
+          <span id="all-count" class="badge badge-info">Loading...</span>
+        </div>
+        <div class="courses-grid" id="all-courses-grid">
+          <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray-400)">
+            <i class="fas fa-spinner fa-spin" style="font-size:2rem"></i><p>Loading courses...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="toast-container"></div>
+
+<!-- Enrollment Confirm Modal -->
+<div id="enroll-modal" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-heading);font-weight:700;color:var(--gray-900)">Enroll in Course</h3>
+      <button class="modal-close" onclick="closeEnrollModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--gray-600)" id="enroll-modal-text">Are you sure you want to enroll in this course?</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="closeEnrollModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="confirm-enroll-btn" onclick="confirmEnroll()">
+        <i class="fas fa-check"></i> Enroll Now
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+requireAuth('student');
+
+let currentUserId = null;
+let enrolledCourseIds = new Set();
+let selectedCourseId = null;
+let selectedCourseName = '';
+
+document.addEventListener('userReady', async (e) => {
+  const user = e.detail;
+  currentUserId = user.uid;
+  document.getElementById('sidebar-name').textContent = user.name;
+  setAvatarInitials(user.name);
+
+  // Check if opened with #browse hash
+  if (window.location.hash === '#browse') {
+    document.getElementById('enrolled-section').style.display = 'none';
+  }
+
+  await loadEnrollments(user.uid);
+  await loadAllCourses(user.uid);
+});
+
+async function loadEnrollments(uid) {
+  try {
+    const snap = await db.collection('enrollments').where('studentId','==',uid).get();
+    enrolledCourseIds = new Set(snap.docs.map(d => d.data().courseId));
+    document.getElementById('enrolled-count').textContent = snap.size + ' Courses';
+
+    if (snap.empty) {
+      document.getElementById('enrolled-grid').innerHTML = `
+        <div style="grid-column:1/-1" class="empty-state">
+          <i class="fas fa-book-open"></i>
+          <p>You haven't enrolled in any courses yet.</p>
+          <p style="margin-top:8px;font-size:.85rem">Browse courses below to get started!</p>
+        </div>`;
+      return;
+    }
+
+    const cards = await Promise.all(snap.docs.map(async (doc) => {
+      const enrol = doc.data();
+      try {
+        const courseDoc = await db.collection('courses').doc(enrol.courseId).get();
+        if (!courseDoc.exists) return '';
+        const c = courseDoc.data();
+        const progress = enrol.progress || 0;
+        return buildCourseCard(courseDoc.id, c, progress, true);
+      } catch { return ''; }
+    }));
+
+    document.getElementById('enrolled-grid').innerHTML = cards.filter(Boolean).join('') ||
+      '<div style="grid-column:1/-1" class="empty-state"><i class="fas fa-book-open"></i><p>No courses found.</p></div>';
+
+  } catch(err) {
+    document.getElementById('enrolled-grid').innerHTML = '<div style="grid-column:1/-1" class="alert alert-danger">Error loading courses.</div>';
+  }
+}
+
+async function loadAllCourses(uid) {
+  try {
+    const snap = await db.collection('courses').orderBy('createdAt','desc').get();
+    document.getElementById('all-count').textContent = snap.size + ' Courses';
+
+    if (snap.empty) {
+      document.getElementById('all-courses-grid').innerHTML = `
+        <div style="grid-column:1/-1" class="empty-state">
+          <i class="fas fa-graduation-cap"></i>
+          <p>No courses available yet.</p>
+          <p style="font-size:.85rem;margin-top:8px">Ask your teacher to create courses.</p>
+        </div>`;
+      return;
+    }
+
+    const cards = snap.docs.map(doc => {
+      const c = doc.data();
+      const isEnrolled = enrolledCourseIds.has(doc.id);
+      return buildCourseCard(doc.id, c, 0, isEnrolled, true);
+    });
+
+    document.getElementById('all-courses-grid').innerHTML = cards.join('');
+  } catch(err) {
+    // If no 'createdAt' index, try without order
+    try {
+      const snap2 = await db.collection('courses').get();
+      document.getElementById('all-count').textContent = snap2.size + ' Courses';
+      const cards = snap2.docs.map(doc => {
+        const c = doc.data();
+        const isEnrolled = enrolledCourseIds.has(doc.id);
+        return buildCourseCard(doc.id, c, 0, isEnrolled, true);
+      });
+      document.getElementById('all-courses-grid').innerHTML = cards.join('') ||
+        '<div style="grid-column:1/-1" class="empty-state"><i class="fas fa-graduation-cap"></i><p>No courses available yet.</p></div>';
+    } catch(e2) {
+      document.getElementById('all-courses-grid').innerHTML = '<div style="grid-column:1/-1" class="alert alert-warning">Error loading courses. Try refreshing.</div>';
+    }
+  }
+}
+
+function buildCourseCard(courseId, c, progress, isEnrolled, showEnroll = false) {
+  const emoji = getCourseEmoji(c.category);
+  const gradients = ['var(--grad-primary)','var(--grad-secondary)','linear-gradient(135deg,#10b981,#3b82f6)','linear-gradient(135deg,#f59e0b,#ef4444)'];
+  const grad = gradients[Math.abs(courseId.charCodeAt(0) - 65) % gradients.length];
+  return `
+    <div class="course-card">
+      <div class="course-card-img" style="background:${grad}">
+        ${c.imageUrl ? `<img src="${c.imageUrl}" alt="${c.courseName}" style="width:100%;height:100%;object-fit:cover" />` : `<span style="font-size:3rem">${emoji}</span>`}
+        ${isEnrolled ? '<span class="badge badge-success" style="position:absolute;top:12px;right:12px">Enrolled</span>' : ''}
+      </div>
+      <div class="course-card-body">
+        <div class="course-card-category">${c.category || 'General'}</div>
+        <div class="course-card-title">${c.courseName || 'Untitled Course'}</div>
+        <div class="course-card-instructor"><i class="fas fa-user-tie" style="color:var(--primary)"></i> ${c.instructor || 'Instructor'}</div>
+        ${isEnrolled ? `
+          <div class="course-progress-label"><span>Progress</span><span>${progress}%</span></div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${progress}%"></div></div>
+        ` : `<p style="font-size:.82rem;color:var(--gray-500);line-height:1.6;margin-bottom:8px">${(c.description||'').substring(0,90)}${(c.description||'').length>90?'...':''}</p>`}
+        <div class="course-card-footer" style="margin-top:14px">
+          ${isEnrolled
+            ? `<a href="manage-materials.html?course=${courseId}" class="btn btn-primary btn-sm" style="flex:1;justify-content:center"><i class="fas fa-play"></i> Continue</a>`
+            : `<button class="btn btn-primary btn-sm" style="flex:1;justify-content:center" onclick="openEnrollModal('${courseId}','${(c.courseName||'').replace(/'/g,"\\'")}')"><i class="fas fa-plus"></i> Enroll</button>`
+          }
+          <a href="course-details.html?id=${courseId}" class="btn btn-secondary btn-sm"><i class="fas fa-info-circle"></i></a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function openEnrollModal(courseId, courseName) {
+  selectedCourseId = courseId;
+  selectedCourseName = courseName;
+  document.getElementById('enroll-modal-text').textContent = `Are you sure you want to enroll in "${courseName}"?`;
+  document.getElementById('enroll-modal').style.display = 'flex';
+}
+function closeEnrollModal() {
+  document.getElementById('enroll-modal').style.display = 'none';
+}
+
+async function confirmEnroll() {
+  if (!selectedCourseId || !currentUserId) return;
+  const btn = document.getElementById('confirm-enroll-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enrolling...';
+
+  try {
+    // Check duplicate
+    const existing = await db.collection('enrollments')
+      .where('studentId','==',currentUserId)
+      .where('courseId','==',selectedCourseId)
+      .get();
+
+    if (!existing.empty) {
+      showToast('You are already enrolled in this course.', 'warning');
+      closeEnrollModal();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-check"></i> Enroll Now';
+      return;
+    }
+
+    await db.collection('enrollments').add({
+      studentId:  currentUserId,
+      courseId:   selectedCourseId,
+      progress:   0,
+      enrolledAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    enrolledCourseIds.add(selectedCourseId);
+    showToast(`Successfully enrolled in "${selectedCourseName}"! 🎉`, 'success');
+    closeEnrollModal();
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check"></i> Enroll Now';
+
+    // Reload
+    await loadEnrollments(currentUserId);
+    await loadAllCourses(currentUserId);
+  } catch(err) {
+    showToast('Enrollment failed: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check"></i> Enroll Now';
+  }
+}
+
+// Search filter
+document.getElementById('course-search').addEventListener('input', filterCourses);
+document.getElementById('category-filter').addEventListener('change', filterCourses);
+
+function filterCourses() {
+  const search = document.getElementById('course-search').value.toLowerCase();
+  const cat    = document.getElementById('category-filter').value.toLowerCase();
+  document.querySelectorAll('.course-card').forEach(card => {
+    const name     = card.querySelector('.course-card-title')?.textContent?.toLowerCase() || '';
+    const category = card.querySelector('.course-card-category')?.textContent?.toLowerCase() || '';
+    const matchSearch = !search || name.includes(search);
+    const matchCat    = !cat || category.includes(cat);
+    card.parentElement.style.display = matchSearch && matchCat ? '' : 'none';
+  });
+}
+
+function toggleView() {
+  const enrolled = document.getElementById('enrolled-section');
+  const btn = document.getElementById('browse-toggle');
+  if (enrolled.style.display === 'none') {
+    enrolled.style.display = '';
+    btn.innerHTML = '<i class="fas fa-globe"></i> Browse All';
+  } else {
+    enrolled.style.display = 'none';
+    btn.innerHTML = '<i class="fas fa-book"></i> My Courses';
+  }
+}
+
+function getCourseEmoji(category) {
+  const map = { cloud:'☁️', ai:'🧠', ml:'🤖', programming:'💻', python:'🐍', data:'📊', web:'🌐', database:'🗄️', default:'📚' };
+  return map[(category||'').toLowerCase()] || map.default;
+}
+
+document.addEventListener('DOMContentLoaded', () => { initSidebarToggle(); markActiveNavLink(); });
+</script>
+</body>
+</html>
+

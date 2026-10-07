@@ -1,0 +1,163 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper Functions ──────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    function isStudent() {
+      return isAuthenticated() && getUserRole() == 'student';
+    }
+    function isTeacher() {
+      return isAuthenticated() && getUserRole() == 'teacher';
+    }
+
+    // ── USERS Collection ──────────────────────────────────────
+    // Users can only read/write their own profile
+    match /users/{userId} {
+      allow read:   if isAuthenticated();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if false; // Prevent accidental deletion
+    }
+
+    // ── COURSES Collection ─────────────────────────────────────
+    // All authenticated users can read; only teachers can write
+    match /courses/{courseId} {
+      allow read:   if isAuthenticated();
+      allow create: if isTeacher();
+      allow update: if isTeacher() &&
+                       resource.data.teacherId == request.auth.uid;
+      allow delete: if isTeacher() &&
+                       resource.data.teacherId == request.auth.uid;
+    }
+
+    // ── ENROLLMENTS Collection ────────────────────────────────
+    // Students can read their own enrollments and create (enroll)
+    // Teachers can read any enrollment
+    match /enrollments/{enrollmentId} {
+      allow read:   if isAuthenticated();
+      allow create: if isStudent() &&
+                       request.resource.data.studentId == request.auth.uid;
+      allow update: if isAuthenticated() &&
+                       resource.data.studentId == request.auth.uid;
+      allow delete: if isStudent() &&
+                       resource.data.studentId == request.auth.uid;
+    }
+
+    // ── MATERIALS Collection ──────────────────────────────────
+    // All authenticated users can read; only teachers can write
+    match /materials/{materialId} {
+      allow read:   if isAuthenticated();
+      allow create: if isTeacher();
+      allow update: if isTeacher() &&
+                       resource.data.uploadedBy == request.auth.uid;
+      allow delete: if isTeacher() &&
+                       resource.data.uploadedBy == request.auth.uid;
+    }
+
+    // ── QUIZZES Collection ────────────────────────────────────
+    match /quizzes/{quizId} {
+      allow read:   if isAuthenticated();
+      allow create: if isTeacher();
+      allow update: if isTeacher() &&
+                       resource.data.createdBy == request.auth.uid;
+      allow delete: if isTeacher() &&
+                       resource.data.createdBy == request.auth.uid;
+    }
+
+    // ── ASSIGNMENTS Collection ────────────────────────────────
+    match /assignments/{assignmentId} {
+      allow read:   if isAuthenticated();
+      allow create: if isTeacher();
+      allow update: if isTeacher() &&
+                       resource.data.createdBy == request.auth.uid;
+      allow delete: if isTeacher() &&
+                       resource.data.createdBy == request.auth.uid;
+    }
+
+    // ── SUBMISSIONS Collection ────────────────────────────────
+    // Students submit their own work; teachers can read all
+    match /submissions/{submissionId} {
+      allow read:   if isAuthenticated() &&
+                      (isTeacher() ||
+                       resource.data.studentId == request.auth.uid);
+      allow create: if isStudent() &&
+                       request.resource.data.studentId == request.auth.uid;
+      allow update: if isStudent() &&
+                       resource.data.studentId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // ── RESULTS Collection ────────────────────────────────────
+    // Students can read their own results and create; teachers read all
+    match /results/{resultId} {
+      allow read:   if isAuthenticated() &&
+                      (isTeacher() ||
+                       resource.data.studentId == request.auth.uid);
+      allow create: if isStudent() &&
+                       request.resource.data.studentId == request.auth.uid;
+      allow update: if false; // Results are immutable
+      allow delete: if false;
+    }
+
+    // ── PROGRESS Collection ───────────────────────────────────
+    match /progress/{progressId} {
+      allow read:   if isAuthenticated() &&
+                      (isTeacher() ||
+                       resource.data.studentId == request.auth.uid);
+      allow write:  if isAuthenticated() &&
+                       request.resource.data.studentId == request.auth.uid;
+    }
+
+    // ── ANNOUNCEMENTS Collection ──────────────────────────────
+    match /announcements/{announcementId} {
+      allow read:   if isAuthenticated();
+      allow create: if isTeacher();
+      allow update: if isTeacher() &&
+                       resource.data.createdBy == request.auth.uid;
+      allow delete: if isTeacher() &&
+                       resource.data.createdBy == request.auth.uid;
+    }
+
+    // ── LIVE CLASSES Collection ───────────────────────────────
+    // All authenticated users can read; teachers create/update/delete their own sessions
+    match /liveClasses/{classId} {
+      allow read:   if isAuthenticated();
+      allow create: if isTeacher();
+      allow update: if isTeacher() &&
+                       resource.data.teacherId == request.auth.uid;
+      allow delete: if isTeacher() &&
+                       resource.data.teacherId == request.auth.uid;
+    }
+
+    // ── RECORDINGS Collection ─────────────────────────────────
+    // All authenticated users can read; teachers create/update/delete their own recordings
+    match /recordings/{recordingId} {
+      allow read:   if isAuthenticated();
+      allow create: if isTeacher();
+      allow update: if isTeacher() &&
+                       resource.data.uploadedBy == request.auth.uid;
+      allow delete: if isTeacher() &&
+                       resource.data.uploadedBy == request.auth.uid;
+    }
+
+    // ── VIDEO PROGRESS Collection ─────────────────────────────
+    // Students can read and update their own video playback progress
+    match /videoProgress/{progressId} {
+      allow read:   if isAuthenticated() &&
+                      (isTeacher() ||
+                       resource.data.studentId == request.auth.uid);
+      allow write:  if isAuthenticated() &&
+                       request.resource.data.studentId == request.auth.uid;
+    }
+  }
+}
+

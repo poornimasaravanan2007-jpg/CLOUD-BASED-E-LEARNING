@@ -1,0 +1,312 @@
+/* ================================================================
+   STUDENT PORTAL STYLES — cloud-elearning-platform/css/student.css
+   ================================================================ */
+
+/* ── Student Sidebar ── */
+.student-sidebar {
+  background: linear-gradient(180deg, #1e1b4b 0%, #312e81 60%, #1e1b4b 100%);
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-brand {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sidebar-brand-icon {
+  width: 44px; height: 44px;
+  background: var(--grad-primary);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.sidebar-brand-text .brand-name {
+  font-family: var(--font-heading);
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+}
+.sidebar-brand-text .brand-sub {
+  font-size: .72rem;
+  color: rgba(255,255,255,.5);
+}
+
+/* ── Student Avatar ── */
+.student-avatar-wrap {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--grad-secondary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  color: var(--white);
+  font-size: 1rem;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,.2);
+}
+.avatar-info .name {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--white);
+}
+.avatar-info .role-tag {
+  font-size: .72rem;
+  color: var(--secondary);
+  font-weight: 500;
+}
+
+/* ── Nav Links ── */
+.sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+.nav-section-label {
+  font-size: .65rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.35);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: 12px 8px 6px;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  color: rgba(255,255,255,.7);
+  font-size: .88rem;
+  font-weight: 500;
+  transition: var(--transition);
+  margin-bottom: 2px;
+  position: relative;
+}
+.nav-link i {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.nav-link:hover {
+  background: rgba(255,255,255,.1);
+  color: var(--white);
+  transform: translateX(4px);
+}
+.nav-link.active {
+  background: linear-gradient(135deg, rgba(79,70,229,.7), rgba(124,58,237,.5));
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(79,70,229,.3);
+}
+.nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 60%;
+  background: var(--primary-light);
+  border-radius: 0 3px 3px 0;
+}
+.nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: var(--white);
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.btn-logout {
+  width: 100%;
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  color: rgba(255,255,255,.6);
+  font-size: .88rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+.btn-logout:hover { background: rgba(239,68,68,.2); color: #fca5a5; }
+
+/* ── Top Navigation ── */
+.top-nav-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--gray-800);
+}
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.notif-btn {
+  position: relative;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--gray-100);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gray-500);
+  font-size: 1.05rem;
+  transition: var(--transition);
+}
+.notif-btn:hover { background: var(--gray-200); color: var(--primary); }
+.notif-dot {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 8px; height: 8px;
+  background: var(--danger);
+  border-radius: 50%;
+  border: 2px solid var(--white);
+}
+.top-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--grad-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  color: var(--white);
+  font-size: .9rem;
+  cursor: pointer;
+  border: 2px solid var(--primary-light);
+}
+
+/* ── Dashboard Welcome Banner ── */
+.welcome-banner {
+  background: var(--grad-primary);
+  border-radius: var(--radius-lg);
+  padding: 32px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  overflow: hidden;
+  position: relative;
+}
+.welcome-banner::before {
+  content: '';
+  position: absolute;
+  right: -40px; top: -40px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,.06);
+  border-radius: 50%;
+}
+.welcome-banner::after {
+  content: '';
+  position: absolute;
+  right: 60px; bottom: -60px;
+  width: 150px; height: 150px;
+  background: rgba(255,255,255,.04);
+  border-radius: 50%;
+}
+.welcome-text h1 {
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.welcome-text p { color: rgba(255,255,255,.75); font-size: .95rem; }
+.welcome-emoji { font-size: 3rem; position: relative; z-index: 1; }
+
+/* ── Stat Cards ── */
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 1px solid var(--gray-100);
+}
+.stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.stat-icon {
+  width: 52px; height: 52px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.stat-icon.purple { background: #ede9fe; color: var(--primary); }
+.stat-icon.blue   { background: #dbeafe; color: var(--info); }
+.stat-icon.green  { background: #d1fae5; color: var(--success); }
+.stat-icon.orange { background: #fef3c7; color: #d97706; }
+.stat-icon.red    { background: #fee2e2; color: var(--danger); }
+.stat-icon.cyan   { background: #cffafe; color: #0e7490; }
+.stat-value {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1;
+}
+.stat-label { font-size: .8rem; color: var(--gray-500); margin-top: 4px; }
+
+/* ── Course Card ── */
+.course-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 1px solid var(--gray-100);
+}
+.course-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.course-card-img {
+  height: 160px;
+  background: var(--grad-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+.course-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.course-card-body { padding: 20px; }
+.course-card-category {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+.course-card-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.course-card-instructor {
+  font-size: .82rem;
+  color: var(--gray-500);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.course-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: .78rem;
+  color: var(--gray-500);
+  margin-bottom: 6px;
+}
+.course-card-footer {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.course-card-footer .btn { flex: 1; justify-content: center; }

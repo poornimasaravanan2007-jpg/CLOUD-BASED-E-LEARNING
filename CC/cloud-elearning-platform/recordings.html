@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Recordings — CloudLearn</title>
+  <meta name="description" content="Watch recorded live class sessions and teacher-uploaded video content on CloudLearn." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/teacher.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    /* ── Topbar ── */
+    .topbar { position: sticky; top: 0; z-index: 400; height: 68px; background: var(--white); border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; box-shadow: var(--shadow-sm); }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .page-title { font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700; color: var(--gray-900); }
+    .page-sub { font-size: .8rem; color: var(--gray-500); }
+    .content-area { padding: 28px; }
+
+    /* ── Recording Card ── */
+    .rec-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      transition: var(--transition);
+    }
+    .rec-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .rec-thumb {
+      height: 180px;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4f46e5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .rec-thumb video {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .rec-thumb-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,.35);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: var(--transition);
+    }
+    .rec-thumb:hover .rec-thumb-overlay { opacity: 1; }
+    .rec-play-btn {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.9);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary);
+      font-size: 1.5rem;
+      box-shadow: var(--shadow-lg);
+      transition: var(--transition);
+    }
+    .rec-play-btn:hover { transform: scale(1.1); }
+    .rec-duration-badge {
+      position: absolute;
+      bottom: 10px; right: 10px;
+      background: rgba(0,0,0,.75);
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: .72rem;
+      font-weight: 600;
+    }
+    .rec-body { padding: 18px; }
+    .rec-course { font-size: .75rem; color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .rec-title { font-family: var(--font-heading); font-size: .95rem; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; line-height: 1.4; }
+    .rec-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: .78rem; color: var(--gray-500); margin-bottom: 14px; }
+    .rec-meta i { margin-right: 4px; }
+    .rec-footer { display: flex; gap: 8px; }
+
+    /* ── Grid ── */
+    .rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+    @media (max-width: 640px) { .rec-grid { grid-template-columns: 1fr; } }
+
+    /* ── Video Player Modal ── */
+    .video-player-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9000;
+      backdrop-filter: blur(8px);
+      animation: fadeIn .2s ease;
+    }
+    .video-player-box {
+      width: 90%; max-width: 900px;
+      background: var(--gray-900);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      animation: scaleIn .25s ease;
+    }
+    .vp-header {
+      padding: 14px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255,255,255,.05);
+    }
+    .vp-header h3 { color: var(--white); font-size: .95rem; font-weight: 600; }
+    .vp-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.1); color: var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
+    .vp-close:hover { background: rgba(255,255,255,.2); }
+    .vp-video { width: 100%; aspect-ratio: 16/9; background: #000; }
+    .vp-video video { width: 100%; height: 100%; }
+
+    /* ── Upload Progress ── */
+    .upload-progress-wrap {
+      margin-top: 16px;
+      display: none;
+    }
+    .upload-progress-label {
+      display: flex; justify-content: space-between;
+      font-size: .82rem; color: var(--gray-600);
+      margin-bottom: 6px;
+    }
+    .upload-progress-bar { height: 10px; background: var(--gray-200); border-radius: var(--radius-full); overflow: hidden; }
+    .upload-progress-fill { height: 100%; background: var(--grad-primary); border-radius: var(--radius-full); transition: width .3s ease; width: 0%; }
+
+    /* ── Filter ── */
+    .filter-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+    .filter-row select { padding: 10px 16px; border: 2px solid var(--gray-200); border-radius: var(--radius-full); font-size: .85rem; outline: none; transition: var(--transition); cursor: pointer; }
+    .filter-row select:focus { border-color: var(--primary); }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub" id="portal-label">Faculty Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag" id="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Navigation" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Class Recordings</h1>
+          <p class="page-sub">Watch recorded sessions and uploaded videos</p>
+        </div>
+      </div>
+      <div class="topbar-right" id="upload-btn-wrap">
+        <button class="btn btn-primary btn-sm" onclick="openUploadModal()" id="btn-upload">
+          <i class="fas fa-upload"></i> Upload Recording
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- Filter Row -->
+      <div class="filter-row">
+        <select id="filter-course" onchange="filterRecordings()">
+          <option value="">All Courses</option>
+        </select>
+        <select id="filter-sort" onchange="filterRecordings()">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="title">By Title</option>
+        </select>
+      </div>
+
+      <!-- Recordings Grid -->
+      <div class="rec-grid" id="recordings-grid">
+        <!-- Skeleton -->
+        <div class="rec-card" style="opacity:.5">
+          <div style="height:180px;background:var(--gray-100);animation:pulse 1.5s infinite"></div>
+          <div style="padding:18px">
+            <div style="height:12px;width:40%;background:var(--gray-100);border-radius:8px;margin-bottom:10px;animation:pulse 1.5s .1s infinite"></div>
+            <div style="height:16px;width:70%;background:var(--gray-100);border-radius:8px;margin-bottom:12px;animation:pulse 1.5s .2s infinite"></div>
+            <div style="height:10px;width:50%;background:var(--gray-100);border-radius:8px;animation:pulse 1.5s .3s infinite"></div>
+          </div>
+        </div>
+        <div class="rec-card" style="opacity:.5">
+          <div style="height:180px;background:var(--gray-100);animation:pulse 1.5s infinite"></div>
+          <div style="padding:18px">
+            <div style="height:12px;width:40%;background:var(--gray-100);border-radius:8px;margin-bottom:10px;animation:pulse 1.5s .1s infinite"></div>
+            <div style="height:16px;width:70%;background:var(--gray-100);border-radius:8px;margin-bottom:12px;animation:pulse 1.5s .2s infinite"></div>
+            <div style="height:10px;width:50%;background:var(--gray-100);border-radius:8px;animation:pulse 1.5s .3s infinite"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="empty-state" style="display:none">
+        <i class="fas fa-play-circle" style="color:var(--gray-300)"></i>
+        <p>No recordings available yet.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════
+     UPLOAD RECORDING MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="upload-modal" style="display:none">
+  <div class="modal-box" style="max-width:600px">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-heading); font-size:1.1rem">🎬 Upload Recording</h3>
+      <button class="modal-close" onclick="closeUploadModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Course *</label>
+        <select class="form-control" id="rec-course">
+          <option value="">Select a course...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Related Live Class</label>
+        <select class="form-control" id="rec-class">
+          <option value="">None (standalone recording)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Recording Title *</label>
+        <input type="text" class="form-control" id="rec-title" placeholder="e.g., Lecture 5 — AWS S3 Deep Dive" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="rec-desc" rows="2" placeholder="Brief description..."></textarea>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+        <div class="form-group">
+          <label class="form-label">Recording Date</label>
+          <input type="date" class="form-control" id="rec-date" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (e.g., 1h 30m)</label>
+          <input type="text" class="form-control" id="rec-duration" placeholder="45m" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Video File * <span style="font-weight:400; color:var(--gray-400)">(MP4, WebM, MOV — max 1GB)</span></label>
+        <div style="border:2px dashed var(--gray-300); border-radius:var(--radius-lg); padding:32px 24px; text-align:center; cursor:pointer; transition:var(--transition); background:var(--gray-50)" onclick="document.getElementById('rec-file').click()" id="rec-drop-zone">
+          <i class="fas fa-cloud-upload-alt" style="font-size:2.5rem; color:var(--gray-300); margin-bottom:12px"></i>
+          <p style="font-size:.9rem; color:var(--gray-600); font-weight:600" id="rec-file-label">Click to select a video file</p>
+          <p style="font-size:.78rem; color:var(--gray-400); margin-top:4px">or drag & drop here</p>
+        </div>
+        <input type="file" id="rec-file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov" style="display:none" onchange="handleFileSelect(this)" />
+      </div>
+      <!-- Upload Progress -->
+      <div class="upload-progress-wrap" id="upload-progress-wrap">
+        <div class="upload-progress-label">
+          <span id="upload-status">Uploading...</span>
+          <span id="upload-percent">0%</span>
+        </div>
+        <div class="upload-progress-bar">
+          <div class="upload-progress-fill" id="upload-progress-fill"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="closeUploadModal()" id="btn-cancel-upload">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="uploadRecording()" id="btn-do-upload"><i class="fas fa-upload"></i> Upload</button>
+    </div>
+  </div>
+</div>
+
+<!-- Video Player Overlay -->
+<div id="video-player" style="display:none"></div>
+
+<div id="toast-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+const styleEl = document.createElement('style');
+styleEl.textContent = `@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }`;
+document.head.appendChild(styleEl);
+
+requireAuth(null);
+initSidebarToggle();
+
+let currentUser = null;
+let allRecordings = [];
+let selectedFile = null;
+let uploadTask = null;
+
+document.addEventListener('userReady', async (e) => {
+  currentUser = e.detail;
+  setAvatarInitials(currentUser.name || currentUser.email);
+  document.getElementById('sidebar-name').textContent = currentUser.name || currentUser.email;
+  setupSidebar(currentUser.role);
+
+  if (currentUser.role === 'student') {
+    document.getElementById('upload-btn-wrap').style.display = 'none';
+  }
+
+  await loadCourses();
+  await loadEndedClasses();
+  await loadRecordings();
+
+  // Auto-open upload if coming from live-classes page
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('upload') === 'true' && currentUser.role === 'teacher') {
+    const classId = params.get('classId');
+    if (classId) document.getElementById('rec-class').value = classId;
+    openUploadModal();
+  }
+});
+
+function setupSidebar(role) {
+  if (role === 'student') {
+    document.getElementById('sidebar').classList.remove('teacher-sidebar');
+    document.getElementById('sidebar').classList.add('student-sidebar');
+    document.querySelector('.sidebar-brand-icon').innerHTML = '<i class="fas fa-cloud"></i>';
+    document.getElementById('portal-label').textContent = 'Student Portal';
+    document.getElementById('role-tag').textContent = '🎓 Student';
+    document.getElementById('sidebar-nav').innerHTML = `
+      <div class="nav-section-label">Main Menu</div>
+      <a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <div class="nav-section-label">Learning</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-alt"></i> Study Materials</a>
+      <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quizzes</a>
+      <a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <a href="results.html" class="nav-link"><i class="fas fa-star"></i> Results</a>
+      <a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i> My Progress</a>
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link active"><i class="fas fa-play-circle"></i> Recordings</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    `;
+  } else {
+    document.getElementById('sidebar-nav').innerHTML = `
+      <div class="nav-section-label">Main</div>
+      <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="manage-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="create-course.html" class="nav-link"><i class="fas fa-plus-circle"></i> Create Course</a>
+      <div class="nav-section-label">Content</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-upload"></i> Manage Materials</a>
+      <a href="manage-quizzes.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+      <a href="manage-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link active"><i class="fas fa-play-circle"></i> Recordings</a>
+      <div class="nav-section-label">Students</div>
+      <a href="students.html" class="nav-link"><i class="fas fa-users"></i> Students</a>
+      <a href="student-performance.html" class="nav-link"><i class="fas fa-chart-bar"></i> Performance</a>
+      <a href="course-analytics.html" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    `;
+  }
+}
+
+// ── Load Courses ─────────────────────────────────────────────
+async function loadCourses() {
+  try {
+    let query;
+    if (currentUser.role === 'teacher') {
+      query = db.collection('courses').where('teacherId', '==', currentUser.uid);
+    } else {
+      query = db.collection('courses');
+    }
+    const snap = await query.get();
+    const filterSel = document.getElementById('filter-course');
+    const recSel = document.getElementById('rec-course');
+    snap.forEach(doc => {
+      const c = doc.data();
+      const name = c.courseName || c.title || 'Untitled';
+      filterSel.innerHTML += `<option value="${doc.id}">${name}</option>`;
+      recSel.innerHTML += `<option value="${doc.id}">${name}</option>`;
+    });
+  } catch (err) { console.error(err); }
+}
+
+// ── Load Ended Live Classes (for linking recordings) ─────────
+async function loadEndedClasses() {
+  if (currentUser.role !== 'teacher') return;
+  try {
+    const snap = await db.collection('liveClasses')
+      .where('teacherId', '==', currentUser.uid)
+      .where('status', '==', 'ended')
+      .get();
+    const sel = document.getElementById('rec-class');
+    snap.forEach(doc => {
+      const c = doc.data();
+      sel.innerHTML += `<option value="${doc.id}">${c.title} (${c.scheduledAt?.toDate ? c.scheduledAt.toDate().toLocaleDateString() : ''})</option>`;
+    });
+  } catch (err) { console.error(err); }
+}
+
+// ── Load Recordings ──────────────────────────────────────────
+async function loadRecordings() {
+  try {
+    let snap;
+    try {
+      snap = await db.collection('recordings').orderBy('createdAt', 'desc').get();
+    } catch (e) {
+      snap = await db.collection('recordings').get();
+    }
+    allRecordings = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    allRecordings.sort((a, b) => {
+      const tA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt || 0).getTime();
+      const tB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt || 0).getTime();
+      return tB - tA;
+    });
+    renderRecordings();
+  } catch (err) {
+    console.error('Error loading recordings:', err);
+    document.getElementById('recordings-grid').innerHTML = '<div class="alert alert-danger">Error loading recordings.</div>';
+  }
+}
+
+function renderRecordings() {
+  const grid = document.getElementById('recordings-grid');
+  const empty = document.getElementById('empty-state');
+
+  let filtered = [...allRecordings];
+
+  // Filter by course
+  const courseFilter = document.getElementById('filter-course').value;
+  if (courseFilter) filtered = filtered.filter(r => r.courseId === courseFilter);
+
+  // Sort
+  const sort = document.getElementById('filter-sort').value;
+  if (sort === 'oldest') filtered.reverse();
+  else if (sort === 'title') filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(rec => {
+    const date = rec.recordedDate
+      ? new Date(rec.recordedDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
+      : (rec.createdAt?.toDate ? rec.createdAt.toDate().toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A');
+
+    const teacherActions = currentUser.role === 'teacher' ? `
+      <button class="btn btn-danger btn-sm" onclick="deleteRecording('${rec.id}', '${rec.storagePath || ''}')" title="Delete"><i class="fas fa-trash"></i></button>
+    ` : '';
+
+    return `<div class="rec-card fade-in-up">
+      <div class="rec-thumb" onclick="playRecordingById('${rec.id}')">
+        <i class="fas fa-play-circle" style="font-size:3rem; color:rgba(255,255,255,.5)"></i>
+        <div class="rec-thumb-overlay">
+          <div class="rec-play-btn"><i class="fas fa-play" style="margin-left:3px"></i></div>
+        </div>
+        ${rec.duration ? `<div class="rec-duration-badge">${rec.duration}</div>` : ''}
+      </div>
+      <div class="rec-body">
+        <div class="rec-course">${rec.courseName || 'General'}</div>
+        <div class="rec-title">${rec.title || 'Untitled Recording'}</div>
+        <div class="rec-meta">
+          <span><i class="fas fa-calendar"></i>${date}</span>
+          <span><i class="fas fa-user-tie"></i>${rec.teacherName || 'Instructor'}</span>
+          ${rec.duration ? `<span><i class="fas fa-clock"></i>${rec.duration}</span>` : ''}
+        </div>
+        <div class="rec-footer">
+          <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center" onclick="playRecordingById('${rec.id}')"><i class="fas fa-play"></i> Watch</button>
+          ${teacherActions}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterRecordings() { renderRecordings(); }
+
+// ── Smart Video URL Resolver ─────────────────────────────────
+function resolveVideoUrl(url) {
+  if (!url) return 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-576p.mp4';
+  // Fallback for hanging/blocked Google Cloud Storage sample URLs
+  if (url.includes('commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')) {
+    return 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-576p.mp4';
+  }
+  if (url.includes('commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4')) {
+    return 'https://www.w3schools.com/html/mov_bbb.mp4';
+  }
+  return url;
+}
+
+function playRecordingById(recId) {
+  const rec = allRecordings.find(r => r.id === recId);
+  if (!rec) return;
+  playVideo(rec.videoUrl, rec.title, rec.courseName);
+}
+
+// ── Video Player ─────────────────────────────────────────────
+function playVideo(rawUrl, title, courseName = '') {
+  const url = resolveVideoUrl(rawUrl);
+  const player = document.getElementById('video-player');
+  const safeTitle = (title || 'Class Recording').replace(/"/g, '&quot;');
+  const safeCourse = (courseName || '').replace(/"/g, '&quot;');
+
+  // Check if YouTube
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  // Check if Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+
+  let mediaHtml = '';
+  if (ytMatch) {
+    mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width:100%;height:100%;min-height:480px;border:none;"></iframe>`;
+  } else if (vimeoMatch) {
+    mediaHtml = `<iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;min-height:480px;border:none;"></iframe>`;
+  } else {
+    // HTML5 Video (MP4 / WebM / Firebase Storage)
+    mediaHtml = `
+      <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#000;">
+        <video id="active-video-element" controls playsinline controlslist="nodownload" preload="auto" style="width:100%; height:100%; max-height:75vh; outline:none; background:#000;">
+          <source src="${url}" type="video/mp4" />
+          <source src="${url}" type="video/webm" />
+          Your browser does not support HTML5 video.
+        </video>
+      </div>
+    `;
+  }
+
+  player.innerHTML = `
+    <div class="video-player-overlay" onclick="if(event.target===this) closePlayer()">
+      <div class="video-player-box">
+        <div class="vp-header">
+          <div>
+            ${safeCourse ? `<span style="font-size:.72rem;color:#818cf8;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2px">${safeCourse}</span>` : ''}
+            <h3 style="color:#fff;font-size:1rem;margin:0;display:flex;align-items:center;gap:8px">
+              <span>🎬</span> ${safeTitle}
+            </h3>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <select id="playback-speed-select" onchange="changeSpeed(this.value)" class="form-control" style="width:auto;padding:5px 10px;font-size:.78rem;background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2);cursor:pointer;border-radius:var(--radius-sm)">
+              <option value="0.75" style="color:#000">0.75x</option>
+              <option value="1.0" selected style="color:#000">1.0x (Normal)</option>
+              <option value="1.25" style="color:#000">1.25x</option>
+              <option value="1.5" style="color:#000">1.5x</option>
+              <option value="2.0" style="color:#000">2.0x</option>
+            </select>
+            <a href="${url}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:.76rem;padding:6px 12px;background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)" title="Open in new tab">
+              <i class="fas fa-external-link-alt"></i> Pop Out
+            </a>
+            <div class="vp-close" onclick="closePlayer()" title="Close Player"><i class="fas fa-times"></i></div>
+          </div>
+        </div>
+        <div class="vp-video">
+          ${mediaHtml}
+        </div>
+        <div style="padding:10px 20px;background:rgba(0,0,0,.6);display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:rgba(255,255,255,.6);flex-wrap:wrap;gap:8px">
+          <span>💡 Tap or click the play button above to start playback</span>
+          <a href="${url}" target="_blank" style="color:#818cf8;text-decoration:none"><i class="fas fa-download"></i> Direct Video URL</a>
+        </div>
+      </div>
+    </div>
+  `;
+  player.style.display = 'block';
+
+  // Explicitly trigger video loading and attempt play
+  const vid = document.getElementById('active-video-element');
+  if (vid) {
+    vid.src = url;
+    vid.load();
+    const p = vid.play();
+    if (p !== undefined) {
+      p.catch(e => {
+        console.log('Autoplay was prevented by browser policy (user can tap play):', e);
+      });
+    }
+  }
+}
+
+function changeSpeed(val) {
+  const vid = document.getElementById('active-video-element');
+  if (vid) {
+    vid.playbackRate = parseFloat(val);
+  }
+}
+
+function closePlayer() {
+  const player = document.getElementById('video-player');
+  const video = player.querySelector('video');
+  if (video) video.pause();
+  player.style.display = 'none';
+  player.innerHTML = '';
+}
+
+// ── File Selection ───────────────────────────────────────────
+function handleFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const maxSize = 1024 * 1024 * 1024; // 1GB
+  if (file.size > maxSize) {
+    showToast('File too large. Maximum size is 1GB.', 'error');
+    input.value = '';
+    return;
+  }
+  const validTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+  if (!validTypes.includes(file.type)) {
+    showToast('Invalid file type. Please upload MP4, WebM, or MOV.', 'error');
+    input.value = '';
+    return;
+  }
+  selectedFile = file;
+  const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+  document.getElementById('rec-file-label').innerHTML = `<i class="fas fa-check-circle" style="color:var(--success); margin-right:6px"></i> ${file.name} <span style="color:var(--gray-400)">(${sizeMB} MB)</span>`;
+  document.getElementById('rec-drop-zone').style.borderColor = 'var(--success)';
+  document.getElementById('rec-drop-zone').style.background = '#f0fdf4';
+}
+
+// ── Drag & Drop ──────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  markActiveNavLink();
+  const dropZone = document.getElementById('rec-drop-zone');
+  if (dropZone) {
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; dropZone.style.background = '#f5f3ff'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'var(--gray-300)'; dropZone.style.background = 'var(--gray-50)'; });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('rec-file').files = dt.files;
+        handleFileSelect(document.getElementById('rec-file'));
+      }
+    });
+  }
+});
+
+// ── Modal Controls ───────────────────────────────────────────
+function openUploadModal() {
+  selectedFile = null;
+  document.getElementById('rec-title').value = '';
+  document.getElementById('rec-desc').value = '';
+  document.getElementById('rec-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('rec-duration').value = '';
+  document.getElementById('rec-file').value = '';
+  document.getElementById('rec-file-label').textContent = 'Click to select a video file';
+  document.getElementById('rec-drop-zone').style.borderColor = 'var(--gray-300)';
+  document.getElementById('rec-drop-zone').style.background = 'var(--gray-50)';
+  document.getElementById('upload-progress-wrap').style.display = 'none';
+  document.getElementById('upload-progress-fill').style.width = '0%';
+  document.getElementById('btn-do-upload').disabled = false;
+  document.getElementById('upload-modal').style.display = 'flex';
+}
+
+function closeUploadModal() {
+  if (uploadTask) {
+    if (confirm('Upload in progress. Are you sure you want to cancel?')) {
+      uploadTask.cancel();
+      uploadTask = null;
+    } else { return; }
+  }
+  document.getElementById('upload-modal').style.display = 'none';
+}
+
+// ── Upload Recording to Firebase Storage ─────────────────────
+async function uploadRecording() {
+  const title = document.getElementById('rec-title').value.trim();
+  const courseId = document.getElementById('rec-course').value;
+  const classId = document.getElementById('rec-class').value;
+  const desc = document.getElementById('rec-desc').value.trim();
+  const recDate = document.getElementById('rec-date').value;
+  const duration = document.getElementById('rec-duration').value.trim();
+
+  if (!title) { showToast('Please enter a title.', 'warning'); return; }
+  if (!courseId) { showToast('Please select a course.', 'warning'); return; }
+  if (!selectedFile) { showToast('Please select a video file.', 'warning'); return; }
+
+  // Get course name
+  let courseName = 'Course';
+  try {
+    const courseDoc = await db.collection('courses').doc(courseId).get();
+    if (courseDoc.exists) courseName = courseDoc.data().courseName || courseDoc.data().title || 'Course';
+  } catch {}
+
+  // Upload to Firebase Storage
+  const fileExt = selectedFile.name.split('.').pop();
+  const storagePath = `recordings/${courseId}/${Date.now()}_${selectedFile.name}`;
+  const storageRef = storage.ref(storagePath);
+
+  document.getElementById('upload-progress-wrap').style.display = 'block';
+  document.getElementById('btn-do-upload').disabled = true;
+  document.getElementById('btn-do-upload').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+  uploadTask = storageRef.put(selectedFile);
+
+  uploadTask.on('state_changed',
+    (snapshot) => {
+      const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+      document.getElementById('upload-progress-fill').style.width = pct + '%';
+      document.getElementById('upload-percent').textContent = pct + '%';
+      const mbUploaded = (snapshot.bytesTransferred / (1024*1024)).toFixed(1);
+      const mbTotal = (snapshot.totalBytes / (1024*1024)).toFixed(1);
+      document.getElementById('upload-status').textContent = `Uploading... ${mbUploaded} / ${mbTotal} MB`;
+    },
+    (error) => {
+      console.error('Upload error:', error);
+      if (error.code === 'storage/canceled') {
+        showToast('Upload cancelled.', 'info');
+      } else {
+        showToast('Upload failed: ' + error.message, 'error');
+      }
+      document.getElementById('btn-do-upload').disabled = false;
+      document.getElementById('btn-do-upload').innerHTML = '<i class="fas fa-upload"></i> Upload';
+      uploadTask = null;
+    },
+    async () => {
+      // Upload complete — get download URL
+      const videoUrl = await storageRef.getDownloadURL();
+
+      // Save metadata to Firestore
+      const recData = {
+        title,
+        description: desc,
+        courseId,
+        courseName,
+        classId: classId || null,
+        videoUrl,
+        storagePath,
+        duration: duration || null,
+        recordedDate: recDate || null,
+        teacherId: currentUser.uid,
+        teacherName: currentUser.name || currentUser.email,
+        fileSize: selectedFile.size,
+        fileName: selectedFile.name,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        await db.collection('recordings').add(recData);
+        showToast('Recording uploaded successfully! 🎉', 'success');
+        uploadTask = null;
+        document.getElementById('upload-modal').style.display = 'none';
+        await loadRecordings();
+      } catch (err) {
+        console.error('Error saving recording metadata:', err);
+        showToast('File uploaded but failed to save metadata.', 'error');
+      }
+
+      document.getElementById('btn-do-upload').disabled = false;
+      document.getElementById('btn-do-upload').innerHTML = '<i class="fas fa-upload"></i> Upload';
+    }
+  );
+}
+
+// ── Delete Recording ─────────────────────────────────────────
+async function deleteRecording(recId, storagePath) {
+  if (!confirm('Delete this recording permanently?')) return;
+  showLoading();
+  try {
+    // Delete from Storage
+    if (storagePath && storage) {
+      try { await storage.ref(storagePath).delete(); } catch (e) { console.warn('Storage delete failed:', e); }
+    }
+    // Delete from Firestore
+    await db.collection('recordings').doc(recId).delete();
+    showToast('Recording deleted.', 'success');
+    await loadRecordings();
+  } catch (err) {
+    showToast('Error deleting recording.', 'error');
+    console.error(err);
+  }
+  hideLoading();
+}
+</script>
+</body>
+</html>
+

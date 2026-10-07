@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Courses — CloudLearn</title>
+  <meta name="description" content="View and manage all your courses on CloudLearn Faculty Portal." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/student.css?v=3" />
+  <link rel="stylesheet" href="css/teacher.css?v=3" />
+  <link rel="stylesheet" href="css/responsive.css?v=3" />
+  <style>
+    .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .course-manage-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      transition: var(--transition);
+    }
+    .course-manage-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .course-card-banner {
+      height: 100px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+      position: relative;
+    }
+    .course-card-status {
+      position: absolute; top: 12px; right: 12px;
+    }
+    .course-card-body { padding: 20px; }
+    .course-card-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+    .course-card-meta { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 0 16px; }
+    .course-card-meta-item { font-size: .78rem; color: var(--gray-500); display: flex; align-items: center; gap: 5px; }
+    .course-card-footer { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--gray-100); background: var(--gray-50); }
+    .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+    .search-box { position: relative; flex: 1; min-width: 200px; }
+    .search-box input { width: 100%; padding: 10px 16px 10px 40px; border: 2px solid var(--gray-200); border-radius: var(--radius-full); font-size: .88rem; outline: none; transition: var(--transition); }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+    .view-toggle { display: flex; gap: 4px; }
+    .view-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--white); border: 2px solid var(--gray-200); color: var(--gray-500); transition: var(--transition); }
+    .view-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .summary-card { background: var(--white); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); text-align: center; border: 1px solid var(--gray-100); }
+    .summary-val { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
+    .summary-lbl { font-size: .75rem; color: var(--gray-500); margin-top: 4px; }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Faculty Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Teacher navigation">
+      <div class="nav-section-label">Main</div>
+      <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="manage-courses.html" class="nav-link active"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="create-course.html" class="nav-link"><i class="fas fa-plus-circle"></i> Create Course</a>
+      <div class="nav-section-label">Content</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-upload"></i> Manage Materials</a>
+      <a href="manage-quizzes.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+      <a href="manage-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <div class="nav-section-label">Students</div>
+      <a href="students.html" class="nav-link"><i class="fas fa-users"></i> Students</a>
+      <a href="student-performance.html" class="nav-link"><i class="fas fa-chart-bar"></i> Performance</a>
+      <a href="course-analytics.html" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">My Courses</h1>
+          <p class="page-sub">Manage, edit, and monitor all your courses</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="create-course.html" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Course</a>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Summary -->
+      <div class="summary-row">
+        <div class="summary-card">
+          <div class="summary-val">4</div>
+          <div class="summary-lbl">📚 Total Courses</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--success)">3</div>
+          <div class="summary-lbl">✅ Published</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--warning)">1</div>
+          <div class="summary-lbl">🔧 Draft</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--primary)">247</div>
+          <div class="summary-lbl">👥 Total Students</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search courses..." />
+        </div>
+        <select class="form-control" style="width:auto; padding:10px 16px;">
+          <option>All Status</option>
+          <option>Published</option>
+          <option>Draft</option>
+          <option>Archived</option>
+        </select>
+        <div class="view-toggle">
+          <button class="view-btn active" title="Grid view" id="grid-btn" onclick="setView('grid', this)"><i class="fas fa-th-large"></i></button>
+          <button class="view-btn" title="List view" id="list-btn" onclick="setView('list', this)"><i class="fas fa-list"></i></button>
+        </div>
+      </div>
+
+      <!-- Courses Grid -->
+      <div class="courses-grid" id="courses-container">
+
+        <!-- Course 1 -->
+        <div class="course-manage-card">
+          <div class="course-card-banner" style="background: linear-gradient(135deg, #4f46e5, #7c3aed)">
+            ☁️
+            <div class="course-card-status"><span class="badge badge-success">Published</span></div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-card-title">Cloud Fundamentals: AWS, GCP & Azure</div>
+            <div class="course-card-meta">
+              <span class="course-card-meta-item"><i class="fas fa-users"></i> 78 students</span>
+              <span class="course-card-meta-item"><i class="fas fa-book"></i> 8 modules</span>
+              <span class="course-card-meta-item"><i class="fas fa-star"></i> 4.8</span>
+            </div>
+            <div class="progress-bar-wrap" style="margin-bottom:8px">
+              <div class="progress-bar-fill" style="width:82%"></div>
+            </div>
+            <div style="font-size:.75rem; color:var(--gray-500)">82% avg completion</div>
+          </div>
+          <div class="course-card-footer">
+            <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center" onclick="window.location='course-analytics.html'"><i class="fas fa-chart-bar"></i> Analytics</button>
+            <button class="btn btn-secondary btn-sm"><i class="fas fa-pencil-alt"></i> Edit</button>
+            <button class="btn btn-sm" style="background:var(--gray-100); color:var(--gray-600)"><i class="fas fa-ellipsis-v"></i></button>
+          </div>
+        </div>
+
+        <!-- Course 2 -->
+        <div class="course-manage-card">
+          <div class="course-card-banner" style="background: linear-gradient(135deg, #0891b2, #0284c7)">
+            🗄️
+            <div class="course-card-status"><span class="badge badge-success">Published</span></div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-card-title">Database Systems: SQL & NoSQL Mastery</div>
+            <div class="course-card-meta">
+              <span class="course-card-meta-item"><i class="fas fa-users"></i> 65 students</span>
+              <span class="course-card-meta-item"><i class="fas fa-book"></i> 7 modules</span>
+              <span class="course-card-meta-item"><i class="fas fa-star"></i> 4.5</span>
+            </div>
+            <div class="progress-bar-wrap" style="margin-bottom:8px">
+              <div class="progress-bar-fill" style="width:70%; background:linear-gradient(135deg, #0891b2, #0284c7)"></div>
+            </div>
+            <div style="font-size:.75rem; color:var(--gray-500)">70% avg completion</div>
+          </div>
+          <div class="course-card-footer">
+            <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center" onclick="window.location='course-analytics.html'"><i class="fas fa-chart-bar"></i> Analytics</button>
+            <button class="btn btn-secondary btn-sm"><i class="fas fa-pencil-alt"></i> Edit</button>
+            <button class="btn btn-sm" style="background:var(--gray-100); color:var(--gray-600)"><i class="fas fa-ellipsis-v"></i></button>
+          </div>
+        </div>
+
+        <!-- Course 3 -->
+        <div class="course-manage-card">
+          <div class="course-card-banner" style="background: linear-gradient(135deg, #059669, #10b981)">
+            🤖
+            <div class="course-card-status"><span class="badge badge-success">Published</span></div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-card-title">Machine Learning Basics with Python</div>
+            <div class="course-card-meta">
+              <span class="course-card-meta-item"><i class="fas fa-users"></i> 54 students</span>
+              <span class="course-card-meta-item"><i class="fas fa-book"></i> 6 modules</span>
+              <span class="course-card-meta-item"><i class="fas fa-star"></i> 4.9</span>
+            </div>
+            <div class="progress-bar-wrap" style="margin-bottom:8px">
+              <div class="progress-bar-fill" style="width:88%; background:linear-gradient(135deg, #059669, #10b981)"></div>
+            </div>
+            <div style="font-size:.75rem; color:var(--gray-500)">88% avg completion</div>
+          </div>
+          <div class="course-card-footer">
+            <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center" onclick="window.location='course-analytics.html'"><i class="fas fa-chart-bar"></i> Analytics</button>
+            <button class="btn btn-secondary btn-sm"><i class="fas fa-pencil-alt"></i> Edit</button>
+            <button class="btn btn-sm" style="background:var(--gray-100); color:var(--gray-600)"><i class="fas fa-ellipsis-v"></i></button>
+          </div>
+        </div>
+
+        <!-- Course 4 (Draft) -->
+        <div class="course-manage-card" style="opacity:.85">
+          <div class="course-card-banner" style="background: linear-gradient(135deg, #64748b, #475569)">
+            🛡️
+            <div class="course-card-status"><span class="badge badge-warning">Draft</span></div>
+          </div>
+          <div class="course-card-body">
+            <div class="course-card-title">Cybersecurity Fundamentals & Ethical Hacking</div>
+            <div class="course-card-meta">
+              <span class="course-card-meta-item"><i class="fas fa-users"></i> 0 students</span>
+              <span class="course-card-meta-item"><i class="fas fa-book"></i> 3 / 9 modules</span>
+              <span class="course-card-meta-item" style="color:var(--warning)"><i class="fas fa-edit"></i> In progress</span>
+            </div>
+            <div class="progress-bar-wrap" style="margin-bottom:8px">
+              <div class="progress-bar-fill" style="width:33%; background:linear-gradient(135deg, #f59e0b, #ef4444)"></div>
+            </div>
+            <div style="font-size:.75rem; color:var(--gray-500)">33% course content complete</div>
+          </div>
+          <div class="course-card-footer">
+            <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center" onclick="showToast('Publishing course...', 'info')"><i class="fas fa-paper-plane"></i> Publish</button>
+            <button class="btn btn-secondary btn-sm"><i class="fas fa-pencil-alt"></i> Edit</button>
+            <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  requireAuth('teacher');
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+  });
+
+  function setView(mode, btn) {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const grid = document.getElementById('courses-container');
+    if (mode === 'list') {
+      grid.style.gridTemplateColumns = '1fr';
+    } else {
+      grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(320px, 1fr))';
+    }
+  }
+</script>
+</body>
+</html>
+

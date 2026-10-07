@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Course — CloudLearn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/student.css?v=3" />
+  <link rel="stylesheet" href="css/teacher.css?v=3" />
+  <link rel="stylesheet" href="css/responsive.css?v=3" />
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text"><div class="brand-name">CloudLearn</div><div class="brand-sub">Faculty Portal</div></div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info"><div class="name" id="sidebar-name">Loading...</div><div class="role-tag">👨‍🏫 Faculty</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Navigation</div>
+      <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="manage-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="create-course.html" class="nav-link active"><i class="fas fa-plus-circle"></i> Create Course</a>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-upload"></i> Manage Materials</a>
+      <a href="manage-quizzes.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+      <a href="manage-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <a href="students.html" class="nav-link"><i class="fas fa-users"></i> Students</a>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer"><button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-nav">
+      <div class="flex items-center gap-2">
+        <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
+        <span class="top-nav-title">Create New Course</span>
+      </div>
+      <div class="top-nav-right">
+        <a href="profile.html" class="top-avatar user-avatar-initials">?</a>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div style="max-width:800px;margin:0 auto">
+
+        <!-- Breadcrumb -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;font-size:.85rem;color:var(--gray-400)">
+          <a href="teacher-dashboard.html" style="color:var(--gray-400);transition:var(--transition)" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--gray-400)'">Dashboard</a>
+          <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
+          <a href="manage-courses.html" style="color:var(--gray-400);transition:var(--transition)" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--gray-400)'">My Courses</a>
+          <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
+          <span style="color:var(--gray-700);font-weight:500">Create Course</span>
+        </div>
+
+        <div class="card fade-in-up">
+          <div style="margin-bottom:28px">
+            <h2 style="font-family:var(--font-heading);font-size:1.5rem;font-weight:700;color:var(--gray-900);margin-bottom:6px"><i class="fas fa-plus-circle" style="color:#10b981;margin-right:8px"></i>Create New Course</h2>
+            <p style="color:var(--gray-500);font-size:.9rem">Fill in the details below to create a new course for your students.</p>
+          </div>
+
+          <div id="create-msg" style="display:none" class="alert"></div>
+
+          <form id="create-course-form" novalidate>
+
+            <!-- Course Name -->
+            <div class="form-group">
+              <label class="form-label" for="course-name">Course Name <span style="color:var(--danger)">*</span></label>
+              <input type="text" id="course-name" class="form-control" placeholder="e.g. Cloud Computing Fundamentals" required />
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label class="form-label" for="course-desc">Course Description <span style="color:var(--danger)">*</span></label>
+              <textarea id="course-desc" class="form-control" rows="4" placeholder="Describe what students will learn in this course..." required></textarea>
+            </div>
+
+            <!-- Two Column -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label" for="course-category">Category <span style="color:var(--danger)">*</span></label>
+                <select id="course-category" class="form-control" required>
+                  <option value="">Select Category</option>
+                  <option value="cloud">☁️ Cloud Computing</option>
+                  <option value="ai">🧠 Artificial Intelligence</option>
+                  <option value="ml">🤖 Machine Learning</option>
+                  <option value="data">📊 Data Science</option>
+                  <option value="programming">💻 Programming</option>
+                  <option value="python">🐍 Python</option>
+                  <option value="web">🌐 Web Development</option>
+                  <option value="database">🗄️ Database Management</option>
+                  <option value="math">📐 Mathematics</option>
+                  <option value="science">🔬 Science</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="course-duration">Duration</label>
+                <input type="text" id="course-duration" class="form-control" placeholder="e.g. 8 weeks, 40 hours" />
+              </div>
+            </div>
+
+            <!-- Instructor & Level -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label" for="course-instructor">Instructor Name <span style="color:var(--danger)">*</span></label>
+                <input type="text" id="course-instructor" class="form-control" placeholder="Your name or co-instructor" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="course-level">Difficulty Level</label>
+                <select id="course-level" class="form-control">
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate" selected>Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Course Image URL -->
+            <div class="form-group">
+              <label class="form-label" for="course-image">Course Image URL <span style="color:var(--gray-400);font-size:.8rem">(optional)</span></label>
+              <input type="url" id="course-image" class="form-control" placeholder="https://example.com/image.jpg" />
+              <small style="color:var(--gray-400);font-size:.78rem">Leave blank to use a default course emoji image.</small>
+            </div>
+
+            <!-- Preview -->
+            <div id="image-preview" style="display:none;margin-bottom:20px;border-radius:var(--radius-md);overflow:hidden;height:200px">
+              <img id="preview-img" src="" alt="Course preview" style="width:100%;height:100%;object-fit:cover" />
+            </div>
+
+            <!-- Tags -->
+            <div class="form-group">
+              <label class="form-label" for="course-tags">Tags <span style="color:var(--gray-400);font-size:.8rem">(comma-separated)</span></label>
+              <input type="text" id="course-tags" class="form-control" placeholder="e.g. aws, docker, kubernetes" />
+            </div>
+
+            <!-- Submit -->
+            <div style="display:flex;gap:12px;margin-top:8px">
+              <button type="submit" class="btn btn-success" id="create-btn">
+                <i class="fas fa-rocket"></i> Create Course
+              </button>
+              <a href="manage-courses.html" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="toast-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+requireAuth('teacher');
+
+document.addEventListener('userReady', (e) => {
+  const user = e.detail;
+  document.getElementById('sidebar-name').textContent = user.name;
+  setAvatarInitials(user.name);
+  document.getElementById('course-instructor').value = user.name;
+});
+
+// Image preview
+document.getElementById('course-image').addEventListener('input', function() {
+  const url = this.value.trim();
+  const preview = document.getElementById('image-preview');
+  const img = document.getElementById('preview-img');
+  if (url) {
+    img.src = url;
+    img.onerror = () => { preview.style.display = 'none'; };
+    img.onload  = () => { preview.style.display = 'block'; };
+  } else {
+    preview.style.display = 'none';
+  }
+});
+
+// Form submit
+document.getElementById('create-course-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const name       = document.getElementById('course-name').value.trim();
+  const desc       = document.getElementById('course-desc').value.trim();
+  const category   = document.getElementById('course-category').value;
+  const duration   = document.getElementById('course-duration').value.trim();
+  const instructor = document.getElementById('course-instructor').value.trim();
+  const level      = document.getElementById('course-level').value;
+  const imageUrl   = document.getElementById('course-image').value.trim();
+  const tags       = document.getElementById('course-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const msgEl      = document.getElementById('create-msg');
+
+  if (!name || !desc || !category || !instructor) {
+    msgEl.textContent = 'Please fill in all required fields.';
+    msgEl.className = 'alert alert-warning';
+    msgEl.style.display = 'flex';
+    return;
+  }
+
+  const btn = document.getElementById('create-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+  msgEl.style.display = 'none';
+
+  try {
+    const uid = auth.currentUser.uid;
+    const docRef = await db.collection('courses').add({
+      courseName:  name,
+      description: desc,
+      category:    category,
+      duration:    duration,
+      instructor:  instructor,
+      level:       level,
+      imageUrl:    imageUrl,
+      tags:        tags,
+      teacherId:   uid,
+      enrolledCount: 0,
+      createdAt:   firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    showToast(`Course "${name}" created successfully! 🎉`, 'success');
+    msgEl.innerHTML = `✅ Course created! <a href="manage-courses.html" style="color:inherit;text-decoration:underline;margin-left:6px">View all courses</a>`;
+    msgEl.className = 'alert alert-success';
+    msgEl.style.display = 'flex';
+
+    // Reset form
+    document.getElementById('create-course-form').reset();
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('course-instructor').value = window.currentUser?.name || '';
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-rocket"></i> Create Course';
+
+    // Redirect after 2s
+    setTimeout(() => { window.location.href = 'manage-courses.html'; }, 2000);
+
+  } catch(err) {
+    msgEl.textContent = 'Failed to create course: ' + err.message;
+    msgEl.className = 'alert alert-danger';
+    msgEl.style.display = 'flex';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-rocket"></i> Create Course';
+    console.error(err);
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => { initSidebarToggle(); });
+</script>
+</body>
+</html>
+

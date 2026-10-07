@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Course Details — CloudLearn</title>
+  <meta name="description" content="View course content, materials, and start learning on CloudLearn." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .course-hero {
+      background: var(--grad-primary);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      color: var(--white);
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .course-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -20%;
+      width: 300px; height: 300px;
+      background: rgba(255,255,255,.07);
+      border-radius: 50%;
+    }
+    .course-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -40%; right: 10%;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,.05);
+      border-radius: 50%;
+    }
+    .course-hero-content { position: relative; z-index: 1; }
+    .course-hero h1 { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; }
+    .course-hero p { font-size: .95rem; opacity: .9; max-width: 600px; margin-bottom: 20px; }
+    .course-hero-meta { display: flex; gap: 24px; flex-wrap: wrap; }
+    .hero-meta-item { display: flex; align-items: center; gap: 6px; font-size: .85rem; opacity: .85; }
+    .course-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+    @media (max-width: 900px) { .course-layout { grid-template-columns: 1fr; } }
+    .module-card { background: var(--white); border-radius: var(--radius-lg); padding: 0; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); margin-bottom: 16px; overflow: hidden; }
+    .module-header { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: var(--transition); }
+    .module-header:hover { background: var(--gray-50); }
+    .module-title { font-weight: 600; font-size: .95rem; color: var(--gray-800); display: flex; align-items: center; gap: 12px; }
+    .module-num { width: 30px; height: 30px; border-radius: 50%; background: var(--grad-primary); color: #fff; font-size: .8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .module-meta { font-size: .78rem; color: var(--gray-400); }
+    .module-body { border-top: 1px solid var(--gray-100); }
+    .lesson-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--gray-50); transition: var(--transition); cursor: pointer; }
+    .lesson-item:last-child { border-bottom: none; }
+    .lesson-item:hover { background: #f8f7ff; }
+    .lesson-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; }
+    .lesson-icon.video { background: #ede9fe; color: var(--primary); }
+    .lesson-icon.doc { background: #dbeafe; color: #2563eb; }
+    .lesson-icon.quiz { background: #fef3c7; color: #92400e; }
+    .lesson-icon.complete { background: #d1fae5; color: var(--success); }
+    .lesson-title { font-size: .88rem; font-weight: 500; color: var(--gray-800); flex: 1; }
+    .lesson-dur { font-size: .75rem; color: var(--gray-400); }
+    .lesson-check { color: var(--success); font-size: 1rem; }
+    .sidebar-card { background: var(--white); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); margin-bottom: 20px; }
+    .progress-big { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 800; color: var(--primary); text-align: center; }
+    .progress-big-label { text-align: center; font-size: .85rem; color: var(--gray-500); margin-top: 4px; margin-bottom: 16px; }
+    .instructor-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--grad-primary); display: flex; align-items: center; justify-content: center; color: var(--white); font-weight: 700; font-size: 1.2rem; margin: 0 auto 12px; }
+    .tab-bar { display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); margin-bottom: 24px; }
+    .tab { padding: 12px 20px; font-size: .88rem; font-weight: 600; color: var(--gray-500); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: var(--transition); }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .review-item { padding: 16px 0; border-bottom: 1px solid var(--gray-100); }
+    .review-item:last-child { border-bottom: none; }
+    .stars { color: var(--accent); font-size: .85rem; }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar student-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-cloud"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Student Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">🎓 Student</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Student navigation">
+      <div class="nav-section-label">Main Menu</div>
+      <a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="courses.html" class="nav-link active"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="courses.html#browse" class="nav-link"><i class="fas fa-search"></i> Browse Courses</a>
+      <div class="nav-section-label">Learning</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-alt"></i> Study Materials</a>
+      <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quizzes</a>
+      <a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <a href="results.html" class="nav-link"><i class="fas fa-star"></i> Results</a>
+      <a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i> My Progress</a>
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bell"></i> Notifications <span class="nav-badge">3</span></a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Course Details</h1>
+          <p class="page-sub"><a href="courses.html" style="color:var(--primary)">My Courses</a> → Cloud Fundamentals</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Course Hero -->
+      <div class="course-hero">
+        <div class="course-hero-content">
+          <span class="badge" style="background:rgba(255,255,255,.2); color:#fff; margin-bottom:12px; display:inline-flex">☁️ Computer Science</span>
+          <h1>Cloud Fundamentals: AWS, GCP & Azure</h1>
+          <p>Master the core concepts of cloud computing across the three major platforms. Learn infrastructure, services, deployment models, and real-world architecture patterns.</p>
+          <div class="course-hero-meta">
+            <span class="hero-meta-item"><i class="fas fa-user"></i> Prof. Anand Kumar</span>
+            <span class="hero-meta-item"><i class="fas fa-book-open"></i> 8 Modules · 42 Lessons</span>
+            <span class="hero-meta-item"><i class="fas fa-clock"></i> ~24 hours total</span>
+            <span class="hero-meta-item"><i class="fas fa-star"></i> 4.8 (127 reviews)</span>
+            <span class="hero-meta-item"><i class="fas fa-users"></i> 78 students</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout -->
+      <div class="course-layout">
+        <!-- Left: Modules -->
+        <div>
+          <!-- Tabs -->
+          <div class="tab-bar">
+            <div class="tab active" onclick="switchTab('curriculum', this)">📚 Curriculum</div>
+            <div class="tab" onclick="switchTab('overview', this)">📄 Overview</div>
+            <div class="tab" onclick="switchTab('liveschedule', this)">📹 Live Classes</div>
+            <div class="tab" onclick="switchTab('reviews', this)">⭐ Reviews</div>
+          </div>
+
+          <!-- Curriculum Tab -->
+          <div class="tab-content active" id="tab-curriculum">
+            <!-- Module 1 -->
+            <div class="module-card">
+              <div class="module-header" onclick="toggleModule(this)">
+                <div class="module-title">
+                  <div class="module-num">1</div>
+                  Introduction to Cloud Computing
+                </div>
+                <div style="display:flex; align-items:center; gap:12px">
+                  <span class="module-meta">5 lessons · 2h 30m</span>
+                  <span class="badge badge-success" style="font-size:.72rem">✓ Complete</span>
+                  <i class="fas fa-chevron-down" style="color:var(--gray-400); transition:.3s"></i>
+                </div>
+              </div>
+              <div class="module-body">
+                <div class="lesson-item">
+                  <div class="lesson-icon complete"><i class="fas fa-check"></i></div>
+                  <div class="lesson-title">What is Cloud Computing?</div>
+                  <span class="lesson-dur">18 min</span>
+                  <i class="fas fa-check-circle lesson-check"></i>
+                </div>
+                <div class="lesson-item">
+                  <div class="lesson-icon complete"><i class="fas fa-check"></i></div>
+                  <div class="lesson-title">SaaS, PaaS, and IaaS Models</div>
+                  <span class="lesson-dur">25 min</span>
+                  <i class="fas fa-check-circle lesson-check"></i>
+                </div>
+                <div class="lesson-item">
+                  <div class="lesson-icon complete"><i class="fas fa-check"></i></div>
+                  <div class="lesson-title">Public, Private, and Hybrid Clouds</div>
+                  <span class="lesson-dur">20 min</span>
+                  <i class="fas fa-check-circle lesson-check"></i>
+                </div>
+                <div class="lesson-item">
+                  <div class="lesson-icon doc"><i class="fas fa-file-alt"></i></div>
+                  <div class="lesson-title">Module 1 Reading: Cloud Architecture Patterns</div>
+                  <span class="lesson-dur">PDF</span>
+                  <i class="fas fa-check-circle lesson-check"></i>
+                </div>
+                <div class="lesson-item">
+                  <div class="lesson-icon quiz"><i class="fas fa-clipboard-list"></i></div>
+                  <div class="lesson-title">Quiz: Cloud Basics Assessment</div>
+                  <span class="lesson-dur">10 questions</span>
+                  <i class="fas fa-check-circle lesson-check"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Module 2 -->
+            <div class="module-card">
+              <div class="module-header" onclick="toggleModule(this)">
+                <div class="module-title">
+                  <div class="module-num">2</div>
+                  Amazon Web Services (AWS) Core Services
+                </div>
+                <div style="display:flex; align-items:center; gap:12px">
+                  <span class="module-meta">6 lessons · 3h 15m</span>
+                  <span class="badge badge-primary" style="font-size:.72rem">In Progress</span>
+                  <i class="fas fa-chevron-down" style="color:var(--gray-400); transition:.3s"></i>
+                </div>
+              </div>
+              <div class="module-body">
+                <div class="lesson-item">
+                  <div class="lesson-icon complete"><i class="fas fa-check"></i></div>
+                  <div class="lesson-title">AWS Global Infrastructure</div>
+                  <span class="lesson-dur">22 min</span>
+                  <i class="fas fa-check-circle lesson-check"></i>
+                </div>
+                <div class="lesson-item">
+                  <div class="lesson-icon complete"><i class="fas fa-check"></i></div>
+                  <div class="lesson-title">EC2 Instances & Auto Scaling</div>
+                  <span class="lesson-dur">35 min</span>
+                  <i class="fas fa-check-circle lesson-check"></i>
+                </div>
+                <div class="lesson-item" onclick="window.location='#lesson3'" style="background:#f8f7ff">
+                  <div class="lesson-icon video"><i class="fas fa-play"></i></div>
+                  <div class="lesson-title" style="color:var(--primary); font-weight:600">S3 Storage and Static Hosting ← Currently Here</div>
+                  <span class="lesson-dur">28 min</span>
+                  <span class="badge badge-primary" style="font-size:.7rem">Resume</span>
+                </div>
+                <div class="lesson-item">
+                  <div class="lesson-icon video"><i class="fas fa-play"></i></div>
+                  <div class="lesson-title">RDS, DynamoDB, and Aurora</div>
+                  <span class="lesson-dur">30 min</span>
+                </div>
+                <div class="lesson-item">
+                  <div class="lesson-icon video"><i class="fas fa-play"></i></div>
+                  <div class="lesson-title">Lambda Functions & Serverless Architecture</div>
+                  <span class="lesson-dur">40 min</span>
+                </div>
+                <div class="lesson-item">
+                  <div class="lesson-icon quiz"><i class="fas fa-clipboard-list"></i></div>
+                  <div class="lesson-title">Quiz: AWS Services Assessment</div>
+                  <span class="lesson-dur">15 questions</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Module 3 (collapsed) -->
+            <div class="module-card">
+              <div class="module-header" onclick="toggleModule(this)">
+                <div class="module-title">
+                  <div class="module-num" style="background:var(--gray-200); color:var(--gray-500)">3</div>
+                  <span style="color:var(--gray-500)">Google Cloud Platform (GCP)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px">
+                  <span class="module-meta">5 lessons · 2h 50m</span>
+                  <span class="badge badge-warning" style="font-size:.72rem">Locked</span>
+                  <i class="fas fa-chevron-right" style="color:var(--gray-400)"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="module-card">
+              <div class="module-header" onclick="toggleModule(this)">
+                <div class="module-title">
+                  <div class="module-num" style="background:var(--gray-200); color:var(--gray-500)">4</div>
+                  <span style="color:var(--gray-500)">Microsoft Azure Fundamentals</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px">
+                  <span class="module-meta">6 lessons · 3h 10m</span>
+                  <span class="badge badge-warning" style="font-size:.72rem">Locked</span>
+                  <i class="fas fa-chevron-right" style="color:var(--gray-400)"></i>
+                </div>
+              </div>
+            </div>
+
+            <div style="text-align:center; padding:16px; color:var(--gray-400); font-size:.85rem">
+              + 4 more modules (GCP Advanced, Security, DevOps, Final Project)
+            </div>
+          </div>
+
+          <!-- Overview Tab -->
+          <div class="tab-content" id="tab-overview">
+            <div class="card">
+              <h3 style="font-family:var(--font-heading); font-size:1.1rem; margin-bottom:16px">📋 About This Course</h3>
+              <p style="color:var(--gray-600); margin-bottom:16px">This comprehensive course covers all aspects of cloud computing across AWS, GCP, and Azure. Whether you're preparing for cloud certifications or building real-world applications, this course equips you with the skills employers are looking for.</p>
+              <h4 style="font-size:.95rem; font-weight:600; margin:16px 0 8px">What You'll Learn:</h4>
+              <ul style="display:grid; grid-template-columns:1fr 1fr; gap:8px; list-style:none">
+                <li style="display:flex; gap:8px; font-size:.88rem; color:var(--gray-600)"><i class="fas fa-check" style="color:var(--success); margin-top:3px"></i> Cloud deployment models</li>
+                <li style="display:flex; gap:8px; font-size:.88rem; color:var(--gray-600)"><i class="fas fa-check" style="color:var(--success); margin-top:3px"></i> AWS core services (EC2, S3, RDS)</li>
+                <li style="display:flex; gap:8px; font-size:.88rem; color:var(--gray-600)"><i class="fas fa-check" style="color:var(--success); margin-top:3px"></i> GCP BigQuery & Compute Engine</li>
+                <li style="display:flex; gap:8px; font-size:.88rem; color:var(--gray-600)"><i class="fas fa-check" style="color:var(--success); margin-top:3px"></i> Azure Virtual Machines & AKS</li>
+                <li style="display:flex; gap:8px; font-size:.88rem; color:var(--gray-600)"><i class="fas fa-check" style="color:var(--success); margin-top:3px"></i> Serverless & microservices</li>
+                <li style="display:flex; gap:8px; font-size:.88rem; color:var(--gray-600)"><i class="fas fa-check" style="color:var(--success); margin-top:3px"></i> Cloud security best practices</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Live Schedule Tab -->
+          <div class="tab-content" id="tab-liveschedule">
+            <div class="card" style="margin-bottom:20px">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                <h3 style="font-family:var(--font-heading); font-size:1.1rem">📹 Upcoming Live Classes</h3>
+                <a href="live-classes.html" class="btn btn-secondary btn-sm">View All</a>
+              </div>
+              <div id="live-schedule-list">
+                <div style="text-align:center; padding:24px; color:var(--gray-400)">
+                  <i class="fas fa-spinner fa-spin" style="font-size:1.5rem; margin-bottom:8px"></i>
+                  <p style="font-size:.85rem">Loading live class schedule...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews Tab -->
+          <div class="tab-content" id="tab-reviews">
+            <div class="card">
+              <div style="display:flex; gap:32px; align-items:center; margin-bottom:24px; flex-wrap:wrap">
+                <div style="text-align:center">
+                  <div style="font-family:var(--font-heading); font-size:3rem; font-weight:800; color:var(--gray-900)">4.8</div>
+                  <div class="stars">★★★★★</div>
+                  <div style="font-size:.78rem; color:var(--gray-500); margin-top:4px">127 reviews</div>
+                </div>
+                <div style="flex:1; min-width:200px">
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px"><span class="stars" style="font-size:.75rem">★★★★★</span><div class="progress-bar-wrap" style="flex:1; height:6px"><div class="progress-bar-fill" style="width:80%"></div></div><span style="font-size:.75rem; color:var(--gray-500)">80%</span></div>
+                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px"><span style="font-size:.75rem; color:var(--accent)">★★★★☆</span><div class="progress-bar-wrap" style="flex:1; height:6px"><div class="progress-bar-fill" style="width:14%; background:#f59e0b"></div></div><span style="font-size:.75rem; color:var(--gray-500)">14%</span></div>
+                  <div style="display:flex; align-items:center; gap:10px"><span style="font-size:.75rem; color:var(--gray-400)">★★★☆☆</span><div class="progress-bar-wrap" style="flex:1; height:6px"><div class="progress-bar-fill" style="width:6%; background:var(--gray-300)"></div></div><span style="font-size:.75rem; color:var(--gray-500)">6%</span></div>
+                </div>
+              </div>
+              <div class="review-item">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px">
+                  <span style="font-weight:600; font-size:.9rem">Arjun Sharma</span>
+                  <span class="stars" style="font-size:.85rem">★★★★★</span>
+                </div>
+                <p style="font-size:.85rem; color:var(--gray-600)">"Best cloud course I've taken! Prof. Kumar explains everything with real-world examples. The labs are super practical and helped me ace my AWS certification."</p>
+                <span style="font-size:.75rem; color:var(--gray-400)">2 weeks ago</span>
+              </div>
+              <div class="review-item">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px">
+                  <span style="font-weight:600; font-size:.9rem">Priya Nair</span>
+                  <span class="stars" style="font-size:.85rem">★★★★★</span>
+                </div>
+                <p style="font-size:.85rem; color:var(--gray-600)">"Extremely well-structured curriculum. Loved how all three cloud platforms were covered comparatively. Highly recommended for beginners and intermediate learners alike."</p>
+                <span style="font-size:.75rem; color:var(--gray-400)">1 month ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div>
+          <div class="sidebar-card">
+            <div class="progress-big" id="progress-val">42%</div>
+            <div class="progress-big-label">Course Progress</div>
+            <div class="progress-bar-wrap" style="height:10px; margin-bottom:20px">
+              <div class="progress-bar-fill" id="progress-fill" style="width:42%"></div>
+            </div>
+            <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="showToast('Resuming lesson...', 'info')">
+              <i class="fas fa-play"></i> Resume Learning
+            </button>
+          </div>
+
+          <div class="sidebar-card">
+            <div style="font-weight:600; font-size:.9rem; color:var(--gray-800); margin-bottom:16px">📊 Your Stats</div>
+            <div style="display:flex; flex-direction:column; gap:12px">
+              <div style="display:flex; justify-content:space-between; font-size:.85rem">
+                <span style="color:var(--gray-500)">Lessons completed</span>
+                <span style="font-weight:700; color:var(--gray-900)">7 / 42</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:.85rem">
+                <span style="color:var(--gray-500)">Quizzes passed</span>
+                <span style="font-weight:700; color:var(--success)">1 / 8</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:.85rem">
+                <span style="color:var(--gray-500)">Assignments done</span>
+                <span style="font-weight:700; color:var(--primary)">0 / 4</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:.85rem">
+                <span style="color:var(--gray-500)">Time spent</span>
+                <span style="font-weight:700; color:var(--gray-900)">4h 30m</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:.85rem">
+                <span style="color:var(--gray-500)">Current score</span>
+                <span style="font-weight:700; color:var(--success)">88%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-card" style="text-align:center">
+            <div class="instructor-avatar">AK</div>
+            <div style="font-weight:700; font-size:.95rem; color:var(--gray-900)">Prof. Anand Kumar</div>
+            <div style="font-size:.8rem; color:var(--gray-500); margin-top:4px">Cloud Architect & Educator</div>
+            <div style="font-size:.8rem; color:var(--gray-400); margin-top:8px">⭐ 4.9 · 3 Courses · 450+ students</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  requireAuth('student');
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+  });
+
+  function toggleModule(header) {
+    const body = header.nextElementSibling;
+    const icon = header.querySelector('.fa-chevron-down, .fa-chevron-right');
+    if (!body) return;
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    if (icon) { icon.className = isOpen ? 'fas fa-chevron-right' : 'fas fa-chevron-down'; }
+  }
+
+  function switchTab(id, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + id).classList.add('active');
+  }
+
+  // Get courseId from URL params
+  const params = new URLSearchParams(window.location.search);
+  const courseId = params.get('id');
+
+  // ── Load Live Classes for this course ───────────────────────
+  async function loadCourseLiveClasses() {
+    const container = document.getElementById('live-schedule-list');
+    if (!courseId) {
+      container.innerHTML = '<p style="color:var(--gray-400); font-size:.85rem; text-align:center; padding:16px">Select a course to view live classes.</p>';
+      return;
+    }
+    try {
+      const snap = await db.collection('liveClasses')
+        .where('courseId', '==', courseId).get();
+      if (snap.empty) {
+        container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--gray-400)"><i class="fas fa-video" style="font-size:2rem; margin-bottom:8px"></i><p style="font-size:.88rem">No live classes scheduled for this course yet.</p></div>';
+        return;
+      }
+      const now = new Date();
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      docs.sort((a, b) => {
+        const tA = a.scheduledAt?.toDate ? a.scheduledAt.toDate().getTime() : new Date(a.scheduledAt || 0).getTime();
+        const tB = b.scheduledAt?.toDate ? b.scheduledAt.toDate().getTime() : new Date(b.scheduledAt || 0).getTime();
+        return tA - tB;
+      });
+      container.innerHTML = docs.slice(0, 5).map(cls => {
+        const scheduled = cls.scheduledAt?.toDate ? cls.scheduledAt.toDate() : new Date(cls.scheduledAt);
+        const endTime = new Date(scheduled.getTime() + (cls.duration || 60) * 60000);
+        const dateStr = scheduled.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = scheduled.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        let status = 'upcoming', badge = '';
+        if (now >= scheduled && now <= endTime) {
+          status = 'live';
+          badge = '<span class="badge" style="background:#fee2e2;color:#dc2626;font-size:.72rem"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#dc2626;margin-right:4px;animation:blink 1s infinite"></span>LIVE</span>';
+        } else if (now > endTime) {
+          status = 'ended';
+          badge = '<span class="badge" style="background:var(--gray-100);color:var(--gray-500);font-size:.72rem">Completed</span>';
+        } else {
+          badge = '<span class="badge" style="background:#ede9fe;color:var(--primary);font-size:.72rem">Upcoming</span>';
+        }
+        const actionBtn = status === 'live'
+          ? `<a href="live-classes.html" class="btn btn-primary btn-sm" style="padding:6px 14px"><i class="fas fa-video"></i> Join</a>`
+          : (status === 'ended' ? `<a href="recordings.html?classId=${doc.id}" class="btn btn-secondary btn-sm" style="padding:6px 14px"><i class="fas fa-play-circle"></i> Recording</a>` : '');
+        return `<div style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--radius-md);border:1px solid var(--gray-100);margin-bottom:8px;transition:var(--transition)">
+          <div style="width:44px;height:44px;border-radius:var(--radius-md);background:${status==='live'?'linear-gradient(135deg,#dc2626,#ef4444)':'var(--grad-primary)'};display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;flex-shrink:0"><i class="fas fa-${status==='live'?'broadcast-tower':'calendar-day'}"></i></div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:.9rem;color:var(--gray-900)">${cls.title}</div>
+            <div style="font-size:.78rem;color:var(--gray-500);margin-top:2px">${dateStr} · ${timeStr} · ${cls.duration || 60} min</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${badge}
+            ${actionBtn}
+          </div>
+        </div>`;
+      }).join('');
+    } catch (err) {
+      console.error('Error loading live classes:', err);
+      container.innerHTML = '<div class="alert alert-info" style="margin:0"><i class="fas fa-info-circle"></i> Live classes will appear here once scheduled.</div>';
+    }
+  }
+  // Load live schedule when user is ready
+  document.addEventListener('userReady', () => { loadCourseLiveClasses(); });
+  // Also add blink animation
+  const blinkStyle = document.createElement('style');
+  blinkStyle.textContent = '@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }';
+  document.head.appendChild(blinkStyle);
+</script>
+</body>
+</html>
+

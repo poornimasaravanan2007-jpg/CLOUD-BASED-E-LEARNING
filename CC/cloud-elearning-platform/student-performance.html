@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Performance — CloudLearn</title>
+  <meta name="description" content="View detailed student performance metrics and analytics for your CloudLearn courses." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/teacher.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+    .search-box { position: relative; flex: 1; min-width: 200px; }
+    .search-box input { width: 100%; padding: 10px 16px 10px 40px; border: 2px solid var(--gray-200); border-radius: var(--radius-full); font-size: .88rem; outline: none; transition: var(--transition); }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .summary-card { background: var(--white); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); text-align: center; border: 1px solid var(--gray-100); }
+    .summary-val { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
+    .summary-lbl { font-size: .75rem; color: var(--gray-500); margin-top: 4px; }
+    .student-performance-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 20px;
+      background: var(--white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      margin-bottom: 10px;
+      transition: var(--transition);
+    }
+    .student-performance-row:hover { box-shadow: var(--shadow-md); }
+    .student-rank { width: 28px; font-weight: 800; font-size: .9rem; color: var(--gray-400); text-align: center; flex-shrink: 0; }
+    .student-avatar-sm { width: 40px; height: 40px; border-radius: 50%; background: var(--grad-primary); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
+    .student-name-col { flex: 1; min-width: 0; }
+    .student-name-text { font-weight: 600; font-size: .9rem; color: var(--gray-900); }
+    .student-email { font-size: .75rem; color: var(--gray-400); }
+    .perf-col { min-width: 80px; text-align: center; }
+    .perf-val { font-weight: 700; font-size: .95rem; }
+    .perf-lbl { font-size: .68rem; color: var(--gray-400); margin-top: 2px; }
+    .mini-bar-wrap { min-width: 100px; }
+    .mini-bar-bg { background: var(--gray-200); border-radius: var(--radius-full); height: 6px; overflow: hidden; }
+    .mini-bar-fill { height: 100%; border-radius: var(--radius-full); background: var(--grad-primary); }
+    .student-actions { display: flex; gap: 6px; }
+    .icon-btn { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .8rem; cursor: pointer; transition: var(--transition); border: none; }
+    .icon-btn.view { background: #ede9fe; color: var(--primary); }
+    .icon-btn.view:hover { background: var(--primary); color: #fff; }
+    .icon-btn.msg { background: #dbeafe; color: #2563eb; }
+    .icon-btn.msg:hover { background: #2563eb; color: #fff; }
+    .distribution-bar { display: flex; height: 32px; border-radius: var(--radius-md); overflow: hidden; margin: 16px 0; }
+    .dist-seg { display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; color: #fff; transition: all .5s ease; }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Faculty Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Teacher navigation">
+      <div class="nav-section-label">Main</div>
+      <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="manage-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="create-course.html" class="nav-link"><i class="fas fa-plus-circle"></i> Create Course</a>
+      <div class="nav-section-label">Content</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-upload"></i> Manage Materials</a>
+      <a href="manage-quizzes.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+      <a href="manage-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <div class="nav-section-label">Students</div>
+      <a href="students.html" class="nav-link"><i class="fas fa-users"></i> Students</a>
+      <a href="student-performance.html" class="nav-link active"><i class="fas fa-chart-bar"></i> Performance</a>
+      <a href="course-analytics.html" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Student Performance</h1>
+          <p class="page-sub">Monitor individual and class-wide academic performance</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Export CSV</button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Summary -->
+      <div class="summary-row">
+        <div class="summary-card">
+          <div class="summary-val">247</div>
+          <div class="summary-lbl">👥 Total Students</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--success)">76%</div>
+          <div class="summary-lbl">📊 Class Average</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--success)">92%</div>
+          <div class="summary-lbl">✅ Quiz Pass Rate</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--warning)">18</div>
+          <div class="summary-lbl">⚠️ At-Risk Students</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--primary)">85%</div>
+          <div class="summary-lbl">📋 Submission Rate</div>
+        </div>
+      </div>
+
+      <!-- Score Distribution -->
+      <div class="card" style="margin-bottom:24px">
+        <div class="section-hdr">
+          <h3>📊 Score Distribution</h3>
+          <span class="badge badge-primary">All Courses</span>
+        </div>
+        <div class="distribution-bar">
+          <div class="dist-seg" style="width:8%; background:#ef4444">8%</div>
+          <div class="dist-seg" style="width:10%; background:#f97316">10%</div>
+          <div class="dist-seg" style="width:22%; background:#f59e0b">22%</div>
+          <div class="dist-seg" style="width:38%; background:#10b981">38%</div>
+          <div class="dist-seg" style="width:22%; background:#4f46e5">22%</div>
+        </div>
+        <div style="display:flex; gap:20px; font-size:.78rem; flex-wrap:wrap">
+          <span><span style="color:#ef4444; font-weight:700">■</span> Below 50% (8%)</span>
+          <span><span style="color:#f97316; font-weight:700">■</span> 50–60% (10%)</span>
+          <span><span style="color:#f59e0b; font-weight:700">■</span> 60–75% (22%)</span>
+          <span><span style="color:#10b981; font-weight:700">■</span> 75–90% (38%)</span>
+          <span><span style="color:#4f46e5; font-weight:700">■</span> 90–100% (22%)</span>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search students..." oninput="filterStudents(this.value)" />
+        </div>
+        <select class="form-control" style="width:auto; padding:10px 16px;">
+          <option>All Courses</option>
+          <option>Cloud Fundamentals</option>
+          <option>Database Systems</option>
+          <option>Machine Learning Basics</option>
+        </select>
+        <select class="form-control" style="width:auto; padding:10px 16px;">
+          <option>All Students</option>
+          <option>Top Performers (≥90%)</option>
+          <option>At Risk (&lt;60%)</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+
+      <!-- Performance Leaderboard Header -->
+      <div style="display:flex; gap:16px; padding:10px 20px; font-size:.72rem; font-weight:700; color:var(--gray-500); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px">
+        <div style="width:28px">#</div>
+        <div style="width:40px"></div>
+        <div style="flex:1">Student</div>
+        <div style="min-width:80px; text-align:center">Quiz Avg</div>
+        <div style="min-width:80px; text-align:center">Assign.</div>
+        <div style="min-width:80px; text-align:center">Progress</div>
+        <div style="min-width:100px">Overall</div>
+        <div style="width:70px"></div>
+      </div>
+
+      <div id="perf-list">
+        <!-- Students -->
+        <div class="student-performance-row" data-name="Arjun Sharma">
+          <div class="student-rank">🥇</div>
+          <div class="student-avatar-sm" style="background:linear-gradient(135deg, #4f46e5, #7c3aed)">AS</div>
+          <div class="student-name-col">
+            <div class="student-name-text">Arjun Sharma</div>
+            <div class="student-email">arjun.sharma@student.edu</div>
+          </div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--success)">98%</div><div class="perf-lbl">Quizzes</div></div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--success)">96%</div><div class="perf-lbl">Assignments</div></div>
+          <div class="mini-bar-wrap">
+            <div style="font-size:.72rem; color:var(--gray-400); margin-bottom:4px">95% complete</div>
+            <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:95%"></div></div>
+          </div>
+          <div class="perf-col"><span class="badge badge-success" style="font-size:.82rem">A+ (97%)</span></div>
+          <div class="student-actions">
+            <button class="icon-btn view" title="View profile" onclick="window.location='students.html'"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn msg" title="Send message" onclick="showToast('Message sent!', 'success')"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="student-performance-row" data-name="Priya Nair">
+          <div class="student-rank">🥈</div>
+          <div class="student-avatar-sm" style="background:linear-gradient(135deg, #06b6d4, #3b82f6)">PN</div>
+          <div class="student-name-col">
+            <div class="student-name-text">Priya Nair</div>
+            <div class="student-email">priya.nair@student.edu</div>
+          </div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--success)">95%</div><div class="perf-lbl">Quizzes</div></div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--success)">94%</div><div class="perf-lbl">Assignments</div></div>
+          <div class="mini-bar-wrap">
+            <div style="font-size:.72rem; color:var(--gray-400); margin-bottom:4px">92% complete</div>
+            <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:92%"></div></div>
+          </div>
+          <div class="perf-col"><span class="badge badge-success" style="font-size:.82rem">A+ (95%)</span></div>
+          <div class="student-actions">
+            <button class="icon-btn view" title="View profile"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn msg" title="Send message" onclick="showToast('Message sent!', 'success')"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="student-performance-row" data-name="Rohan Verma">
+          <div class="student-rank">🥉</div>
+          <div class="student-avatar-sm" style="background:linear-gradient(135deg, #10b981, #059669)">RV</div>
+          <div class="student-name-col">
+            <div class="student-name-text">Rohan Verma</div>
+            <div class="student-email">rohan.verma@student.edu</div>
+          </div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--success)">90%</div><div class="perf-lbl">Quizzes</div></div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--success)">93%</div><div class="perf-lbl">Assignments</div></div>
+          <div class="mini-bar-wrap">
+            <div style="font-size:.72rem; color:var(--gray-400); margin-bottom:4px">88% complete</div>
+            <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:88%"></div></div>
+          </div>
+          <div class="perf-col"><span class="badge badge-success" style="font-size:.82rem">A (92%)</span></div>
+          <div class="student-actions">
+            <button class="icon-btn view" title="View profile"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn msg" title="Send message" onclick="showToast('Message sent!', 'success')"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="student-performance-row" data-name="Sneha Patel">
+          <div class="student-rank" style="color:var(--gray-600)">4</div>
+          <div class="student-avatar-sm" style="background:linear-gradient(135deg, #f59e0b, #ef4444)">SP</div>
+          <div class="student-name-col">
+            <div class="student-name-text">Sneha Patel</div>
+            <div class="student-email">sneha.patel@student.edu</div>
+          </div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--success)">88%</div><div class="perf-lbl">Quizzes</div></div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--success)">87%</div><div class="perf-lbl">Assignments</div></div>
+          <div class="mini-bar-wrap">
+            <div style="font-size:.72rem; color:var(--gray-400); margin-bottom:4px">80% complete</div>
+            <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:80%"></div></div>
+          </div>
+          <div class="perf-col"><span class="badge badge-success" style="font-size:.82rem">A (88%)</span></div>
+          <div class="student-actions">
+            <button class="icon-btn view" title="View profile"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn msg" title="Send message" onclick="showToast('Message sent!', 'success')"><i class="fas fa-comment"></i></button>
+          </div>
+        </div>
+
+        <!-- At-Risk Student -->
+        <div class="student-performance-row" data-name="Ankit Sinha" style="border-left:4px solid var(--danger)">
+          <div class="student-rank" style="color:var(--gray-600)">18</div>
+          <div class="student-avatar-sm" style="background:linear-gradient(135deg, #ef4444, #dc2626)">AS</div>
+          <div class="student-name-col">
+            <div class="student-name-text">Ankit Sinha <span class="badge badge-danger" style="font-size:.65rem; margin-left:6px">⚠️ At Risk</span></div>
+            <div class="student-email">ankit.sinha@student.edu · Last active: 2 weeks ago</div>
+          </div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--danger)">42%</div><div class="perf-lbl">Quizzes</div></div>
+          <div class="perf-col"><div class="perf-val" style="color:var(--danger)">35%</div><div class="perf-lbl">Assignments</div></div>
+          <div class="mini-bar-wrap">
+            <div style="font-size:.72rem; color:var(--gray-400); margin-bottom:4px">18% complete</div>
+            <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:18%; background:linear-gradient(135deg, #ef4444, #dc2626)"></div></div>
+          </div>
+          <div class="perf-col"><span class="badge badge-danger" style="font-size:.82rem">F (38%)</span></div>
+          <div class="student-actions">
+            <button class="icon-btn view" title="View profile"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn msg" title="Send alert" onclick="showToast('Intervention alert sent to Ankit!', 'info')"><i class="fas fa-comment-exclamation"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  requireAuth('teacher');
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+  });
+
+  function filterStudents(query) {
+    document.querySelectorAll('.student-performance-row').forEach(row => {
+      const name = row.dataset.name || '';
+      row.style.display = name.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>
+

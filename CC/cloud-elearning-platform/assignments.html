@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Assignments — CloudLearn</title>
+  <meta name="description" content="View and submit your course assignments on CloudLearn." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .assignment-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      border-left: 4px solid var(--primary);
+      transition: var(--transition);
+      margin-bottom: 16px;
+    }
+    .assignment-card:hover { box-shadow: var(--shadow-md); transform: translateX(4px); }
+    .assignment-card.overdue { border-left-color: var(--danger); }
+    .assignment-card.submitted { border-left-color: var(--success); }
+    .assignment-card.graded { border-left-color: var(--accent); }
+    .assignment-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 12px; }
+    .assignment-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; color: var(--gray-900); margin-bottom: 4px; }
+    .assignment-course { font-size: .82rem; color: var(--primary); font-weight: 500; }
+    .assignment-meta { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+    .meta-item { display: flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--gray-500); }
+    .meta-item i { font-size: .75rem; }
+    .meta-item.urgent { color: var(--danger); font-weight: 600; }
+    .grade-pill { background: var(--grad-accent); color: var(--white); padding: 4px 14px; border-radius: var(--radius-full); font-size: .82rem; font-weight: 700; }
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-btn { padding: 8px 20px; border-radius: var(--radius-full); font-size: .82rem; font-weight: 600; background: var(--white); color: var(--gray-600); border: 2px solid var(--gray-200); cursor: pointer; transition: var(--transition); }
+    .filter-btn.active, .filter-btn:hover { background: var(--primary); color: var(--white); border-color: var(--primary); }
+    .submit-modal-btn { margin-left: auto; }
+    .upload-zone { border: 2px dashed var(--gray-300); border-radius: var(--radius-md); padding: 40px 24px; text-align: center; cursor: pointer; transition: var(--transition); background: var(--gray-50); }
+    .upload-zone:hover { border-color: var(--primary); background: #ede9fe; }
+    .upload-zone i { font-size: 2.5rem; color: var(--gray-400); margin-bottom: 12px; }
+    .upload-zone p { color: var(--gray-500); font-size: .9rem; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-mini { background: var(--white); border-radius: var(--radius-md); padding: 16px 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); text-align: center; }
+    .stat-mini-val { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
+    .stat-mini-label { font-size: .75rem; color: var(--gray-500); margin-top: 4px; }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar student-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-cloud"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Student Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">🎓 Student</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Student navigation">
+      <div class="nav-section-label">Main Menu</div>
+      <a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="courses.html#browse" class="nav-link"><i class="fas fa-search"></i> Browse Courses</a>
+      <div class="nav-section-label">Learning</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-alt"></i> Study Materials</a>
+      <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quizzes</a>
+      <a href="assignments.html" class="nav-link active"><i class="fas fa-tasks"></i> Assignments</a>
+      <a href="results.html" class="nav-link"><i class="fas fa-star"></i> Results</a>
+      <a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i> My Progress</a>
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bell"></i> Notifications <span class="nav-badge">3</span></a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">My Assignments</h1>
+          <p class="page-sub">Track, submit, and view your graded assignments</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('submit-modal').style.display='flex'">
+          <i class="fas fa-upload"></i> Submit Assignment
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-mini">
+          <div class="stat-mini-val" style="color: var(--warning)">4</div>
+          <div class="stat-mini-label">📋 Pending</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val" style="color: var(--success)">12</div>
+          <div class="stat-mini-label">✅ Submitted</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val" style="color: var(--accent)">9</div>
+          <div class="stat-mini-label">🏆 Graded</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val" style="color: var(--danger)">1</div>
+          <div class="stat-mini-label">⚠️ Overdue</div>
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterAssignments('all', this)">All</button>
+        <button class="filter-btn" onclick="filterAssignments('pending', this)">Pending</button>
+        <button class="filter-btn" onclick="filterAssignments('submitted', this)">Submitted</button>
+        <button class="filter-btn" onclick="filterAssignments('graded', this)">Graded</button>
+        <button class="filter-btn" onclick="filterAssignments('overdue', this)">Overdue</button>
+      </div>
+
+      <!-- Assignment List -->
+      <div id="assignments-list">
+
+        <!-- Overdue -->
+        <div class="assignment-card overdue" data-status="overdue">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">Research Paper: Cloud Computing Paradigms</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Cloud Fundamentals</div>
+            </div>
+            <span class="badge badge-danger">Overdue</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Write a 2000-word research paper exploring the evolution of cloud computing, covering SaaS, PaaS, and IaaS models with real-world examples.</p>
+          <div class="assignment-meta">
+            <span class="meta-item urgent"><i class="fas fa-exclamation-circle"></i> Due: Sep 10, 2026</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 30 points</span>
+            <span class="meta-item"><i class="fas fa-file-pdf"></i> PDF required</span>
+            <button class="btn btn-danger btn-sm submit-modal-btn" onclick="openSubmitModal('Research Paper: Cloud Computing Paradigms')">
+              <i class="fas fa-upload"></i> Submit Late
+            </button>
+          </div>
+        </div>
+
+        <!-- Pending -->
+        <div class="assignment-card" data-status="pending">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">Database Design Project: ER Diagrams</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Database Systems</div>
+            </div>
+            <span class="badge badge-warning">Pending</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Design a comprehensive ER diagram for a hospital management system. Include entities, relationships, cardinality, and normalization up to 3NF.</p>
+          <div class="assignment-meta">
+            <span class="meta-item urgent"><i class="fas fa-clock"></i> Due: Sep 22, 2026 (5 days left)</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 25 points</span>
+            <span class="meta-item"><i class="fas fa-image"></i> Image/PDF</span>
+            <button class="btn btn-primary btn-sm submit-modal-btn" onclick="openSubmitModal('Database Design Project: ER Diagrams')">
+              <i class="fas fa-upload"></i> Submit
+            </button>
+          </div>
+        </div>
+
+        <div class="assignment-card" data-status="pending">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">Machine Learning Lab: Linear Regression Implementation</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Machine Learning Basics</div>
+            </div>
+            <span class="badge badge-warning">Pending</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Implement a linear regression model from scratch using Python. Apply it to the provided housing dataset and report RMSE and R² scores.</p>
+          <div class="assignment-meta">
+            <span class="meta-item"><i class="fas fa-clock"></i> Due: Sep 28, 2026</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 40 points</span>
+            <span class="meta-item"><i class="fas fa-code"></i> .ipynb / .py</span>
+            <button class="btn btn-primary btn-sm submit-modal-btn" onclick="openSubmitModal('ML Lab: Linear Regression')">
+              <i class="fas fa-upload"></i> Submit
+            </button>
+          </div>
+        </div>
+
+        <div class="assignment-card" data-status="pending">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">Responsive Web Design Portfolio</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Web Development</div>
+            </div>
+            <span class="badge badge-warning">Pending</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Build a responsive personal portfolio website using HTML, CSS, and JavaScript. Must include at least 3 sections and be mobile-friendly.</p>
+          <div class="assignment-meta">
+            <span class="meta-item"><i class="fas fa-clock"></i> Due: Oct 05, 2026</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 50 points</span>
+            <span class="meta-item"><i class="fas fa-link"></i> GitHub link required</span>
+            <button class="btn btn-primary btn-sm submit-modal-btn" onclick="openSubmitModal('Responsive Web Design Portfolio')">
+              <i class="fas fa-upload"></i> Submit
+            </button>
+          </div>
+        </div>
+
+        <div class="assignment-card" data-status="pending">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">Network Security Analysis Report</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Cybersecurity Fundamentals</div>
+            </div>
+            <span class="badge badge-warning">Pending</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Analyze a provided network packet capture (PCAP) file and identify potential security threats. Write a detailed incident report.</p>
+          <div class="assignment-meta">
+            <span class="meta-item"><i class="fas fa-clock"></i> Due: Oct 10, 2026</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 35 points</span>
+            <span class="meta-item"><i class="fas fa-file-word"></i> DOCX/PDF</span>
+            <button class="btn btn-primary btn-sm submit-modal-btn" onclick="openSubmitModal('Network Security Analysis Report')">
+              <i class="fas fa-upload"></i> Submit
+            </button>
+          </div>
+        </div>
+
+        <!-- Submitted -->
+        <div class="assignment-card submitted" data-status="submitted">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">Python OOP: Bank Account System</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Python Programming</div>
+            </div>
+            <span class="badge badge-info">Under Review</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Implement a bank account management system using OOP principles. Must include inheritance, encapsulation, and exception handling.</p>
+          <div class="assignment-meta">
+            <span class="meta-item"><i class="fas fa-check-circle" style="color:var(--success)"></i> Submitted: Sep 14, 2026</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 30 points</span>
+            <span class="meta-item"><i class="fas fa-hourglass-half"></i> Awaiting grade</span>
+          </div>
+        </div>
+
+        <div class="assignment-card submitted" data-status="submitted">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">Data Structures: Binary Search Tree</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Data Structures & Algorithms</div>
+            </div>
+            <span class="badge badge-info">Under Review</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Implement a BST with insert, delete, search, and traversal operations. Provide time complexity analysis for each operation.</p>
+          <div class="assignment-meta">
+            <span class="meta-item"><i class="fas fa-check-circle" style="color:var(--success)"></i> Submitted: Sep 12, 2026</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 45 points</span>
+            <span class="meta-item"><i class="fas fa-hourglass-half"></i> Awaiting grade</span>
+          </div>
+        </div>
+
+        <!-- Graded -->
+        <div class="assignment-card graded" data-status="graded">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">SQL Queries & Joins Exercises</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Database Systems</div>
+            </div>
+            <span class="badge badge-success">Graded</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Complete 20 SQL queries covering SELECT, JOIN, GROUP BY, subqueries, and window functions on the provided sample database.</p>
+          <div class="assignment-meta">
+            <span class="meta-item"><i class="fas fa-check-circle" style="color:var(--success)"></i> Submitted: Sep 08, 2026</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 25 points</span>
+            <span class="grade-pill">22 / 25</span>
+          </div>
+          <div style="margin-top:12px; padding:12px; background:var(--gray-50); border-radius:var(--radius-md); font-size:.82rem; color:var(--gray-600);">
+            <strong>Feedback:</strong> Excellent work! Minor issues in window function syntax. Keep it up!
+          </div>
+        </div>
+
+        <div class="assignment-card graded" data-status="graded">
+          <div class="assignment-header">
+            <div>
+              <div class="assignment-title">OS Scheduling Algorithms Simulation</div>
+              <div class="assignment-course"><i class="fas fa-book"></i> Operating Systems</div>
+            </div>
+            <span class="badge badge-success">Graded</span>
+          </div>
+          <p style="font-size:.88rem; color:var(--gray-600);">Simulate FCFS, SJF, Round Robin, and Priority scheduling algorithms. Plot Gantt charts and calculate average waiting time.</p>
+          <div class="assignment-meta">
+            <span class="meta-item"><i class="fas fa-check-circle" style="color:var(--success)"></i> Submitted: Sep 01, 2026</span>
+            <span class="meta-item"><i class="fas fa-weight-hanging"></i> 40 points</span>
+            <span class="grade-pill">38 / 40</span>
+          </div>
+          <div style="margin-top:12px; padding:12px; background:var(--gray-50); border-radius:var(--radius-md); font-size:.82rem; color:var(--gray-600);">
+            <strong>Feedback:</strong> Outstanding simulation! All algorithms correctly implemented. Great visualizations!
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Submit Modal -->
+<div class="modal-overlay" id="submit-modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="section-title" style="margin-bottom:0; font-size:1.1rem">Submit Assignment</h3>
+      <button class="modal-close" onclick="document.getElementById('submit-modal').style.display='none'"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Assignment</label>
+        <input type="text" class="form-control" id="modal-assignment-name" readonly />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Upload File</label>
+        <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Click to upload or drag & drop</p>
+          <p style="font-size:.78rem; margin-top:4px;">PDF, DOCX, ZIP, .py, .ipynb (max 50MB)</p>
+        </div>
+        <input type="file" id="file-input" style="display:none" accept=".pdf,.docx,.zip,.py,.ipynb" onchange="handleFileSelect(this)" />
+        <div id="file-preview" style="display:none; margin-top:12px;"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes (Optional)</label>
+        <textarea class="form-control" rows="3" placeholder="Add any notes for your instructor..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('submit-modal').style.display='none'">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="submitAssignment()"><i class="fas fa-paper-plane"></i> Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  requireAuth('student');
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+  });
+
+  function filterAssignments(status, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.assignment-card').forEach(card => {
+      if (status === 'all' || card.dataset.status === status) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function openSubmitModal(name) {
+    document.getElementById('modal-assignment-name').value = name;
+    document.getElementById('submit-modal').style.display = 'flex';
+  }
+
+  function handleFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const preview = document.getElementById('file-preview');
+    preview.style.display = 'flex';
+    preview.style.gap = '10px';
+    preview.style.alignItems = 'center';
+    preview.innerHTML = `<i class="fas fa-file" style="color:var(--primary)"></i><span style="font-size:.88rem;">${file.name} (${(file.size/1024).toFixed(1)} KB)</span>`;
+  }
+
+  function submitAssignment() {
+    const fileInput = document.getElementById('file-input');
+    if (!fileInput.files[0]) { showToast('Please select a file to submit.', 'warning'); return; }
+    showLoading();
+    setTimeout(() => {
+      hideLoading();
+      document.getElementById('submit-modal').style.display = 'none';
+      showToast('Assignment submitted successfully!', 'success');
+    }, 1500);
+  }
+</script>
+</body>
+</html>
+

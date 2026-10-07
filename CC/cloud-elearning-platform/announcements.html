@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Announcements — CloudLearn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/teacher.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+  <aside class="sidebar student-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-cloud"></i></div>
+      <div class="sidebar-brand-text"><div class="brand-name">CloudLearn</div><div class="brand-sub" id="portal-label">Portal</div></div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info"><div class="name" id="sidebar-name">Loading...</div><div class="role-tag" id="role-tag">Loading...</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" id="dashboard-link" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="courses.html" class="nav-link"><i class="fas fa-book-open"></i> Courses</a>
+      <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+      <a href="announcements.html" class="nav-link active"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer"><button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
+  </aside>
+
+  <main class="main-content">
+    <header class="top-nav">
+      <div class="flex items-center gap-2">
+        <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
+        <span class="top-nav-title">Announcements</span>
+      </div>
+      <div class="top-nav-right">
+        <a href="profile.html" class="top-avatar user-avatar-initials">?</a>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- Teacher: Create Announcement -->
+      <div id="create-section" style="display:none;margin-bottom:24px">
+        <div class="card">
+          <div class="section-hdr" style="margin-bottom:20px">
+            <h3 style="font-family:var(--font-heading);font-weight:600"><i class="fas fa-bullhorn" style="color:var(--primary);margin-right:8px"></i>Post Announcement</h3>
+            <button id="toggle-form-btn" class="btn btn-primary btn-sm" onclick="toggleForm()"><i class="fas fa-plus"></i> New</button>
+          </div>
+
+          <div id="announce-form" style="display:none">
+            <div id="form-msg" style="display:none" class="alert"></div>
+            <div class="form-group">
+              <label class="form-label" for="ann-title">Title</label>
+              <input type="text" id="ann-title" class="form-control" placeholder="Announcement title..." />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ann-message">Message</label>
+              <textarea id="ann-message" class="form-control" rows="4" placeholder="Write your announcement here..."></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label" for="ann-target">Target Audience</label>
+                <select id="ann-target" class="form-control">
+                  <option value="all">All Students</option>
+                  <option value="course">Specific Course</option>
+                  <option value="general">General</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="ann-type">Type</label>
+                <select id="ann-type" class="form-control">
+                  <option value="info">ℹ️ Information</option>
+                  <option value="quiz">📝 Quiz</option>
+                  <option value="assignment">📋 Assignment</option>
+                  <option value="exam">📚 Exam</option>
+                  <option value="holiday">🎉 Holiday</option>
+                  <option value="material">📁 Material</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-primary btn-sm" onclick="postAnnouncement()"><i class="fas fa-paper-plane"></i> Post</button>
+              <button class="btn btn-secondary btn-sm" onclick="toggleForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Announcements List -->
+      <div class="card">
+        <div class="section-hdr" style="margin-bottom:20px">
+          <h3 style="font-family:var(--font-heading);font-weight:600"><i class="fas fa-bell" style="color:var(--warning);margin-right:8px"></i>All Announcements</h3>
+          <span id="ann-count" class="badge badge-primary">Loading...</span>
+        </div>
+        <div id="ann-list">
+          <div style="text-align:center;padding:40px;color:var(--gray-400)">
+            <i class="fas fa-spinner fa-spin" style="font-size:2rem"></i><p>Loading...</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+<div id="toast-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+requireAuth(null);
+
+let currentUserRole = null;
+let currentUserId = null;
+
+document.addEventListener('userReady', async (e) => {
+  const user = e.detail;
+  currentUserRole = user.role;
+  currentUserId = user.uid;
+
+  document.getElementById('sidebar-name').textContent = user.name;
+  setAvatarInitials(user.name);
+
+  const isTeacher = user.role === 'teacher';
+  document.getElementById('portal-label').textContent = isTeacher ? 'Faculty Portal' : 'Student Portal';
+  document.getElementById('role-tag').textContent = isTeacher ? '👨‍🏫 Faculty' : '🎓 Student';
+  document.getElementById('dashboard-link').href = isTeacher ? 'teacher-dashboard.html' : 'student-dashboard.html';
+
+  if (isTeacher) {
+    document.getElementById('create-section').style.display = 'block';
+    document.querySelector('.student-sidebar').style.background = 'linear-gradient(180deg, #064e3b 0%, #065f46 60%, #064e3b 100%)';
+  }
+
+  await loadAnnouncements();
+});
+
+function toggleForm() {
+  const form = document.getElementById('announce-form');
+  const btn  = document.getElementById('toggle-form-btn');
+  if (form.style.display === 'none') {
+    form.style.display = 'block';
+    btn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+  } else {
+    form.style.display = 'none';
+    btn.innerHTML = '<i class="fas fa-plus"></i> New';
+  }
+}
+
+async function postAnnouncement() {
+  const title   = document.getElementById('ann-title').value.trim();
+  const message = document.getElementById('ann-message').value.trim();
+  const target  = document.getElementById('ann-target').value;
+  const type    = document.getElementById('ann-type').value;
+  const msgEl   = document.getElementById('form-msg');
+
+  if (!title || !message) {
+    msgEl.textContent = 'Please fill in title and message.';
+    msgEl.className = 'alert alert-warning';
+    msgEl.style.display = 'flex';
+    return;
+  }
+
+  try {
+    const userDoc = await db.collection('users').doc(currentUserId).get();
+    const userName = userDoc.data().name;
+
+    await db.collection('announcements').add({
+      title,
+      message,
+      target,
+      type,
+      createdBy:   currentUserId,
+      createdByName: userName,
+      createdAt:   firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    showToast('Announcement posted! 📢', 'success');
+    document.getElementById('ann-title').value = '';
+    document.getElementById('ann-message').value = '';
+    msgEl.style.display = 'none';
+    toggleForm();
+    await loadAnnouncements();
+  } catch(err) {
+    msgEl.textContent = 'Failed to post: ' + err.message;
+    msgEl.className = 'alert alert-danger';
+    msgEl.style.display = 'flex';
+  }
+}
+
+async function loadAnnouncements() {
+  const container = document.getElementById('ann-list');
+  try {
+    let snap;
+    try {
+      snap = await db.collection('announcements').orderBy('createdAt','desc').get();
+    } catch {
+      snap = await db.collection('announcements').get();
+    }
+
+    document.getElementById('ann-count').textContent = snap.size + ' Announcements';
+
+    if (snap.empty) {
+      // Show sample announcements
+      container.innerHTML = getSampleAnnouncements();
+      return;
+    }
+
+    const typeColors = { quiz:'var(--info)', assignment:'var(--warning)', exam:'var(--danger)', material:'var(--success)', info:'var(--primary)', holiday:'#f59e0b', general:'var(--gray-500)' };
+    const typeIcons  = { quiz:'clipboard-list', assignment:'tasks', exam:'book', material:'file-alt', info:'info-circle', holiday:'star', general:'bell' };
+
+    container.innerHTML = snap.docs.map(doc => {
+      const a = doc.data();
+      const color = typeColors[a.type] || typeColors.info;
+      const icon  = typeIcons[a.type]  || 'bell';
+      const date  = a.createdAt?.toDate ? a.createdAt.toDate().toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : 'N/A';
+      return `
+        <div style="border-left:4px solid ${color};padding:18px 20px;border-radius:0 var(--radius-md) var(--radius-md) 0;background:var(--gray-50);margin-bottom:14px;transition:var(--transition)"
+             onmouseover="this.style.background='var(--white)'" onmouseout="this.style.background='var(--gray-50)'">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <div style="display:flex;gap:12px;align-items:flex-start;flex:1">
+              <div style="width:40px;height:40px;border-radius:10px;background:${color}20;display:flex;align-items:center;justify-content:center;color:${color};flex-shrink:0;margin-top:2px">
+                <i class="fas fa-${icon}"></i>
+              </div>
+              <div>
+                <h4 style="font-weight:600;font-size:.95rem;color:var(--gray-900);margin-bottom:6px">${a.title}</h4>
+                <p style="font-size:.88rem;color:var(--gray-600);line-height:1.6">${a.message}</p>
+                <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+                  <span style="font-size:.75rem;color:var(--gray-400)"><i class="fas fa-user" style="margin-right:4px"></i>${a.createdByName || 'Faculty'}</span>
+                  <span style="font-size:.75rem;color:var(--gray-400)"><i class="fas fa-calendar" style="margin-right:4px"></i>${date}</span>
+                  <span class="badge badge-primary" style="font-size:.7rem">${a.target || 'All Students'}</span>
+                </div>
+              </div>
+            </div>
+            ${currentUserRole === 'teacher' && a.createdBy === currentUserId ? `
+              <button onclick="deleteAnnouncement('${doc.id}')" class="btn btn-danger btn-sm" style="flex-shrink:0"><i class="fas fa-trash"></i></button>
+            ` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+  } catch(err) {
+    container.innerHTML = getSampleAnnouncements();
+  }
+}
+
+async function deleteAnnouncement(id) {
+  if (!confirm('Delete this announcement?')) return;
+  try {
+    await db.collection('announcements').doc(id).delete();
+    showToast('Announcement deleted.', 'info');
+    await loadAnnouncements();
+  } catch(err) {
+    showToast('Failed to delete: ' + err.message, 'error');
+  }
+}
+
+function getSampleAnnouncements() {
+  const samples = [
+    { color:'var(--info)',    icon:'clipboard-list', title:'Cloud Computing Quiz 2 Scheduled', msg:'Quiz 2 covering Chapters 4-6 is scheduled for September 20, 2026. Prepare your notes on virtualization and containerization.', author:'Dr. Keerthi', date:'Sep 16, 2026', target:'Cloud Computing' },
+    { color:'var(--warning)', icon:'tasks',          title:'Python Assignment 2 Due Date', msg:'Python Assignment 2 (File Handling & OOP) deadline is September 22, 2026. Late submissions will incur a 10% penalty.', author:'Prof. Ramesh',  date:'Sep 15, 2026', target:'Python Programming' },
+    { color:'var(--danger)',  icon:'book',           title:'Deep Learning Mid-Term Exam', msg:'Mid-term examination for Deep Learning will be held on September 25, 2026 from 10 AM to 1 PM in Hall B.', author:'Dr. Priya',    date:'Sep 14, 2026', target:'Deep Learning' },
+    { color:'var(--success)', icon:'file-alt',       title:'New Study Materials Uploaded', msg:'Chapter 5 slides and recorded lecture videos for Cloud Computing have been uploaded to the Study Materials section.', author:'Dr. Keerthi', date:'Sep 13, 2026', target:'All Students' },
+  ];
+  return '<p style="font-size:.8rem;color:var(--gray-400);margin-bottom:16px">Showing sample announcements. Post real ones from Firebase.</p>' +
+    samples.map(a => `
+    <div style="border-left:4px solid ${a.color};padding:18px 20px;border-radius:0 var(--radius-md) var(--radius-md) 0;background:var(--gray-50);margin-bottom:14px">
+      <div style="display:flex;gap:12px">
+        <div style="width:40px;height:40px;border-radius:10px;background:${a.color}20;display:flex;align-items:center;justify-content:center;color:${a.color};flex-shrink:0">
+          <i class="fas fa-${a.icon}"></i>
+        </div>
+        <div>
+          <h4 style="font-weight:600;font-size:.95rem;color:var(--gray-900);margin-bottom:6px">${a.title}</h4>
+          <p style="font-size:.88rem;color:var(--gray-600);line-height:1.6">${a.msg}</p>
+          <div style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap">
+            <span style="font-size:.75rem;color:var(--gray-400)"><i class="fas fa-user" style="margin-right:4px"></i>${a.author}</span>
+            <span style="font-size:.75rem;color:var(--gray-400)"><i class="fas fa-calendar" style="margin-right:4px"></i>${a.date}</span>
+            <span class="badge badge-primary" style="font-size:.7rem">${a.target}</span>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => { initSidebarToggle(); });
+</script>
+</body>
+</html>
+

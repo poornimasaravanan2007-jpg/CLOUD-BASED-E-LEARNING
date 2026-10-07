@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Assignments — CloudLearn</title>
+  <meta name="description" content="Create, grade, and manage course assignments for your CloudLearn students." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/student.css?v=3" />
+  <link rel="stylesheet" href="css/teacher.css?v=3" />
+  <link rel="stylesheet" href="css/responsive.css?v=3" />
+  <style>
+    .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+    .search-box { position: relative; flex: 1; min-width: 200px; }
+    .search-box input { width: 100%; padding: 10px 16px 10px 40px; border: 2px solid var(--gray-200); border-radius: var(--radius-full); font-size: .88rem; outline: none; transition: var(--transition); }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+    .assignment-row { background: var(--white); border-radius: var(--radius-md); padding: 18px 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); margin-bottom: 12px; display: flex; align-items: center; gap: 16px; transition: var(--transition); }
+    .assignment-row:hover { box-shadow: var(--shadow-md); }
+    .assign-icon { width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .assign-info { flex: 1; min-width: 0; }
+    .assign-title { font-weight: 600; font-size: .92rem; color: var(--gray-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .assign-meta { font-size: .78rem; color: var(--gray-500); margin-top: 3px; }
+    .assign-stats { display: flex; gap: 20px; align-items: center; }
+    .stat-pill { text-align: center; }
+    .stat-pill .val { font-weight: 700; font-size: .95rem; color: var(--gray-800); }
+    .stat-pill .lbl { font-size: .7rem; color: var(--gray-400); }
+    .assign-actions { display: flex; gap: 8px; }
+    .icon-btn { width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .85rem; cursor: pointer; transition: var(--transition); border: none; }
+    .icon-btn.edit { background: #ede9fe; color: var(--primary); }
+    .icon-btn.edit:hover { background: var(--primary); color: #fff; }
+    .icon-btn.view { background: #dbeafe; color: #2563eb; }
+    .icon-btn.view:hover { background: #2563eb; color: #fff; }
+    .icon-btn.del { background: #fee2e2; color: var(--danger); }
+    .icon-btn.del:hover { background: var(--danger); color: #fff; }
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .summary-card { background: var(--white); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); text-align: center; border: 1px solid var(--gray-100); }
+    .summary-val { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
+    .summary-lbl { font-size: .75rem; color: var(--gray-500); margin-top: 4px; }
+    .grade-modal-table { width: 100%; border-collapse: collapse; }
+    .grade-modal-table th { text-align: left; font-size: .78rem; color: var(--gray-500); padding: 8px; border-bottom: 1px solid var(--gray-200); }
+    .grade-modal-table td { padding: 10px 8px; font-size: .85rem; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    .grade-input { width: 70px; padding: 6px 8px; border: 2px solid var(--gray-200); border-radius: var(--radius-sm); font-size: .88rem; text-align: center; outline: none; }
+    .grade-input:focus { border-color: var(--primary); }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Faculty Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Teacher navigation">
+      <div class="nav-section-label">Main</div>
+      <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="manage-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="create-course.html" class="nav-link"><i class="fas fa-plus-circle"></i> Create Course</a>
+      <div class="nav-section-label">Content</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-upload"></i> Manage Materials</a>
+      <a href="manage-quizzes.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+      <a href="manage-assignments.html" class="nav-link active"><i class="fas fa-tasks"></i> Assignments</a>
+      <div class="nav-section-label">Students</div>
+      <a href="students.html" class="nav-link"><i class="fas fa-users"></i> Students</a>
+      <a href="student-performance.html" class="nav-link"><i class="fas fa-chart-bar"></i> Performance</a>
+      <a href="course-analytics.html" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Manage Assignments</h1>
+          <p class="page-sub">Create assignments, track submissions, and grade student work</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="openCreateModal()">
+          <i class="fas fa-plus"></i> New Assignment
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Summary -->
+      <div class="summary-row">
+        <div class="summary-card">
+          <div class="summary-val">14</div>
+          <div class="summary-lbl">📋 Total Assignments</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--warning)">47</div>
+          <div class="summary-lbl">📥 Pending Reviews</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--success)">189</div>
+          <div class="summary-lbl">✅ Graded</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--primary)">85%</div>
+          <div class="summary-lbl">📊 Submission Rate</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search assignments..." oninput="filterRows(this.value)" />
+        </div>
+        <select class="form-control" style="width:auto; padding:10px 16px;">
+          <option>All Courses</option>
+          <option>Cloud Fundamentals</option>
+          <option>Database Systems</option>
+          <option>Machine Learning Basics</option>
+        </select>
+        <select class="form-control" style="width:auto; padding:10px 16px;">
+          <option>All Status</option>
+          <option>Active</option>
+          <option>Closed</option>
+          <option>Draft</option>
+        </select>
+      </div>
+
+      <!-- Assignment Rows -->
+      <div id="assignments-rows">
+
+        <div class="assignment-row" data-title="Research Paper Cloud Computing">
+          <div class="assign-icon" style="background:#ede9fe; color:#4f46e5"><i class="fas fa-file-alt"></i></div>
+          <div class="assign-info">
+            <div class="assign-title">Research Paper: Cloud Computing Paradigms</div>
+            <div class="assign-meta">Cloud Fundamentals · Due: Sep 10, 2026 · 30 pts</div>
+          </div>
+          <div class="assign-stats">
+            <div class="stat-pill"><div class="val">48</div><div class="lbl">Submitted</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--warning)">12</div><div class="lbl">Pending</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--success)">36</div><div class="lbl">Graded</div></div>
+          </div>
+          <span class="badge badge-danger">Overdue</span>
+          <div class="assign-actions">
+            <button class="icon-btn view" title="View submissions" onclick="openGradeModal()"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn edit" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+            <button class="icon-btn del" title="Delete" onclick="confirmDelete('Research Paper')"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div class="assignment-row" data-title="Database Design Project ER Diagrams">
+          <div class="assign-icon" style="background:#d1fae5; color:#065f46"><i class="fas fa-project-diagram"></i></div>
+          <div class="assign-info">
+            <div class="assign-title">Database Design Project: ER Diagrams</div>
+            <div class="assign-meta">Database Systems · Due: Sep 22, 2026 · 25 pts</div>
+          </div>
+          <div class="assign-stats">
+            <div class="stat-pill"><div class="val">28</div><div class="lbl">Submitted</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--warning)">28</div><div class="lbl">Pending</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--success)">0</div><div class="lbl">Graded</div></div>
+          </div>
+          <span class="badge badge-primary">Active</span>
+          <div class="assign-actions">
+            <button class="icon-btn view" title="View submissions" onclick="openGradeModal()"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn edit" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+            <button class="icon-btn del" title="Delete" onclick="confirmDelete('ER Diagrams')"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div class="assignment-row" data-title="Machine Learning Lab Linear Regression">
+          <div class="assign-icon" style="background:#fef3c7; color:#92400e"><i class="fas fa-brain"></i></div>
+          <div class="assign-info">
+            <div class="assign-title">Machine Learning Lab: Linear Regression Implementation</div>
+            <div class="assign-meta">Machine Learning Basics · Due: Sep 28, 2026 · 40 pts</div>
+          </div>
+          <div class="assign-stats">
+            <div class="stat-pill"><div class="val">15</div><div class="lbl">Submitted</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--warning)">39</div><div class="lbl">Pending</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--success)">0</div><div class="lbl">Graded</div></div>
+          </div>
+          <span class="badge badge-primary">Active</span>
+          <div class="assign-actions">
+            <button class="icon-btn view" title="View submissions" onclick="openGradeModal()"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn edit" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+            <button class="icon-btn del" title="Delete" onclick="confirmDelete('ML Lab')"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div class="assignment-row" data-title="SQL Queries Joins Exercises">
+          <div class="assign-icon" style="background:#dbeafe; color:#2563eb"><i class="fas fa-database"></i></div>
+          <div class="assign-info">
+            <div class="assign-title">SQL Queries & Joins Exercises</div>
+            <div class="assign-meta">Database Systems · Due: Sep 08, 2026 · 25 pts</div>
+          </div>
+          <div class="assign-stats">
+            <div class="stat-pill"><div class="val">62</div><div class="lbl">Submitted</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--warning)">3</div><div class="lbl">Pending</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--success)">59</div><div class="lbl">Graded</div></div>
+          </div>
+          <span class="badge badge-success">Closed</span>
+          <div class="assign-actions">
+            <button class="icon-btn view" title="View submissions" onclick="openGradeModal()"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn edit" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+            <button class="icon-btn del" title="Delete" onclick="confirmDelete('SQL Exercises')"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+        <div class="assignment-row" data-title="OS Scheduling Algorithms Simulation">
+          <div class="assign-icon" style="background:#fce7f3; color:#9d174d"><i class="fas fa-microchip"></i></div>
+          <div class="assign-info">
+            <div class="assign-title">OS Scheduling Algorithms Simulation</div>
+            <div class="assign-meta">Operating Systems · Due: Sep 01, 2026 · 40 pts</div>
+          </div>
+          <div class="assign-stats">
+            <div class="stat-pill"><div class="val">55</div><div class="lbl">Submitted</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--warning)">0</div><div class="lbl">Pending</div></div>
+            <div class="stat-pill"><div class="val" style="color:var(--success)">55</div><div class="lbl">Graded</div></div>
+          </div>
+          <span class="badge badge-success">Closed</span>
+          <div class="assign-actions">
+            <button class="icon-btn view" title="View submissions" onclick="openGradeModal()"><i class="fas fa-eye"></i></button>
+            <button class="icon-btn edit" title="Edit"><i class="fas fa-pencil-alt"></i></button>
+            <button class="icon-btn del" title="Delete" onclick="confirmDelete('OS Simulation')"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Create Assignment Modal -->
+<div class="modal-overlay" id="create-modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-heading); font-size:1.1rem">Create New Assignment</h3>
+      <button class="modal-close" onclick="document.getElementById('create-modal').style.display='none'"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Assignment Title *</label>
+        <input type="text" class="form-control" id="assign-title-input" placeholder="e.g., Research Paper: Cloud Fundamentals" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" rows="4" placeholder="Describe the assignment requirements, guidelines, and submission format..."></textarea>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+        <div class="form-group">
+          <label class="form-label">Course *</label>
+          <select class="form-control">
+            <option>Cloud Fundamentals</option>
+            <option>Database Systems</option>
+            <option>Machine Learning Basics</option>
+            <option>Web Development</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Points *</label>
+          <input type="number" class="form-control" value="30" min="1" max="100" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date *</label>
+          <input type="date" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Allowed Formats</label>
+          <input type="text" class="form-control" placeholder="PDF, DOCX, ZIP" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('create-modal').style.display='none'">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="createAssignment()"><i class="fas fa-save"></i> Create Assignment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grade/View Modal -->
+<div class="modal-overlay" id="grade-modal" style="display:none">
+  <div class="modal-box" style="max-width:700px">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-heading); font-size:1.1rem">📥 Submissions — Research Paper</h3>
+      <button class="modal-close" onclick="document.getElementById('grade-modal').style.display='none'"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <table class="grade-modal-table">
+        <thead>
+          <tr>
+            <th>Student</th><th>Submitted</th><th>File</th><th>Grade / 30</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Arjun Sharma</strong></td>
+            <td><span style="font-size:.75rem; color:var(--gray-500)">Sep 09</span></td>
+            <td><a href="#" style="color:var(--primary); font-size:.82rem"><i class="fas fa-file-pdf"></i> paper.pdf</a></td>
+            <td><input type="number" class="grade-input" placeholder="—" min="0" max="30" /></td>
+            <td><button class="btn btn-primary btn-sm" style="padding:4px 12px; font-size:.78rem">Save</button></td>
+          </tr>
+          <tr>
+            <td><strong>Priya Nair</strong></td>
+            <td><span style="font-size:.75rem; color:var(--gray-500)">Sep 10</span></td>
+            <td><a href="#" style="color:var(--primary); font-size:.82rem"><i class="fas fa-file-pdf"></i> research.pdf</a></td>
+            <td><input type="number" class="grade-input" value="28" min="0" max="30" /></td>
+            <td><button class="btn btn-success btn-sm" style="padding:4px 12px; font-size:.78rem">✓ Graded</button></td>
+          </tr>
+          <tr>
+            <td><strong>Rohan Verma</strong></td>
+            <td><span style="font-size:.75rem; color:var(--danger)">Sep 11 (Late)</span></td>
+            <td><a href="#" style="color:var(--primary); font-size:.82rem"><i class="fas fa-file-pdf"></i> cloud_paper.pdf</a></td>
+            <td><input type="number" class="grade-input" placeholder="—" min="0" max="30" /></td>
+            <td><button class="btn btn-primary btn-sm" style="padding:4px 12px; font-size:.78rem">Save</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('grade-modal').style.display='none'">Close</button>
+      <button class="btn btn-primary btn-sm" onclick="saveGrades()"><i class="fas fa-save"></i> Save All Grades</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  requireAuth('teacher');
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+  });
+
+  function filterRows(query) {
+    document.querySelectorAll('.assignment-row').forEach(row => {
+      const title = row.dataset.title || '';
+      row.style.display = title.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  function openCreateModal() { document.getElementById('create-modal').style.display = 'flex'; }
+  function openGradeModal() { document.getElementById('grade-modal').style.display = 'flex'; }
+
+  function createAssignment() {
+    const title = document.getElementById('assign-title-input').value.trim();
+    if (!title) { showToast('Please enter an assignment title.', 'warning'); return; }
+    showLoading();
+    setTimeout(() => {
+      hideLoading();
+      document.getElementById('create-modal').style.display = 'none';
+      showToast('Assignment created successfully!', 'success');
+    }, 1200);
+  }
+
+  function saveGrades() {
+    showLoading();
+    setTimeout(() => {
+      hideLoading();
+      document.getElementById('grade-modal').style.display = 'none';
+      showToast('Grades saved successfully!', 'success');
+    }, 1000);
+  }
+
+  function confirmDelete(name) {
+    if (confirm(`Delete assignment "${name}"? This cannot be undone.`)) {
+      showToast('Assignment deleted.', 'error');
+    }
+  }
+</script>
+</body>
+</html>
+

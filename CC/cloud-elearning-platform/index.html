@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CloudLearn — Cloud-Based E-Learning Platform</title>
+  <meta name="description" content="CloudLearn is a cloud-powered e-learning platform for students and educators. Learn anytime, anywhere with Firebase-backed courses, quizzes, and assignments." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* ── Landing-specific ── */
+    body { background: #fff; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 900;
+      padding: 0 0;
+      transition: var(--transition);
+    }
+    .navbar.scrolled {
+      background: rgba(255,255,255,.95);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-md);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--white);
+      transition: var(--transition);
+    }
+    .navbar.scrolled .nav-logo { color: var(--gray-900); }
+    .nav-logo-icon {
+      width: 38px; height: 38px;
+      background: var(--grad-primary);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--white);
+      font-size: .9rem;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-links a {
+      padding: 8px 16px;
+      border-radius: var(--radius-full);
+      font-size: .88rem;
+      font-weight: 500;
+      color: rgba(255,255,255,.85);
+      transition: var(--transition);
+    }
+    .navbar.scrolled .nav-links a { color: var(--gray-600); }
+    .nav-links a:hover { color: var(--white); background: rgba(255,255,255,.15); }
+    .navbar.scrolled .nav-links a:hover { color: var(--primary); background: #ede9fe; }
+    .nav-cta {
+      display: flex; gap: 10px; align-items: center;
+    }
+    .nav-mobile-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .nav-mobile-toggle span {
+      width: 24px; height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: var(--transition);
+    }
+    .navbar.scrolled .nav-mobile-toggle span { background: var(--gray-700); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      background: var(--grad-dark);
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(79,70,229,.4) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(6,182,212,.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(124,58,237,.2) 0%, transparent 50%);
+    }
+    /* Animated grid lines */
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(79,70,229,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,70,229,.08) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 120px 28px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .hero-text .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(79,70,229,.3);
+      border: 1px solid rgba(79,70,229,.5);
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      color: var(--primary-light);
+      font-size: .82rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      animation: fadeInUp .6s ease both;
+    }
+    .hero-text h1 {
+      font-family: var(--font-heading);
+      font-size: 3.4rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 20px;
+      animation: fadeInUp .6s .1s ease both;
+    }
+    .hero-text h1 span {
+      background: linear-gradient(135deg, #818cf8, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-text p {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,.7);
+      line-height: 1.8;
+      margin-bottom: 36px;
+      animation: fadeInUp .6s .2s ease both;
+    }
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      animation: fadeInUp .6s .3s ease both;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 40px;
+      animation: fadeInUp .6s .4s ease both;
+    }
+    .hero-stat-num {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+    .hero-stat-lbl { font-size: .78rem; color: rgba(255,255,255,.5); }
+
+    /* ── Hero Visual ── */
+    .hero-visual {
+      position: relative;
+      animation: fadeInUp .8s .2s ease both;
+    }
+    .hero-card-mockup {
+      background: rgba(255,255,255,.07);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.4);
+    }
+    .mockup-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .mockup-dots { display: flex; gap: 6px; }
+    .mockup-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .mockup-dot:nth-child(1) { background: #ef4444; }
+    .mockup-dot:nth-child(2) { background: #f59e0b; }
+    .mockup-dot:nth-child(3) { background: #10b981; }
+    .mockup-title { color: rgba(255,255,255,.5); font-size: .8rem; }
+    .mockup-courses { display: flex; flex-direction: column; gap: 12px; }
+    .mockup-course {
+      background: rgba(255,255,255,.06);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .mockup-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .95rem;
+      flex-shrink: 0;
+    }
+    .mockup-course-name { font-size: .85rem; font-weight: 600; color: var(--white); }
+    .mockup-progress-wrap {
+      margin-top: 6px;
+      background: rgba(255,255,255,.1);
+      border-radius: var(--radius-full);
+      height: 4px;
+      overflow: hidden;
+    }
+    .mockup-progress-bar {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: var(--grad-primary);
+    }
+    .float-badge {
+      position: absolute;
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      box-shadow: var(--shadow-xl);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      animation: floatBadge 3s ease-in-out infinite alternate;
+    }
+    .float-badge.top-right {
+      top: -20px; right: -20px;
+    }
+    .float-badge.bottom-left {
+      bottom: -20px; left: -20px;
+      animation-delay: -1.5s;
+    }
+    .mockup-tab-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,.6);
+      font-size: .72rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .mockup-tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(79,70,229,.4);
+    }
+
+    @keyframes floatBadge {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-10px); }
+    }
+
+    /* ── FEATURES ── */
+    .section { padding: 100px 0; }
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ede9fe;
+      color: var(--primary);
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      font-size: .8rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .section-header h2 {
+      font-family: var(--font-heading);
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 14px;
+    }
+    .section-header p { color: var(--gray-500); font-size: 1rem; max-width: 560px; margin: 0 auto; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      text-align: center;
+      border: 1px solid var(--gray-100);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-light);
+    }
+    .feature-card-icon {
+      width: 64px; height: 64px;
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      margin: 0 auto 20px;
+    }
+    .feature-card h3 {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 10px;
+    }
+    .feature-card p { font-size: .88rem; color: var(--gray-500); line-height: 1.7; }
+
+    /* ── HOW IT WORKS ── */
+    .how-section { background: var(--gray-50); }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 40px; left: 60px; right: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      z-index: 0;
+    }
+    .step {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .step-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--grad-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      color: var(--white);
+      margin: 0 auto 20px;
+      box-shadow: var(--shadow-glow);
+    }
+    .step h4 {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 8px;
+    }
+    .step p { font-size: .85rem; color: var(--gray-500); }
+
+    /* ── BENEFITS ── */
+    .benefits-section {
+      background: var(--grad-dark);
+      position: relative;
+      overflow: hidden;
+    }
+    .benefits-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(79,70,229,.3) 0%, transparent 60%);
+    }
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative; z-index: 1;
+    }
+    .benefits-col h2 {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 32px;
+    }
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .benefit-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .benefit-icon.student-c { color: #818cf8; }
+    .benefit-icon.teacher-c { color: #6ee7b7; }
+    .benefit-text h4 { font-size: .95rem; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+    .benefit-text p  { font-size: .85rem; color: rgba(255,255,255,.6); }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+      background: var(--grad-primary);
+      padding: 100px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: -80px;
+      width: 300px; height: 300px;
+      background: rgba(255,255,255,.06);
+      border-radius: 50%;
+    }
+    .cta-section h2 {
+      font-family: var(--font-heading);
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+    .cta-section p { color: rgba(255,255,255,.75); font-size: 1.1rem; margin-bottom: 36px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--gray-900);
+      padding: 60px 0 28px;
+      color: rgba(255,255,255,.6);
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 28px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-brand .logo-text {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .footer-brand p { font-size: .88rem; line-height: 1.7; max-width: 280px; }
+    .footer-col h5 {
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .footer-col a {
+      display: block;
+      font-size: .85rem;
+      color: rgba(255,255,255,.5);
+      margin-bottom: 8px;
+      transition: var(--transition);
+    }
+    .footer-col a:hover { color: var(--primary-light); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .82rem;
+    }
+    .footer-bottom a { color: var(--primary-light); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .hero-content { grid-template-columns: 1fr; text-align: center; }
+      .hero-text h1 { font-size: 2.6rem; }
+      .hero-btns { justify-content: center; }
+      .hero-stats { justify-content: center; }
+      .hero-visual { display: none; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .steps::before { display: none; }
+      .benefits-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .hero-text h1 { font-size: 2rem; }
+      .features-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       NAVBAR
+  ═══════════════════════════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon"><i class="fas fa-cloud"></i></div>
+        CloudLearn
+      </a>
+      <div class="nav-links">
+        <a href="courses.html">Courses</a>
+        <a href="live-classes.html">Live Classes</a>
+        <a href="recordings.html">Recordings</a>
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+      </div>
+      <div class="nav-cta">
+        <a href="seed-data.html" class="btn btn-secondary btn-sm" style="border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.9);background:rgba(255,255,255,.08);" title="Populate Demo Data"><i class="fas fa-database"></i> Demo Setup</a>
+        <a href="login.html" class="btn btn-secondary btn-sm" style="border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.9);background:rgba(255,255,255,.08);" id="nav-login-btn">Login</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="hero" id="home">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <!-- Left Text -->
+      <div class="hero-text">
+        <div class="tag">
+          <i class="fas fa-cloud" style="color:#818cf8"></i>
+          Cloud-Powered Education
+        </div>
+        <h1>Learn Anytime.<br /><span>Anywhere.</span></h1>
+        <p>
+          A complete cloud-based e-learning platform built on Firebase — offering
+          courses, quizzes, assignments, progress tracking, and real-time
+          collaboration for students and educators.
+        </p>
+        <div class="hero-btns">
+          <a href="register.html" class="btn btn-primary btn-lg" id="hero-get-started">
+            <i class="fas fa-rocket"></i> Get Started Free
+          </a>
+          <a href="login.html" class="btn btn-secondary btn-lg" style="border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.85);background:rgba(255,255,255,.08);" id="hero-login">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-num">500+</div>
+            <div class="hero-stat-lbl">Courses</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">10k+</div>
+            <div class="hero-stat-lbl">Students</div>
+          </div>
+          <div>
+            <div class="hero-stat-num">200+</div>
+            <div class="hero-stat-lbl">Faculty</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Mockup: Starting State for New Learners (0% Progress) -->
+      <div class="hero-visual">
+        <div class="hero-card-mockup">
+          <div class="mockup-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="mockup-dots">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+              </div>
+              <span class="mockup-title">My Courses</span>
+            </div>
+            <span style="font-size:.75rem; color:var(--gray-400); font-weight:600; background:rgba(255,255,255,.08); padding:3px 10px; border-radius:var(--radius-full);">
+              New Account • 0%
+            </span>
+          </div>
+
+          <!-- Courses list showing 0% progress for first-time learners -->
+          <div class="mockup-courses">
+            <div class="mockup-course">
+              <div class="mockup-icon" style="background:#ede9fe;color:#7c3aed">☁️</div>
+              <div style="flex:1">
+                <div class="mockup-course-name">Cloud Computing</div>
+                <div class="mockup-progress-wrap"><div class="mockup-progress-bar" style="width:0%"></div></div>
+              </div>
+              <span style="color:var(--gray-400);font-size:.8rem;font-weight:700">0%</span>
+            </div>
+            <div class="mockup-course">
+              <div class="mockup-icon" style="background:#dbeafe;color:#3b82f6">🧠</div>
+              <div style="flex:1">
+                <div class="mockup-course-name">Deep Learning</div>
+                <div class="mockup-progress-wrap"><div class="mockup-progress-bar" style="width:0%"></div></div>
+              </div>
+              <span style="color:var(--gray-400);font-size:.8rem;font-weight:700">0%</span>
+            </div>
+            <div class="mockup-course">
+              <div class="mockup-icon" style="background:#d1fae5;color:#059669">🐍</div>
+              <div style="flex:1">
+                <div class="mockup-course-name">Python Programming</div>
+                <div class="mockup-progress-wrap"><div class="mockup-progress-bar" style="width:0%"></div></div>
+              </div>
+              <span style="color:var(--gray-400);font-size:.8rem;font-weight:700">0%</span>
+            </div>
+            <div class="mockup-course">
+              <div class="mockup-icon" style="background:#fef3c7;color:#d97706">📊</div>
+              <div style="flex:1">
+                <div class="mockup-course-name">Data Science</div>
+                <div class="mockup-progress-wrap"><div class="mockup-progress-bar" style="width:0%"></div></div>
+              </div>
+              <span style="color:var(--gray-400);font-size:.8rem;font-weight:700">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Badges for starting state (NO assignment submitted / NO quiz passed) -->
+        <div class="float-badge top-right">
+          <span style="font-size:1.1rem">🎯</span> Ready to Learn • 0%
+        </div>
+        <div class="float-badge bottom-left">
+          <span style="font-size:1.1rem">📖</span> Enroll to Start
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FEATURES
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag"><i class="fas fa-star"></i> Platform Features</div>
+        <h2>Everything You Need to Learn & Teach</h2>
+        <p>A comprehensive cloud-powered education platform with all the tools students and faculty need.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-card-icon" style="background:#ede9fe;color:#7c3aed"><i class="fas fa-globe"></i></div>
+          <h3>Learn Anywhere</h3>
+          <p>Access your courses, materials, and quizzes from any device, at any time, from anywhere in the world.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon" style="background:#dbeafe;color:#3b82f6"><i class="fas fa-cloud-upload-alt"></i></div>
+          <h3>Cloud Storage</h3>
+          <p>All study materials, PDFs, videos, and assignments are securely stored on Firebase Cloud Storage.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon" style="background:#d1fae5;color:#059669"><i class="fas fa-question-circle"></i></div>
+          <h3>Online Quizzes</h3>
+          <p>Take auto-graded quizzes with instant results, scores, and performance feedback.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon" style="background:#fef3c7;color:#d97706"><i class="fas fa-file-upload"></i></div>
+          <h3>Assignment Submission</h3>
+          <p>Submit assignments digitally. Teachers review and manage submissions with ease.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon" style="background:#fee2e2;color:#dc2626"><i class="fas fa-chart-line"></i></div>
+          <h3>Progress Tracking</h3>
+          <p>Monitor learning progress with visual charts, completion percentages, and performance analytics.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon" style="background:#ccfbf1;color:#0f766e"><i class="fas fa-lock"></i></div>
+          <h3>Secure Authentication</h3>
+          <p>Firebase Authentication ensures secure, role-based access for students and teachers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HOW IT WORKS
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section how-section" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-tag"><i class="fas fa-map"></i> Workflow</div>
+        <h2>How It Works</h2>
+        <p>Get started in minutes with a simple, intuitive workflow.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-circle"><i class="fas fa-user-plus"></i></div>
+          <h4>Register</h4>
+          <p>Create your account and select your role — Student or Teacher.</p>
+        </div>
+        <div class="step">
+          <div class="step-circle" style="background:var(--grad-secondary)"><i class="fas fa-sign-in-alt"></i></div>
+          <h4>Login</h4>
+          <p>Securely log in with Firebase Authentication and get redirected to your dashboard.</p>
+        </div>
+        <div class="step">
+          <div class="step-circle" style="background:linear-gradient(135deg,#10b981,#3b82f6)"><i class="fas fa-book-open"></i></div>
+          <h4>Learn or Teach</h4>
+          <p>Browse courses, upload materials, take quizzes, or manage your class.</p>
+        </div>
+        <div class="step">
+          <div class="step-circle" style="background:var(--grad-accent)"><i class="fas fa-trophy"></i></div>
+          <h4>Track Progress</h4>
+          <p>View your results, progress charts, and performance analytics in real-time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BENEFITS
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section benefits-section" id="benefits">
+    <div class="container">
+      <div class="benefits-grid">
+        <!-- Student -->
+        <div class="benefits-col">
+          <h2>🎓 For Students</h2>
+          <div class="benefit-item">
+            <div class="benefit-icon student-c"><i class="fas fa-book"></i></div>
+            <div class="benefit-text">
+              <h4>Access Course Materials</h4>
+              <p>Download PDFs, watch videos, and access all study materials in one place.</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon student-c"><i class="fas fa-clipboard-check"></i></div>
+            <div class="benefit-text">
+              <h4>Take Quizzes Online</h4>
+              <p>Attempt quizzes and get instant auto-graded results with detailed feedback.</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon student-c"><i class="fas fa-chart-bar"></i></div>
+            <div class="benefit-text">
+              <h4>Track Your Progress</h4>
+              <p>Visual progress bars and completion stats keep you motivated.</p>
+            </div>
+          </div>
+        </div>
+        <!-- Teacher -->
+        <div class="benefits-col">
+          <h2>👨‍🏫 For Faculty</h2>
+          <div class="benefit-item">
+            <div class="benefit-icon teacher-c"><i class="fas fa-chalkboard-teacher"></i></div>
+            <div class="benefit-text">
+              <h4>Create & Manage Courses</h4>
+              <p>Build complete course syllabi with materials, quizzes, and assignments.</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon teacher-c"><i class="fas fa-users"></i></div>
+            <div class="benefit-text">
+              <h4>Monitor Students</h4>
+              <p>View enrollment lists, track individual student performance, and review submissions.</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon teacher-c"><i class="fas fa-chart-pie"></i></div>
+            <div class="benefit-text">
+              <h4>Course Analytics</h4>
+              <p>Get data-driven insights on course engagement and student outcomes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ABOUT
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="section" id="about" style="background:#f8fafc">
+    <div class="container" style="text-align:center">
+      <div class="section-tag" style="margin:0 auto 16px"><i class="fas fa-info-circle"></i> About</div>
+      <h2 style="font-family:var(--font-heading);font-size:2.2rem;font-weight:800;color:var(--gray-900);margin-bottom:16px">Cloud-Based E-Learning Platform</h2>
+      <p style="color:var(--gray-500);font-size:1rem;max-width:680px;margin:0 auto 32px;line-height:1.8">
+        This platform is a full-stack cloud computing project built with HTML, CSS, Vanilla JavaScript,
+        and Google Firebase. It demonstrates real-world cloud services including Firebase Authentication,
+        Cloud Firestore (NoSQL database), Firebase Storage, and Firebase Hosting — built as part of a
+        college-level Cloud Computing curriculum.
+      </p>
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
+        <span class="badge badge-primary" style="font-size:.85rem;padding:8px 20px"><i class="fas fa-fire" style="margin-right:6px"></i>Firebase Auth</span>
+        <span class="badge badge-info"    style="font-size:.85rem;padding:8px 20px"><i class="fas fa-database" style="margin-right:6px"></i>Cloud Firestore</span>
+        <span class="badge badge-success" style="font-size:.85rem;padding:8px 20px"><i class="fas fa-hdd" style="margin-right:6px"></i>Firebase Storage</span>
+        <span class="badge badge-warning" style="font-size:.85rem;padding:8px 20px"><i class="fas fa-server" style="margin-right:6px"></i>Firebase Hosting</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CTA
+  ═══════════════════════════════════════════════════════════ -->
+  <section class="cta-section">
+    <div class="container" style="position:relative;z-index:1">
+      <h2>Ready to Start Learning?</h2>
+      <p>Join thousands of students and educators on CloudLearn today.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <a href="register.html" class="btn btn-lg" style="background:var(--white);color:var(--primary);font-weight:700" id="cta-register">
+          <i class="fas fa-user-plus"></i> Register as Student
+        </a>
+        <a href="register.html" class="btn btn-lg" style="background:rgba(255,255,255,.15);color:var(--white);border:2px solid rgba(255,255,255,.4);backdrop-filter:blur(10px)" id="cta-teacher">
+          <i class="fas fa-chalkboard-teacher"></i> Join as Teacher
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="logo-text">
+            <div class="nav-logo-icon" style="width:32px;height:32px;font-size:.8rem"><i class="fas fa-cloud"></i></div>
+            CloudLearn
+          </div>
+          <p>A cloud-powered e-learning platform for modern education — built with Firebase and web technologies.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Platform</h5>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#benefits">Benefits</a>
+          <a href="#about">About</a>
+        </div>
+        <div class="footer-col">
+          <h5>Students</h5>
+          <a href="register.html">Register</a>
+          <a href="login.html">Login</a>
+          <a href="student-dashboard.html">Dashboard</a>
+        </div>
+        <div class="footer-col">
+          <h5>Faculty</h5>
+          <a href="register.html">Register</a>
+          <a href="login.html">Login</a>
+          <a href="teacher-dashboard.html">Dashboard</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 CloudLearn — Cloud-Based E-Learning Platform</span>
+        <span>Built with <i class="fas fa-heart" style="color:#ef4444"></i> using Firebase</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast container -->
+  <div id="toast-container"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+
+  <script>
+    // ── Navbar scroll effect ──
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) navbar.classList.add('scrolled');
+      else navbar.classList.remove('scrolled');
+    });
+
+    // ── If already logged in, redirect to dashboard ──
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const doc = await db.collection('users').doc(user.uid).get();
+          if (doc.exists) {
+            const role = doc.data().role;
+            document.getElementById('nav-login-btn').textContent = 'My Dashboard';
+            document.getElementById('nav-login-btn').href = role === 'teacher' ? 'teacher-dashboard.html' : 'student-dashboard.html';
+          }
+        } catch(e) { /* not critical */ }
+      }
+    });
+
+    // ── Smooth scroll ──
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+
+  </script>
+</body>
+</html>
+

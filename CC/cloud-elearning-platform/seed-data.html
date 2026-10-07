@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seed Demo Data — CloudLearn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .seed-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 620px;
+      width: 100%;
+      box-shadow: 0 32px 64px rgba(0,0,0,0.4);
+    }
+    .seed-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .seed-logo-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; color: white;
+    }
+    .seed-logo-text { font-family: 'Poppins', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; }
+    .seed-logo-text span { color: #a78bfa; }
+    h1 { font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 800; color: white; margin-bottom: 8px; }
+    h1 span { color: #a78bfa; }
+    p.sub { color: rgba(255,255,255,0.55); font-size: .9rem; line-height: 1.6; margin-bottom: 28px; }
+    .log-area {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 200px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: .8rem;
+      margin-bottom: 24px;
+      scroll-behavior: smooth;
+    }
+    .log-line { margin-bottom: 4px; display: flex; align-items: flex-start; gap: 8px; }
+    .log-line.ok    { color: #4ade80; }
+    .log-line.info  { color: #93c5fd; }
+    .log-line.warn  { color: #fbbf24; }
+    .log-line.error { color: #f87171; }
+    .log-line.head  { color: #e879f9; font-weight: 700; margin-top: 10px; }
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; border-radius: 12px;
+      font-size: .9rem; font-weight: 600; cursor: pointer;
+      border: none; transition: all .2s; text-decoration: none;
+    }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,.5); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.14); }
+    .progress-wrap { height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; margin-bottom: 20px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #a78bfa); border-radius: 99px; width: 0%; transition: width .4s ease; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fa-spin { animation: spin .8s linear infinite; }
+    .status-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.08); border-radius: 99px;
+      padding: 4px 14px; font-size: .78rem; color: rgba(255,255,255,0.6);
+      margin-bottom: 20px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; }
+    .dot.green { background: #4ade80; }
+  </style>
+</head>
+<body>
+<div class="seed-card">
+  <div class="seed-logo">
+    <div class="seed-logo-icon"><i class="fas fa-cloud"></i></div>
+    <div class="seed-logo-text">Cloud<span>Learn</span></div>
+  </div>
+  <h1>Seed <span>Demo Data</span></h1>
+  <p class="sub">Populates your Firestore with sample courses, quizzes, assignments, enrollments, and quiz results — so the dashboard shows live activity right away.</p>
+  <div class="status-tag" id="status-tag">
+    <div class="dot" id="status-dot"></div>
+    <span id="status-text">Checking login...</span>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="log-area" id="log-area">
+    <div class="log-line info"><span>⏳</span><span>Waiting for Firebase...</span></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="seed-btn" disabled onclick="startSeed()">
+      <i class="fas fa-database"></i> Populate Sample Data
+    </button>
+    <a href="student-dashboard.html" class="btn btn-secondary" id="dash-link" style="display:none">
+      <i class="fas fa-arrow-right"></i> Go to Dashboard
+    </a>
+    <a href="login.html" class="btn btn-secondary" id="login-link" style="display:none">
+      <i class="fas fa-sign-in-alt"></i> Login First
+    </a>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script>
+const logArea = document.getElementById('log-area');
+function log(msg, type = 'info') {
+  const icons = { ok: '✅', info: 'ℹ️', warn: '⚠️', error: '❌', head: '🔷' };
+  const div = document.createElement('div');
+  div.className = `log-line ${type}`;
+  div.innerHTML = `<span>${icons[type]||'•'}</span><span>${msg}</span>`;
+  logArea.appendChild(div);
+  logArea.scrollTop = logArea.scrollHeight;
+}
+function setProgress(pct) { document.getElementById('progress-fill').style.width = pct + '%'; }
+function setStatus(text, dotClass = '') {
+  document.getElementById('status-text').textContent = text;
+  document.getElementById('status-dot').className = 'dot ' + dotClass;
+}
+
+let currentUser = null;
+
+auth.onAuthStateChanged(async (user) => {
+  logArea.innerHTML = '';
+  if (!user) {
+    setStatus('Not logged in', '');
+    log('You must be logged in to seed data.', 'warn');
+    document.getElementById('login-link').style.display = 'inline-flex';
+    return;
+  }
+  try {
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (!doc.exists) { log('User document not found in Firestore.', 'error'); return; }
+    currentUser = { uid: user.uid, ...doc.data() };
+    setStatus(`Logged in: ${currentUser.name} (${currentUser.role})`, 'green');
+    log(`Welcome, ${currentUser.name} — Role: ${currentUser.role}`, 'ok');
+    log('Click "Populate Sample Data" to fill the database!', 'info');
+    document.getElementById('seed-btn').disabled = false;
+  } catch (e) { log('Error: ' + e.message, 'error'); }
+});
+
+async function startSeed() {
+  const btn = document.getElementById('seed-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Seeding...';
+  logArea.innerHTML = '';
+  setProgress(0);
+
+  try {
+    const uid = currentUser.uid;
+    const ts  = firebase.firestore.FieldValue.serverTimestamp();
+    const now = new Date();
+
+    // STEP 1: Courses
+    log('STEP 1 — Creating Courses', 'head');
+    setProgress(10);
+    const coursesData = [
+      { courseName: 'Cloud Computing Fundamentals', description: 'Learn IaaS, PaaS, SaaS and major cloud platforms like AWS, Azure, and GCP.', category: 'cloud', instructor: currentUser.name, duration: '8 weeks', level: 'Beginner', tags: ['aws','azure','gcp'], teacherId: uid, enrolledCount: 0, createdAt: ts },
+      { courseName: 'Artificial Intelligence & Deep Learning', description: 'Neural networks, CNNs, RNNs, transformers and real-world AI applications.', category: 'ai', instructor: currentUser.name, duration: '12 weeks', level: 'Intermediate', tags: ['tensorflow','pytorch','nlp'], teacherId: uid, enrolledCount: 0, createdAt: ts },
+      { courseName: 'Python for Data Science', description: 'Master Python with pandas, numpy, matplotlib and scikit-learn.', category: 'python', instructor: currentUser.name, duration: '6 weeks', level: 'Beginner', tags: ['python','pandas','numpy'], teacherId: uid, enrolledCount: 0, createdAt: ts },
+      { courseName: 'Web Development with React', description: 'Build modern web apps using React.js, hooks, context API, and REST APIs.', category: 'web', instructor: currentUser.name, duration: '10 weeks', level: 'Intermediate', tags: ['react','javascript','html'], teacherId: uid, enrolledCount: 0, createdAt: ts },
+      { courseName: 'Database Management Systems', description: 'SQL, normalization, indexing, and intro to NoSQL databases.', category: 'database', instructor: currentUser.name, duration: '7 weeks', level: 'Beginner', tags: ['sql','mysql','mongodb'], teacherId: uid, enrolledCount: 0, createdAt: ts },
+    ];
+    const courseRefs = [];
+    for (const c of coursesData) {
+      const ref = await db.collection('courses').add(c);
+      courseRefs.push({ id: ref.id, ...c });
+      log(`Course: "${c.courseName}"`, 'ok');
+    }
+    setProgress(25);
+
+    // STEP 2: Quizzes
+    log('STEP 2 — Creating Quizzes', 'head');
+    const quizzesData = [
+      { title: 'Cloud Computing Quiz 1', courseName: courseRefs[0].courseName, courseId: courseRefs[0].id, createdBy: uid, published: true, createdAt: ts,
+        questions: [
+          { question: 'What does IaaS stand for?', options: ['Infrastructure as a Service','Internet as a Service','Integration as a Service','Intelligence as a Service'], correct: 0 },
+          { question: 'Which is NOT a major cloud provider?', options: ['AWS','Azure','Oracle','Adobe'], correct: 3 },
+          { question: 'What is a "region" in cloud computing?', options: ['A server room','A geographic area with data centers','A network protocol','A storage unit'], correct: 1 },
+          { question: 'SaaS stands for:', options: ['Software as a Service','System as a Service','Server as a Service','Storage as a Service'], correct: 0 },
+          { question: 'Cloud elasticity means:', options: ['Hardware flexibility','Auto-scaling resources on demand','Data encryption','Network speed'], correct: 1 },
+        ]
+      },
+      { title: 'Python Basics Quiz', courseName: courseRefs[2].courseName, courseId: courseRefs[2].id, createdBy: uid, published: true, createdAt: ts,
+        questions: [
+          { question: 'Which keyword defines a function in Python?', options: ['func','define','def','function'], correct: 2 },
+          { question: 'What is the output of print(2 ** 3)?', options: ['6','8','9','5'], correct: 1 },
+          { question: 'Which library is used for data manipulation?', options: ['numpy','pandas','matplotlib','scipy'], correct: 1 },
+          { question: 'Python lists are:', options: ['Immutable','Mutable','Fixed-size','Thread-safe'], correct: 1 },
+          { question: 'What does len() return?', options: ['Data type','Memory address','Length of object','Last element'], correct: 2 },
+        ]
+      },
+      { title: 'AI Fundamentals Quiz', courseName: courseRefs[1].courseName, courseId: courseRefs[1].id, createdBy: uid, published: true, createdAt: ts,
+        questions: [
+          { question: 'What does CNN stand for?', options: ['Complex Neural Network','Convolutional Neural Network','Connected Node Network','Computed Neural Node'], correct: 1 },
+          { question: 'Which framework is used for deep learning?', options: ['Django','TensorFlow','Laravel','Flask'], correct: 1 },
+          { question: 'Overfitting occurs when:', options: ['Model performs well on training but poor on test','Model is too simple','Data is too large','Learning rate is high'], correct: 0 },
+        ]
+      }
+    ];
+    const quizRefs = [];
+    for (const q of quizzesData) {
+      const ref = await db.collection('quizzes').add(q);
+      quizRefs.push({ id: ref.id, ...q });
+      log(`Quiz: "${q.title}"`, 'ok');
+    }
+    setProgress(40);
+
+    // STEP 3: Assignments
+    log('STEP 3 — Creating Assignments', 'head');
+    const d1 = new Date(now); d1.setDate(now.getDate() + 7);
+    const d2 = new Date(now); d2.setDate(now.getDate() + 14);
+    const d3 = new Date(now); d3.setDate(now.getDate() + 3);
+    const assignsData = [
+      { title: 'Cloud Architecture Design', courseName: courseRefs[0].courseName, courseId: courseRefs[0].id, description: 'Design a scalable cloud architecture for an e-commerce platform using AWS: VPC, EC2, RDS, S3, CloudFront.', dueDate: d1, maxScore: 100, createdBy: uid, createdAt: ts },
+      { title: 'Python Data Analysis Report', courseName: courseRefs[2].courseName, courseId: courseRefs[2].id, description: 'Analyze the provided dataset with pandas and numpy. Create visualizations with matplotlib and submit a Jupyter Notebook.', dueDate: d2, maxScore: 100, createdBy: uid, createdAt: ts },
+      { title: 'Neural Network Implementation', courseName: courseRefs[1].courseName, courseId: courseRefs[1].id, description: 'Implement a neural network from scratch using NumPy. Train on MNIST and achieve >90% accuracy.', dueDate: d3, maxScore: 100, createdBy: uid, createdAt: ts },
+      { title: 'React Portfolio Project', courseName: courseRefs[3].courseName, courseId: courseRefs[3].id, description: 'Build a personal portfolio website with React.js — routing, state management, and API integration.', dueDate: d2, maxScore: 100, createdBy: uid, createdAt: ts },
+      { title: 'SQL Database Design', courseName: courseRefs[4].courseName, courseId: courseRefs[4].id, description: 'Design a normalized database schema for a library management system. Include ER diagram and sample queries.', dueDate: d1, maxScore: 100, createdBy: uid, createdAt: ts },
+    ];
+    for (const a of assignsData) {
+      await db.collection('assignments').add(a);
+      log(`Assignment: "${a.title}"`, 'ok');
+    }
+    setProgress(55);
+
+    // STEP 4: Enrollments
+    log('STEP 4 — Creating Enrollments for your account', 'head');
+    const enrollData = [
+      { studentId: uid, courseId: courseRefs[0].id, progress: 65, enrolledAt: ts },
+      { studentId: uid, courseId: courseRefs[1].id, progress: 40, enrolledAt: ts },
+      { studentId: uid, courseId: courseRefs[2].id, progress: 85, enrolledAt: ts },
+    ];
+    for (const enr of enrollData) {
+      const existing = await db.collection('enrollments').where('studentId','==',enr.studentId).where('courseId','==',enr.courseId).get();
+      if (existing.empty) {
+        await db.collection('enrollments').add(enr);
+        const cn = courseRefs.find(c => c.id === enr.courseId)?.courseName;
+        log(`Enrolled in: "${cn}" (${enr.progress}% progress)`, 'ok');
+      } else {
+        log('Enrollment already exists — skipped', 'warn');
+      }
+    }
+    setProgress(70);
+
+    // STEP 5: Quiz Results
+    log('STEP 5 — Adding Quiz Results', 'head');
+    const p1 = new Date(now); p1.setDate(now.getDate() - 3);
+    const p2 = new Date(now); p2.setDate(now.getDate() - 7);
+    const resultsData = [
+      { studentId: uid, quizId: quizRefs[0].id, quizTitle: quizRefs[0].title, score: 4, totalQuestions: 5, percentage: 80, submittedAt: firebase.firestore.Timestamp.fromDate(p1) },
+      { studentId: uid, quizId: quizRefs[1].id, quizTitle: quizRefs[1].title, score: 5, totalQuestions: 5, percentage: 100, submittedAt: firebase.firestore.Timestamp.fromDate(p2) },
+    ];
+    for (const r of resultsData) {
+      const existing = await db.collection('results').where('studentId','==',r.studentId).where('quizId','==',r.quizId).get();
+      if (existing.empty) {
+        await db.collection('results').add(r);
+        log(`Result: "${r.quizTitle}" → ${r.percentage}%`, 'ok');
+      } else {
+        log(`Result already exists — skipped`, 'warn');
+      }
+    }
+    setProgress(85);
+
+    // STEP 6: Announcements
+    log('STEP 6 — Creating Announcements', 'head');
+    const anns = [
+      { title: 'Welcome to CloudLearn!', content: 'Courses are now live — start exploring and enrolling today!', createdBy: uid, createdAt: ts, important: true },
+      { title: 'Quiz Schedule Released', content: 'The quiz schedule for October has been released. Check the Quizzes section.', createdBy: uid, createdAt: ts, important: false },
+      { title: 'Assignment Deadline Reminder', content: 'Reminder: Cloud Architecture Design assignment is due in 7 days.', createdBy: uid, createdAt: ts, important: true },
+    ];
+    for (const ann of anns) {
+      await db.collection('announcements').add(ann);
+      log(`Announcement: "${ann.title}"`, 'ok');
+    }
+    setProgress(90);
+
+    // STEP 7: Live Classes
+    log('STEP 7 — Creating Live Classes', 'head');
+    const live1Date = new Date(now.getTime() + 2 * 60 * 60 * 1000); // 2 hours from now
+    const live2Date = new Date(now.getTime() + 24 * 60 * 60 * 1000); // Tomorrow
+    const liveClassesData = [
+      {
+        title: 'Mastering AWS Microservices & Containers',
+        description: 'Deep dive into ECS, EKS, and Docker container orchestration on AWS. Live Q&A and architecture diagramming.',
+        courseId: courseRefs[0].id,
+        courseName: courseRefs[0].courseName,
+        teacherId: uid,
+        teacherName: currentUser.name || 'Faculty Member',
+        scheduledAt: firebase.firestore.Timestamp.fromDate(live1Date),
+        duration: 60,
+        meetingLink: 'https://meet.jit.si/CloudLearn-AWS-Microservices-' + Math.random().toString(36).substring(2, 7),
+        meetingPlatform: 'jitsi',
+        status: 'scheduled',
+        createdAt: ts
+      },
+      {
+        title: 'Deep Learning & Neural Networks Workshop',
+        description: 'Hands-on session building neural networks with PyTorch. Bring your questions on gradient descent and backprop.',
+        courseId: courseRefs[1].id,
+        courseName: courseRefs[1].courseName,
+        teacherId: uid,
+        teacherName: currentUser.name || 'Faculty Member',
+        scheduledAt: firebase.firestore.Timestamp.fromDate(live2Date),
+        duration: 90,
+        meetingLink: 'https://meet.jit.si/CloudLearn-Deep-Learning-' + Math.random().toString(36).substring(2, 7),
+        meetingPlatform: 'jitsi',
+        status: 'scheduled',
+        createdAt: ts
+      }
+    ];
+    for (const lc of liveClassesData) {
+      await db.collection('liveClasses').add(lc);
+      log(`Live Class: "${lc.title}"`, 'ok');
+    }
+    setProgress(95);
+
+    // STEP 8: Class Recordings
+    log('STEP 8 — Adding Class Recordings', 'head');
+    const recDate = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+    const recsData = [
+      {
+        title: 'Cloud Storage & CDN Architecture Walkthrough',
+        description: 'Full recording covering AWS S3 bucket policies, CloudFront CDN edge distributions, and latency optimizations.',
+        courseId: courseRefs[0].id,
+        courseName: courseRefs[0].courseName,
+        duration: '54 min',
+        date: recDate.toISOString().split('T')[0],
+        videoUrl: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-576p.mp4',
+        uploadedBy: uid,
+        teacherName: currentUser.name || 'Faculty Member',
+        fileSize: 45000000,
+        createdAt: ts
+      },
+      {
+        title: 'Python Pandas & Data Cleaning Deep Dive',
+        description: 'Complete walkthrough on data preprocessing, handling null values, and pivoting datasets with Pandas.',
+        courseId: courseRefs[2].id,
+        courseName: courseRefs[2].courseName,
+        duration: '48 min',
+        date: recDate.toISOString().split('T')[0],
+        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
+        uploadedBy: uid,
+        teacherName: currentUser.name || 'Faculty Member',
+        fileSize: 62000000,
+        createdAt: ts
+      }
+    ];
+    for (const rec of recsData) {
+      await db.collection('recordings').add(rec);
+      log(`Recording: "${rec.title}"`, 'ok');
+    }
+    setProgress(100);
+
+    log('', 'info');
+    log('All demo data seeded successfully!', 'ok');
+    log(`5 courses · 3 quizzes · 5 assignments · 3 enrollments · 2 results · 3 announcements · 2 live classes · 2 recordings`, 'ok');
+    log('Your dashboard now has live data with Live Sessions & Recordings!', 'ok');
+
+    setStatus('Done! Dashboard is ready.', 'green');
+    btn.innerHTML = '<i class="fas fa-check"></i> Done!';
+    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    document.getElementById('dash-link').style.display = 'inline-flex';
+
+  } catch (err) {
+    log('ERROR: ' + err.message, 'error');
+    console.error(err);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-database"></i> Retry';
+    setStatus('Error — check console', '');
+  }
+}
+</script>
+</body>
+</html>
+

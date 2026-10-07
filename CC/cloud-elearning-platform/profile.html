@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile — CloudLearn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/teacher.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+
+<body>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="dashboard-layout">
+    <aside class="sidebar student-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><i class="fas fa-cloud"></i></div>
+        <div class="sidebar-brand-text">
+          <div class="brand-name">CloudLearn</div>
+          <div class="brand-sub" id="portal-label">Student Portal</div>
+        </div>
+      </div>
+      <div class="student-avatar-wrap">
+        <div class="avatar user-avatar-initials">?</div>
+        <div class="avatar-info">
+          <div class="name" id="sidebar-name">Loading...</div>
+          <div class="role-tag" id="role-display">🎓 Student</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Navigation</div>
+        <a href="student-dashboard.html" id="dashboard-link" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="courses.html" class="nav-link"><i class="fas fa-book-open"></i> Courses</a>
+        <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+        <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+        <a href="profile.html" class="nav-link active"><i class="fas fa-user-circle"></i> My Profile</a>
+      </nav>
+      <div class="sidebar-footer"><button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i>
+          Logout</button></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-nav">
+        <div class="flex items-center gap-2">
+          <button class="menu-toggle" id="menu-toggle"><span></span><span></span><span></span></button>
+          <span class="top-nav-title">My Profile</span>
+        </div>
+        <div class="top-nav-right">
+          <a href="profile.html" class="top-avatar user-avatar-initials">?</a>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <div style="max-width:800px;margin:0 auto">
+
+          <!-- Profile Header Card -->
+          <div class="card fade-in-up"
+            style="text-align:center;padding:48px;margin-bottom:24px;background:var(--grad-dark);position:relative;overflow:hidden">
+            <div
+              style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(79,70,229,.4) 0%,transparent 60%)">
+            </div>
+            <div style="position:relative;z-index:1">
+              <div id="profile-avatar"
+                style="width:100px;height:100px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:800;color:white;margin:0 auto 20px;border:4px solid rgba(255,255,255,.2);box-shadow:var(--shadow-glow)">
+                ?</div>
+              <h2 id="profile-name"
+                style="font-family:var(--font-heading);font-size:1.6rem;font-weight:700;color:white;margin-bottom:6px">
+                Loading...</h2>
+              <div id="profile-role-badge"
+                style="display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:var(--radius-full);padding:6px 20px;color:rgba(255,255,255,.9);font-size:.85rem;margin-bottom:16px">
+                Student</div>
+              <div id="profile-email" style="color:rgba(255,255,255,.7);font-size:.9rem"><i class="fas fa-envelope"
+                  style="margin-right:6px"></i>Loading...</div>
+            </div>
+          </div>
+
+          <!-- Profile Details -->
+          <div class="card fade-in-up delay-1" style="margin-bottom:24px">
+            <div class="section-hdr" style="margin-bottom:20px">
+              <h3 style="font-family:var(--font-heading);font-weight:600;color:var(--gray-800)"><i class="fas fa-user"
+                  style="color:var(--primary);margin-right:8px"></i>Profile Information</h3>
+              <button class="btn btn-secondary btn-sm" id="edit-toggle-btn" onclick="toggleEdit()"><i
+                  class="fas fa-edit"></i> Edit</button>
+            </div>
+
+            <div id="view-mode">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+                <div>
+                  <div class="form-label">Full Name</div>
+                  <div id="view-name"
+                    style="padding:12px;background:var(--gray-50);border-radius:var(--radius-md);font-weight:500;color:var(--gray-800)">
+                    –</div>
+                </div>
+                <div>
+                  <div class="form-label">Email Address</div>
+                  <div id="view-email"
+                    style="padding:12px;background:var(--gray-50);border-radius:var(--radius-md);font-weight:500;color:var(--gray-800)">
+                    –</div>
+                </div>
+                <div>
+                  <div class="form-label">Role</div>
+                  <div id="view-role"
+                    style="padding:12px;background:var(--gray-50);border-radius:var(--radius-md);font-weight:500;color:var(--gray-800)">
+                    –</div>
+                </div>
+                <div>
+                  <div class="form-label">Member Since</div>
+                  <div id="view-joined"
+                    style="padding:12px;background:var(--gray-50);border-radius:var(--radius-md);font-weight:500;color:var(--gray-800)">
+                    –</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <div id="edit-mode" style="display:none">
+              <div id="edit-msg" style="display:none" class="alert"></div>
+              <div class="form-group">
+                <label class="form-label" for="edit-name">Full Name</label>
+                <input type="text" id="edit-name" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address <span style="color:var(--gray-400);font-size:.8rem">(cannot
+                    change)</span></label>
+                <input type="email" id="edit-email" class="form-control" disabled style="opacity:.6" />
+              </div>
+              <div style="display:flex;gap:10px">
+                <button class="btn btn-primary btn-sm" onclick="saveProfile()"><i class="fas fa-save"></i> Save
+                  Changes</button>
+                <button class="btn btn-secondary btn-sm" onclick="toggleEdit()">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Change Password -->
+          <div class="card fade-in-up delay-2">
+            <div class="section-hdr" style="margin-bottom:20px">
+              <h3 style="font-family:var(--font-heading);font-weight:600;color:var(--gray-800)"><i class="fas fa-lock"
+                  style="color:var(--danger);margin-right:8px"></i>Change Password</h3>
+            </div>
+            <div id="pass-msg" style="display:none" class="alert"></div>
+            <div class="form-group">
+              <label class="form-label" for="new-password">New Password</label>
+              <input type="password" id="new-password" class="form-control" placeholder="Minimum 6 characters" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirm-new-password">Confirm New Password</label>
+              <input type="password" id="confirm-new-password" class="form-control"
+                placeholder="Re-enter new password" />
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="changePassword()"><i class="fas fa-lock"></i> Update
+              Password</button>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+  <div id="toast-container"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  requireAuth(null); // Any authenticated user
+
+  document.addEventListener('userReady', (e) => {
+  const user = e.detail;
+  const isTeacher = user.role === 'teacher';
+
+  // Update sidebar for role
+  if (isTeacher) {
+  document.querySelector('.student-sidebar').classList.add('teacher-sidebar');
+  document.querySelector('.student-sidebar').classList.remove('student-sidebar');
+  document.getElementById('portal-label').textContent = 'Faculty Portal';
+  document.getElementById('role-display').textContent = '👨‍🏫 Faculty';
+  }
+  document.getElementById('dashboard-link').href = isTeacher ? 'teacher-dashboard.html' : 'student-dashboard.html';
+
+  // Populate
+  const initials = user.name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+  document.getElementById('profile-avatar').textContent = initials;
+  document.getElementById('sidebar-name').textContent = user.name;
+  setAvatarInitials(user.name);
+
+  document.getElementById('profile-name').textContent = user.name;
+  document.getElementById('profile-email').innerHTML = `<i class="fas fa-envelope"
+    style="margin-right:6px"></i>${user.email}`;
+  document.getElementById('profile-role-badge').textContent = isTeacher ? '👨‍🏫 Teacher / Faculty' : '🎓 Student';
+
+  document.getElementById('view-name').textContent = user.name;
+  document.getElementById('view-email').textContent = user.email;
+  document.getElementById('view-role').textContent = isTeacher ? 'Teacher / Faculty' : 'Student';
+
+  let joined = 'N/A';
+  if (user.createdAt && typeof user.createdAt.toDate === 'function') {
+  joined = user.createdAt.toDate().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  document.getElementById('view-joined').textContent = joined;
+
+  document.getElementById('edit-name').value = user.name;
+  document.getElementById('edit-email').value = user.email;
+  });
+
+  function toggleEdit() {
+  const view = document.getElementById('view-mode');
+  const edit = document.getElementById('edit-mode');
+  const btn = document.getElementById('edit-toggle-btn');
+  if (edit.style.display === 'none') {
+  view.style.display = 'none';
+  edit.style.display = 'block';
+  btn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+  } else {
+  view.style.display = 'block';
+  edit.style.display = 'none';
+  btn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+  }
+  }
+
+  async function saveProfile() {
+  const newName = document.getElementById('edit-name').value.trim();
+  const msgEl = document.getElementById('edit-msg');
+  if (!newName || newName.length < 2) { msgEl.textContent='Please enter a valid name.' ;
+    msgEl.className='alert alert-danger' ; msgEl.style.display='flex' ; return; } try { const uid=auth.currentUser.uid;
+    await db.collection('users').doc(uid).update({ name: newName }); await auth.currentUser.updateProfile({ displayName:
+    newName }); document.getElementById('view-name').textContent=newName;
+    document.getElementById('profile-name').textContent=newName;
+    document.getElementById('sidebar-name').textContent=newName; setAvatarInitials(newName); showToast('Profile updated
+    successfully! ✅', 'success' ); toggleEdit(); } catch (err) { msgEl.textContent='Failed to update: ' + err.message;
+    msgEl.className='alert alert-danger' ; msgEl.style.display='flex' ; } } async function changePassword() { const
+    newPass=document.getElementById('new-password').value; const
+    confirm=document.getElementById('confirm-new-password').value; const msgEl=document.getElementById('pass-msg'); if
+    (newPass.length < 6) { msgEl.textContent='Password must be at least 6 characters.' ;
+    msgEl.className='alert alert-danger' ; msgEl.style.display='flex' ; return; } if (newPass !==confirm) {
+    msgEl.textContent='Passwords do not match.' ; msgEl.className='alert alert-danger' ; msgEl.style.display='flex' ;
+    return; } try { await auth.currentUser.updatePassword(newPass); msgEl.textContent='✅ Password updated successfully!'
+    ; msgEl.className='alert alert-success' ; msgEl.style.display='flex' ;
+    document.getElementById('new-password').value='' ; document.getElementById('confirm-new-password').value='' ; }
+    catch (err) { let msg='Failed to update password.' ; if (err.code==='auth/requires-recent-login' )
+    msg='Please logout and login again before changing your password.' ; msgEl.textContent=msg;
+    msgEl.className='alert alert-danger' ; msgEl.style.display='flex' ; } }
+    document.addEventListener('DOMContentLoaded', ()=> { initSidebarToggle(); });
+    </script>
+</body>
+
+</html>
+

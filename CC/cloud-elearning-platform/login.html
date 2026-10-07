@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — CloudLearn</title>
+  <meta name="description" content="Login to your CloudLearn account. Access your student or teacher dashboard securely with Firebase Authentication." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body>
+
+  <div class="auth-page">
+
+    <!-- ── LEFT BRANDING PANEL ── -->
+    <div class="auth-branding">
+      <div class="auth-shape auth-shape-1"></div>
+      <div class="auth-shape auth-shape-2"></div>
+      <div class="auth-branding-content">
+        <div class="auth-logo">
+          <div class="auth-logo-icon"><i class="fas fa-cloud"></i></div>
+          <div class="auth-logo-text">Cloud<span>Learn</span></div>
+        </div>
+        <h1>Welcome <span>Back!</span></h1>
+        <p>
+          Login to access your personalized dashboard, courses, quizzes,
+          assignments, and learning progress — all powered by the cloud.
+        </p>
+        <div class="auth-features">
+          <span class="feature-pill"><i class="fas fa-book-open"></i> Your Courses</span>
+          <span class="feature-pill"><i class="fas fa-tasks"></i> Assignments</span>
+          <span class="feature-pill"><i class="fas fa-clipboard-list"></i> Quizzes</span>
+          <span class="feature-pill"><i class="fas fa-chart-bar"></i> Progress</span>
+          <span class="feature-pill"><i class="fas fa-bell"></i> Notifications</span>
+          <span class="feature-pill"><i class="fas fa-calendar-alt"></i> Calendar</span>
+        </div>
+
+        <!-- Quick Feature Links Panel -->
+        <div style="margin-top:28px;background:rgba(255,255,255,.08);border-radius:var(--radius-md);padding:18px 20px;border:1px solid rgba(255,255,255,.14);text-align:left">
+          <p style="color:rgba(255,255,255,.9);font-size:.84rem;margin-bottom:12px;font-weight:700;display:flex;align-items:center;gap:8px">
+            <i class="fas fa-compass" style="color:#67e8f9"></i> Direct Feature Access:
+          </p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <a href="live-classes.html" style="color:#fff;text-decoration:none;font-size:.82rem;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:var(--radius-sm);transition:var(--transition)">
+              <span style="color:#f87171"><i class="fas fa-video"></i></span>
+              <span style="flex:1">Schedule & Host Live Classes</span>
+              <i class="fas fa-chevron-right" style="font-size:.7rem;opacity:.6"></i>
+            </a>
+            <a href="recordings.html" style="color:#fff;text-decoration:none;font-size:.82rem;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:var(--radius-sm);transition:var(--transition)">
+              <span style="color:#60a5fa"><i class="fas fa-play-circle"></i></span>
+              <span style="flex:1">Upload Class Recordings</span>
+              <i class="fas fa-chevron-right" style="font-size:.7rem;opacity:.6"></i>
+            </a>
+            <a href="manage-materials.html" style="color:#fff;text-decoration:none;font-size:.82rem;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:var(--radius-sm);transition:var(--transition)">
+              <span style="color:#34d399"><i class="fas fa-file-video"></i></span>
+              <span style="flex:1">Upload Video Lessons & Files</span>
+              <i class="fas fa-chevron-right" style="font-size:.7rem;opacity:.6"></i>
+            </a>
+            <a href="create-course.html" style="color:#fff;text-decoration:none;font-size:.82rem;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:var(--radius-sm);transition:var(--transition)">
+              <span style="color:#fbbf24"><i class="fas fa-plus-circle"></i></span>
+              <span style="flex:1">Create New Course</span>
+              <i class="fas fa-chevron-right" style="font-size:.7rem;opacity:.6"></i>
+            </a>
+            <a href="student-performance.html" style="color:#fff;text-decoration:none;font-size:.82rem;display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:var(--radius-sm);transition:var(--transition)">
+              <span style="color:#a78bfa"><i class="fas fa-chart-line"></i></span>
+              <span style="flex:1">Student Performance & Grading</span>
+              <i class="fas fa-chevron-right" style="font-size:.7rem;opacity:.6"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT FORM PANEL ── -->
+    <div class="auth-form-panel">
+      <div class="auth-form-header">
+        <h2>Sign In</h2>
+        <p>Enter your credentials to access your CloudLearn account.</p>
+      </div>
+
+      <!-- Message -->
+      <div id="login-message" style="display:none" class="alert"></div>
+
+      <form id="login-form" novalidate>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <input type="email" id="login-email" class="form-control" placeholder="you@example.com" autocomplete="email" required />
+          <small id="email-err" style="color:var(--danger);font-size:.78rem;display:none">Please enter a valid email address.</small>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="login-password" style="display:flex;justify-content:space-between">
+            <span>Password</span>
+            <a href="#" id="forgot-link" style="font-size:.82rem;color:var(--primary);font-weight:500">Forgot password?</a>
+          </label>
+          <div class="password-field">
+            <input type="password" id="login-password" class="form-control" placeholder="Enter your password" autocomplete="current-password" required />
+            <button type="button" class="password-toggle" id="toggle-login-pass" aria-label="Toggle password">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <small id="pass-err" style="color:var(--danger);font-size:.78rem;display:none">Please enter your password.</small>
+        </div>
+
+        <!-- Remember Me -->
+        <div class="form-group" style="display:flex;align-items:center;gap:10px">
+          <input type="checkbox" id="remember-me" style="cursor:pointer" />
+          <label for="remember-me" style="font-size:.88rem;color:var(--gray-600);cursor:pointer">Remember me on this device</label>
+        </div>
+
+        <button type="submit" class="btn-auth" id="login-btn">
+          <i class="fas fa-sign-in-alt"></i>&nbsp; Login to CloudLearn
+        </button>
+      </form>
+
+      <div class="auth-divider">Don't have an account?</div>
+      <div class="auth-footer">
+        <a href="register.html" class="btn btn-secondary" style="width:100%;justify-content:center;border-radius:var(--radius-md)">
+          <i class="fas fa-user-plus"></i>&nbsp; Create New Account
+        </a>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <a href="index.html" style="font-size:.85rem;color:var(--gray-400)">← Back to Home</a>
+      </div>
+
+      <!-- Demo credentials hint & Quick Autofill -->
+      <div style="margin-top:28px;background:var(--gray-50);border-radius:var(--radius-md);padding:16px;border:1px dashed var(--gray-300)">
+        <p style="font-size:.78rem;color:var(--gray-700);font-weight:700;margin-bottom:8px"><i class="fas fa-magic" style="color:var(--primary)"></i> Quick Demo Accounts</p>
+        <p style="font-size:.76rem;color:var(--gray-500);margin-bottom:12px">
+          Click below to autofill demo credentials and test either dashboard immediately:
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="fillDemo('student@cloudlearn.edu', 'student123')" style="font-size:.76rem;padding:6px 12px">
+            🎓 Student Demo
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="fillDemo('teacher@cloudlearn.edu', 'teacher123')" style="font-size:.76rem;padding:6px 12px">
+            👨‍🏫 Faculty Demo
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Feature Links on Login Card -->
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-200)">
+        <p style="font-size:.78rem;font-weight:700;color:var(--gray-800);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <i class="fas fa-th-large" style="color:var(--primary)"></i> Direct Feature Links:
+        </p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <a href="live-classes.html" class="btn btn-secondary btn-sm" style="font-size:.74rem;justify-content:flex-start;padding:8px 10px;border-radius:var(--radius-md)" title="Schedule & Host Live Classes">
+            <i class="fas fa-video" style="color:#dc2626;margin-right:6px"></i> Live Classes
+          </a>
+          <a href="recordings.html" class="btn btn-secondary btn-sm" style="font-size:.74rem;justify-content:flex-start;padding:8px 10px;border-radius:var(--radius-md)" title="Upload Class Recordings">
+            <i class="fas fa-play-circle" style="color:var(--primary);margin-right:6px"></i> Recordings
+          </a>
+          <a href="manage-materials.html" class="btn btn-secondary btn-sm" style="font-size:.74rem;justify-content:flex-start;padding:8px 10px;border-radius:var(--radius-md)" title="Upload Video Lessons & Files">
+            <i class="fas fa-file-video" style="color:#059669;margin-right:6px"></i> Video Lessons
+          </a>
+          <a href="create-course.html" class="btn btn-secondary btn-sm" style="font-size:.74rem;justify-content:flex-start;padding:8px 10px;border-radius:var(--radius-md)" title="Create New Course">
+            <i class="fas fa-plus-circle" style="color:#d97706;margin-right:6px"></i> Create Course
+          </a>
+          <a href="student-performance.html" class="btn btn-secondary btn-sm" style="font-size:.74rem;justify-content:flex-start;padding:8px 10px;grid-column:span 2;border-radius:var(--radius-md)" title="Student Performance & Grading">
+            <i class="fas fa-chart-line" style="color:#7c3aed;margin-right:6px"></i> Student Performance & Grading
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Reset Password Modal -->
+  <div id="reset-modal" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-family:var(--font-heading);font-weight:700;color:var(--gray-900)">Reset Password</h3>
+        <button class="modal-close" id="close-reset-modal" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--gray-500);font-size:.9rem;margin-bottom:16px">
+          Enter your registered email address. We'll send you a password reset link.
+        </p>
+        <div id="reset-msg" style="display:none" class="alert"></div>
+        <div class="form-group">
+          <label class="form-label" for="reset-email">Email Address</label>
+          <input type="email" id="reset-email" class="form-control" placeholder="you@example.com" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" id="cancel-reset">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="send-reset-btn">
+          <i class="fas fa-paper-plane"></i> Send Reset Link
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+
+  <script>
+    // ── Redirect if already logged in ──
+    getCurrentUserData().then(user => {
+      if (user && user.role) {
+        redirectByRole(user.role);
+      }
+    });
+
+    // ── Helpers ──
+    initPasswordToggle('toggle-login-pass', 'login-password');
+
+    function fillDemo(email, pass) {
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-password').value = pass;
+    }
+
+    function showMsg(msg, type) {
+      const el = document.getElementById('login-message');
+      el.innerHTML = msg;
+      el.className = `alert alert-${type}`;
+      el.style.display = 'flex';
+    }
+
+    function validateLoginForm() {
+      let valid = true;
+      const email = document.getElementById('login-email').value.trim();
+      const pass  = document.getElementById('login-password').value;
+      const emailErr = document.getElementById('email-err');
+      const passErr  = document.getElementById('pass-err');
+
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        emailErr.style.display = 'block';
+        document.getElementById('login-email').classList.add('error');
+        valid = false;
+      } else {
+        emailErr.style.display = 'none';
+        document.getElementById('login-email').classList.remove('error');
+      }
+      if (!pass) {
+        passErr.style.display = 'block';
+        document.getElementById('login-password').classList.add('error');
+        valid = false;
+      } else {
+        passErr.style.display = 'none';
+        document.getElementById('login-password').classList.remove('error');
+      }
+      return valid;
+    }
+
+    // Live validation
+    document.getElementById('login-email').addEventListener('blur', validateLoginForm);
+
+    // ── LOGIN SUBMIT ──
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateLoginForm()) return;
+
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const remember = document.getElementById('remember-me').checked;
+
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp; Signing In...';
+
+      try {
+        const userData = await loginAccount(email, password, remember);
+
+        showMsg(`✅ Welcome back, <strong>${userData.name}</strong>! Redirecting...`, 'success');
+
+        // Redirect based on role
+        setTimeout(() => {
+          redirectByRole(userData.role);
+        }, 1000);
+
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i>&nbsp; Login to CloudLearn';
+
+        let msg = 'Login failed. Please check your credentials and try again.';
+        if (err.code === 'auth/user-not-found')     msg = 'No account found with this email. Please register first.';
+        else if (err.code === 'auth/wrong-password') msg = 'Incorrect password. Please try again.';
+        else if (err.code === 'auth/invalid-email')  msg = 'Invalid email address format.';
+        else if (err.code === 'auth/too-many-requests') msg = 'Too many attempts. Please wait a moment.';
+        else if (err.message) msg = err.message;
+
+        showMsg('❌ ' + msg, 'danger');
+        console.error('Login error:', err);
+      }
+    });
+
+    // ── Password Reset Modal ──
+    const resetModal   = document.getElementById('reset-modal');
+    const forgotLink   = document.getElementById('forgot-link');
+    const closeReset   = document.getElementById('close-reset-modal');
+    const cancelReset  = document.getElementById('cancel-reset');
+    const sendResetBtn = document.getElementById('send-reset-btn');
+
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const loginEmail = document.getElementById('login-email').value.trim();
+      if (loginEmail) document.getElementById('reset-email').value = loginEmail;
+      resetModal.style.display = 'flex';
+    });
+    closeReset.addEventListener('click', () => { resetModal.style.display = 'none'; });
+    cancelReset.addEventListener('click', () => { resetModal.style.display = 'none'; });
+    resetModal.addEventListener('click', (e) => { if (e.target === resetModal) resetModal.style.display = 'none'; });
+
+    sendResetBtn.addEventListener('click', async () => {
+      const email = document.getElementById('reset-email').value.trim();
+      const msgEl = document.getElementById('reset-msg');
+
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        msgEl.textContent = 'Please enter a valid email address.';
+        msgEl.className = 'alert alert-danger';
+        msgEl.style.display = 'flex';
+        return;
+      }
+
+      sendResetBtn.disabled = true;
+      sendResetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+      try {
+        await auth.sendPasswordResetEmail(email);
+        msgEl.innerHTML = '✅ Reset link sent! Check your inbox.';
+        msgEl.className = 'alert alert-success';
+        msgEl.style.display = 'flex';
+        sendResetBtn.disabled = false;
+        sendResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+      } catch(err) {
+        let m = 'Failed to send reset email.';
+        if (err.code === 'auth/user-not-found') m = 'No account found with this email.';
+        msgEl.textContent = '❌ ' + m;
+        msgEl.className = 'alert alert-danger';
+        msgEl.style.display = 'flex';
+        sendResetBtn.disabled = false;
+        sendResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
+      }
+    });
+  </script>
+</body>
+</html>
+

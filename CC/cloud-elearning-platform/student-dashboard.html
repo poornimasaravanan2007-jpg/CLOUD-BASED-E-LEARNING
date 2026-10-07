@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Dashboard — CloudLearn</title>
+  <meta name="description"
+    content="CloudLearn Student Dashboard — access your courses, quizzes, assignments, and learning progress." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+
+<body>
+
+  <!-- ── Sidebar Overlay (mobile) ── -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="dashboard-layout">
+
+    <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+    <aside class="sidebar student-sidebar" id="sidebar">
+
+      <!-- Brand -->
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon"><i class="fas fa-cloud"></i></div>
+        <div class="sidebar-brand-text">
+          <div class="brand-name">CloudLearn</div>
+          <div class="brand-sub">Student Portal</div>
+        </div>
+      </div>
+
+      <!-- Avatar -->
+      <div class="student-avatar-wrap">
+        <div class="avatar user-avatar-initials">?</div>
+        <div class="avatar-info">
+          <div class="name" id="sidebar-name">Loading...</div>
+          <div class="role-tag">🎓 Student</div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav" role="navigation" aria-label="Student navigation">
+        <div class="nav-section-label">Main Menu</div>
+        <a href="student-dashboard.html" class="nav-link active" id="nav-dashboard">
+          <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a href="courses.html" class="nav-link" id="nav-courses">
+          <i class="fas fa-book-open"></i> My Courses
+        </a>
+        <a href="courses.html#browse" class="nav-link" id="nav-browse">
+          <i class="fas fa-search"></i> Browse Courses
+        </a>
+
+        <div class="nav-section-label">Learning</div>
+        <a href="manage-materials.html" class="nav-link" id="nav-materials">
+          <i class="fas fa-file-alt"></i> Study Materials
+        </a>
+        <a href="quiz.html" class="nav-link" id="nav-quiz">
+          <i class="fas fa-clipboard-list"></i> Quizzes
+        </a>
+        <a href="assignments.html" class="nav-link" id="nav-assignments">
+          <i class="fas fa-tasks"></i> Assignments
+          <span class="nav-badge" id="pending-badge" style="display:none">0</span>
+        </a>
+        <a href="results.html" class="nav-link" id="nav-results">
+          <i class="fas fa-star"></i> Results
+        </a>
+        <a href="student-progress.html" class="nav-link" id="nav-progress">
+          <i class="fas fa-chart-line"></i> My Progress
+        </a>
+
+        <div class="nav-section-label">Live & Recordings</div>
+        <a href="live-classes.html" class="nav-link" id="nav-live">
+          <i class="fas fa-video"></i> Live Classes
+        </a>
+        <a href="recordings.html" class="nav-link" id="nav-recordings">
+          <i class="fas fa-play-circle"></i> Recordings
+        </a>
+
+        <div class="nav-section-label">More</div>
+        <a href="announcements.html" class="nav-link" id="nav-announcements">
+          <i class="fas fa-bell"></i> Notifications
+          <span class="nav-badge" id="notif-badge">3</span>
+        </a>
+        <a href="#calendar" class="nav-link" id="nav-calendar">
+          <i class="fas fa-calendar-alt"></i> Academic Calendar
+        </a>
+        <a href="profile.html" class="nav-link" id="nav-profile">
+          <i class="fas fa-user-circle"></i> My Profile
+        </a>
+      </nav>
+
+      <!-- Logout -->
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="logout()" id="logout-btn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- ══════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════ -->
+    <main class="main-content">
+
+      <!-- Top Nav -->
+      <header class="top-nav">
+        <div class="flex items-center gap-2">
+          <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+          </button>
+          <span class="top-nav-title" id="page-title">Dashboard</span>
+        </div>
+        <div class="top-nav-right">
+          <a href="announcements.html" class="notif-btn" title="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="notif-dot"></span>
+          </a>
+          <a href="profile.html" class="top-avatar user-avatar-initials" title="My Profile">?</a>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="page-content">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner fade-in-up" id="welcome-banner">
+          <div class="welcome-text">
+            <h1 id="greeting-text">Good Morning! 👋</h1>
+            <p id="greeting-sub">Ready to continue learning? You have pending activities today.</p>
+          </div>
+          <div class="welcome-emoji">🎓</div>
+        </div>
+
+        <!-- Live Class Banner (dynamic) -->
+        <div id="live-class-banner-container"></div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card fade-in-up delay-1">
+            <div class="stat-icon purple"><i class="fas fa-book-open"></i></div>
+            <div>
+              <div class="stat-value" id="stat-enrolled">–</div>
+              <div class="stat-label">Enrolled Courses</div>
+            </div>
+          </div>
+          <div class="stat-card fade-in-up delay-2">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div>
+              <div class="stat-value" id="stat-completed">–</div>
+              <div class="stat-label">Completed Courses</div>
+            </div>
+          </div>
+          <div class="stat-card fade-in-up delay-2">
+            <div class="stat-icon orange"><i class="fas fa-tasks"></i></div>
+            <div>
+              <div class="stat-value" id="stat-pending-assignments">–</div>
+              <div class="stat-label">Pending Assignments</div>
+            </div>
+          </div>
+          <div class="stat-card fade-in-up delay-3">
+            <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
+            <div>
+              <div class="stat-value" id="stat-quizzes">–</div>
+              <div class="stat-label">Upcoming Quizzes</div>
+            </div>
+          </div>
+          <div class="stat-card fade-in-up delay-3">
+            <div class="stat-icon cyan"><i class="fas fa-star"></i></div>
+            <div>
+              <div class="stat-value" id="stat-avg-score">–</div>
+              <div class="stat-label">Average Score</div>
+            </div>
+          </div>
+          <div class="stat-card fade-in-up delay-4">
+            <div class="stat-icon purple"><i class="fas fa-chart-line"></i></div>
+            <div>
+              <div class="stat-value" id="stat-progress">–</div>
+              <div class="stat-label">Overall Progress</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Two Column Row ── -->
+        <div class="two-col" style="margin-bottom:24px">
+
+          <!-- My Courses -->
+          <div class="card fade-in-up">
+            <div class="section-hdr">
+              <h3><i class="fas fa-book" style="color:var(--primary);margin-right:8px"></i>My Courses</h3>
+              <a href="courses.html" class="btn btn-secondary btn-sm">View All</a>
+            </div>
+            <div id="my-courses-list">
+              <!-- Skeleton -->
+              <div class="skeleton-item"
+                style="height:80px;background:var(--gray-100);border-radius:var(--radius-md);margin-bottom:12px;animation:pulse 1.5s infinite">
+              </div>
+              <div class="skeleton-item"
+                style="height:80px;background:var(--gray-100);border-radius:var(--radius-md);margin-bottom:12px;animation:pulse 1.5s .2s infinite">
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Quizzes -->
+          <div class="card fade-in-up delay-1">
+            <div class="section-hdr">
+              <h3><i class="fas fa-clipboard-list" style="color:var(--info);margin-right:8px"></i>Upcoming Quizzes</h3>
+              <a href="quiz.html" class="btn btn-secondary btn-sm">All Quizzes</a>
+            </div>
+            <div id="upcoming-quizzes-list">
+              <div class="skeleton-item"
+                style="height:70px;background:var(--gray-100);border-radius:var(--radius-md);margin-bottom:12px;animation:pulse 1.5s infinite">
+              </div>
+              <div class="skeleton-item"
+                style="height:70px;background:var(--gray-100);border-radius:var(--radius-md);margin-bottom:12px;animation:pulse 1.5s .2s infinite">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Two Column Row 2 ── -->
+        <div class="two-col" style="margin-bottom:24px">
+
+          <!-- Upcoming Assignments -->
+          <div class="card fade-in-up">
+            <div class="section-hdr">
+              <h3><i class="fas fa-tasks" style="color:var(--warning);margin-right:8px"></i>Upcoming Assignments</h3>
+              <a href="assignments.html" class="btn btn-secondary btn-sm">View All</a>
+            </div>
+            <div id="assignments-list">
+              <div class="skeleton-item"
+                style="height:70px;background:var(--gray-100);border-radius:var(--radius-md);margin-bottom:12px;animation:pulse 1.5s infinite">
+              </div>
+              <div class="skeleton-item"
+                style="height:70px;background:var(--gray-100);border-radius:var(--radius-md);animation:pulse 1.5s .3s infinite">
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Results -->
+          <div class="card fade-in-up delay-1">
+            <div class="section-hdr">
+              <h3><i class="fas fa-star" style="color:var(--accent);margin-right:8px"></i>Recent Results</h3>
+              <a href="results.html" class="btn btn-secondary btn-sm">All Results</a>
+            </div>
+            <div id="results-list">
+              <div class="skeleton-item"
+                style="height:60px;background:var(--gray-100);border-radius:var(--radius-md);margin-bottom:12px;animation:pulse 1.5s infinite">
+              </div>
+              <div class="skeleton-item"
+                style="height:60px;background:var(--gray-100);border-radius:var(--radius-md);animation:pulse 1.5s .2s infinite">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Learning Progress ── -->
+        <div class="card fade-in-up" id="calendar">
+          <div class="section-hdr">
+            <h3><i class="fas fa-chart-line" style="color:var(--success);margin-right:8px"></i>Learning Progress</h3>
+            <a href="student-progress.html" class="btn btn-secondary btn-sm">Full Report</a>
+          </div>
+          <div id="progress-bars-list">
+            <!-- Will be populated by JS -->
+          </div>
+
+          <!-- Academic Calendar Mini -->
+          <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--gray-100)">
+            <h4
+              style="font-family:var(--font-heading);font-size:1rem;font-weight:600;color:var(--gray-800);margin-bottom:16px">
+              <i class="fas fa-calendar-alt" style="color:var(--primary);margin-right:8px"></i>Upcoming Events
+            </h4>
+            <div id="calendar-events">
+              <!-- populated by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- /page-content -->
+    </main>
+  </div>
+
+  <!-- Toast & Loading -->
+  <div id="toast-container"></div>
+
+  <!-- Firebase + Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="js/firebase-config.js?v=999"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // ── Skeleton Pulse Animation ──────────────────────────────────
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }`;
+    document.head.appendChild(styleEl);
+
+    // ── Require Auth (student only) ───────────────────────────────
+    requireAuth('student');
+
+    // ── On User Ready ─────────────────────────────────────────────
+    document.addEventListener('userReady', async (e) => {
+      const user = e.detail;
+
+      // Greeting
+      const firstName = (user.name || user.email || 'Student').split(' ')[0];
+      document.getElementById('greeting-text').textContent = `${getGreeting()}, ${firstName}! 👋`;
+      document.getElementById('sidebar-name').textContent = user.name || user.email || 'Student';
+      setAvatarInitials(user.name || user.email || 'S');
+
+      // Load all data
+      const enrolledCount = await loadEnrolledCourses(user.uid);
+      const hasCourses = enrolledCount > 0;
+
+      await Promise.all([
+        loadUpcomingQuizzes(user.uid, hasCourses),
+        loadAssignments(user.uid, hasCourses),
+        loadRecentResults(user.uid),
+        loadUpcomingLiveClass(),
+      ]);
+
+      loadCalendarEvents(hasCourses);
+    });
+
+    // ── Load Enrolled Courses ─────────────────────────────────────
+    async function loadEnrolledCourses(uid) {
+      const container = document.getElementById('my-courses-list');
+      try {
+        const snap = await db.collection('enrollments').where('studentId', '==', uid).limit(3).get();
+
+        if (snap.empty) {
+          container.innerHTML = `
+        <div class="empty-state" style="padding:32px 16px; text-align:center;">
+          <div style="width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg, #ede9fe, #dbeafe); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.5rem; box-shadow:0 4px 12px rgba(79,70,229,.12);">
+            <i class="fas fa-book-open"></i>
+          </div>
+          <h4 style="font-family:var(--font-heading); font-size:1.05rem; font-weight:700; color:var(--gray-900); margin-bottom:4px;">No Courses Enrolled</h4>
+          <p style="font-size:.84rem; color:var(--gray-500); max-width:300px; margin:0 auto 16px; line-height:1.5;">You haven't enrolled in any courses yet. Browse our catalog to get started with your first course!</p>
+          <a href="courses.html" class="btn btn-primary btn-sm"><i class="fas fa-search" style="margin-right:6px"></i>Browse Courses</a>
+        </div>`;
+          document.getElementById('stat-enrolled').textContent = '0';
+          document.getElementById('stat-completed').textContent = '0';
+          document.getElementById('stat-progress').textContent = '0%';
+          document.getElementById('greeting-sub').textContent = 'Welcome to CloudLearn! 🌟 Get started by enrolling in your first course.';
+          renderProgressBars([]);
+          return 0;
+        }
+
+        document.getElementById('stat-enrolled').textContent = snap.size;
+
+        // Fetch course details for each enrollment
+        const coursePromises = snap.docs.map(async (doc) => {
+          const enrol = doc.data();
+          try {
+            const courseDoc = await db.collection('courses').doc(enrol.courseId).get();
+            return courseDoc.exists ? { ...courseDoc.data(), courseId: enrol.courseId, progress: enrol.progress || 0 } : null;
+          } catch { return null; }
+        });
+
+        const courses = (await Promise.all(coursePromises)).filter(Boolean);
+        const completed = courses.filter(c => (c.progress || 0) >= 100).length;
+        const avgProgress = courses.length ? Math.round(courses.reduce((a, c) => a + (c.progress || 0), 0) / courses.length) : 0;
+
+        document.getElementById('stat-completed').textContent = completed;
+        document.getElementById('stat-progress').textContent = avgProgress + '%';
+        document.getElementById('greeting-sub').textContent = `You have ${courses.length} enrolled course${courses.length !== 1 ? 's' : ''}. Keep learning! 🚀`;
+
+        container.innerHTML = courses.map(c => `
+      <div style="display:flex;align-items:center;gap:14px;padding:12px;border-radius:var(--radius-md);border:1px solid var(--gray-100);margin-bottom:10px;transition:var(--transition)"
+           onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='transparent'">
+        <div style="width:46px;height:46px;border-radius:12px;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">${getCourseEmoji(c.category)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:.9rem;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.courseName || 'Untitled Course'}</div>
+          <div style="font-size:.78rem;color:var(--gray-500);margin-bottom:6px">${c.instructor || 'Instructor'}</div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${c.progress}%"></div></div>
+        </div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--primary);flex-shrink:0">${c.progress}%</div>
+      </div>`).join('');
+
+        renderProgressBars(courses);
+        return courses.length;
+
+      } catch (err) {
+        // If not connected to firebase, treat as new student empty state
+        container.innerHTML = `
+      <div class="empty-state" style="padding:32px 16px; text-align:center;">
+        <div style="width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg, #ede9fe, #dbeafe); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.5rem; box-shadow:0 4px 12px rgba(79,70,229,.12);">
+          <i class="fas fa-book-open"></i>
+        </div>
+        <h4 style="font-family:var(--font-heading); font-size:1.05rem; font-weight:700; color:var(--gray-900); margin-bottom:4px;">No Courses Enrolled</h4>
+        <p style="font-size:.84rem; color:var(--gray-500); max-width:300px; margin:0 auto 16px; line-height:1.5;">You haven't enrolled in any courses yet. Browse our catalog to get started with your first course!</p>
+        <a href="courses.html" class="btn btn-primary btn-sm"><i class="fas fa-search" style="margin-right:6px"></i>Browse Courses</a>
+      </div>`;
+        document.getElementById('stat-enrolled').textContent = '0';
+        document.getElementById('stat-completed').textContent = '0';
+        document.getElementById('stat-progress').textContent = '0%';
+        document.getElementById('greeting-sub').textContent = 'Welcome to CloudLearn! 🌟 Get started by enrolling in your first course.';
+        renderProgressBars([]);
+        return 0;
+      }
+    }
+
+    // ── Load Upcoming Quizzes ─────────────────────────────────────
+    async function loadUpcomingQuizzes(uid, hasCourses = true) {
+      const container = document.getElementById('upcoming-quizzes-list');
+      if (!hasCourses) {
+        container.innerHTML = '<div class="empty-state" style="padding:24px 0"><i class="fas fa-clipboard-list" style="font-size:1.8rem;color:var(--gray-300);margin-bottom:6px;display:block;"></i><div style="font-size:.85rem;font-weight:600;color:var(--gray-700)">No Quizzes Available</div><p style="font-size:.78rem;color:var(--gray-400);margin-top:2px">Quizzes will appear once you enroll in courses.</p></div>';
+        document.getElementById('stat-quizzes').textContent = '0';
+        return;
+      }
+      try {
+        const snap = await db.collection('quizzes').where('published', '==', true).limit(4).get();
+        document.getElementById('stat-quizzes').textContent = snap.size;
+
+        if (snap.empty) {
+          container.innerHTML = '<div class="empty-state" style="padding:24px 0"><i class="fas fa-clipboard-list"></i><p>No upcoming quizzes.</p></div>';
+          return;
+        }
+
+        container.innerHTML = snap.docs.map(doc => {
+          const q = doc.data();
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:var(--radius-md);border:1px solid var(--gray-100);margin-bottom:10px">
+        <div>
+          <div style="font-weight:600;font-size:.88rem;color:var(--gray-900)">${q.title || 'Untitled Quiz'}</div>
+          <div style="font-size:.75rem;color:var(--gray-500);margin-top:3px">${q.courseName || ''} &bull; ${q.questions ? q.questions.length : 0} Questions</div>
+        </div>
+        <a href="quiz.html?id=${doc.id}" class="btn btn-primary btn-sm" style="flex-shrink:0">Start</a>
+      </div>`;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = '<div class="empty-state" style="padding:20px 0;text-align:center"><i class="fas fa-clipboard-list" style="color:var(--gray-300);font-size:1.6rem;margin-bottom:6px;display:block"></i><p style="font-size:.82rem;color:var(--gray-400)">No upcoming quizzes.</p></div>';
+        document.getElementById('stat-quizzes').textContent = '0';
+      }
+    }
+
+    // ── Load Assignments ──────────────────────────────────────────
+    async function loadAssignments(uid, hasCourses = true) {
+      const container = document.getElementById('assignments-list');
+      if (!hasCourses) {
+        container.innerHTML = '<div class="empty-state" style="padding:24px 0"><i class="fas fa-tasks" style="font-size:1.8rem;color:var(--gray-300);margin-bottom:6px;display:block;"></i><div style="font-size:.85rem;font-weight:600;color:var(--gray-700)">No Assignments Due</div><p style="font-size:.78rem;color:var(--gray-400);margin-top:2px">Course assignments will appear here once you enroll.</p></div>';
+        document.getElementById('stat-pending-assignments').textContent = '0';
+        return;
+      }
+      try {
+        const snap = await db.collection('assignments').limit(4).get();
+
+        if (snap.empty) {
+          container.innerHTML = '<div class="empty-state" style="padding:24px 0"><i class="fas fa-tasks"></i><p>No assignments yet.</p></div>';
+          document.getElementById('stat-pending-assignments').textContent = '0';
+          return;
+        }
+
+        // Check which ones student submitted
+        const submSnap = await db.collection('submissions').where('studentId', '==', uid).get();
+        const submitted = new Set(submSnap.docs.map(d => d.data().assignmentId));
+
+        let pending = 0;
+        const items = snap.docs.map(doc => {
+          const a = doc.data();
+          const isSubmitted = submitted.has(doc.id);
+          const due = a.dueDate ? new Date(a.dueDate.toDate ? a.dueDate.toDate() : a.dueDate) : null;
+          const isLate = due && new Date() > due && !isSubmitted;
+          if (!isSubmitted) pending++;
+          const status = isSubmitted ? 'submitted' : isLate ? 'late' : 'pending';
+          const statusColors = { submitted: 'badge-success', late: 'badge-danger', pending: 'badge-warning' };
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:var(--radius-md);border:1px solid var(--gray-100);margin-bottom:10px">
+        <div style="min-width:0">
+          <div style="font-weight:600;font-size:.88rem;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title || 'Assignment'}</div>
+          <div style="font-size:.75rem;color:var(--gray-500);margin-top:3px">${a.courseName || ''} &bull; Due: ${due ? due.toLocaleDateString() : 'N/A'}</div>
+        </div>
+        <span class="badge ${statusColors[status]}" style="flex-shrink:0;text-transform:capitalize">${status}</span>
+      </div>`;
+        });
+
+        document.getElementById('stat-pending-assignments').textContent = pending;
+        if (pending > 0) {
+          const badge = document.getElementById('pending-badge');
+          if (badge) {
+            badge.textContent = pending;
+            badge.style.display = 'inline-flex';
+          }
+        }
+        container.innerHTML = items.join('');
+      } catch (err) {
+        container.innerHTML = '<div class="empty-state" style="padding:20px 0;text-align:center"><i class="fas fa-tasks" style="color:var(--gray-300);font-size:1.6rem;margin-bottom:6px;display:block"></i><p style="font-size:.82rem;color:var(--gray-400)">No assignments due.</p></div>';
+        document.getElementById('stat-pending-assignments').textContent = '0';
+      }
+    }
+
+    // ── Load Recent Results ───────────────────────────────────────
+    async function loadRecentResults(uid) {
+      const container = document.getElementById('results-list');
+      try {
+        const snap = await db.collection('results')
+          .where('studentId', '==', uid)
+          .orderBy('submittedAt', 'desc')
+          .limit(4)
+          .get();
+
+        if (snap.empty) {
+          container.innerHTML = '<div class="empty-state" style="padding:24px 0"><i class="fas fa-star" style="font-size:1.8rem;color:var(--gray-300);margin-bottom:6px;display:block;"></i><div style="font-size:.85rem;font-weight:600;color:var(--gray-700)">No Quiz Results Yet</div><p style="font-size:.78rem;color:var(--gray-400);margin-top:2px">Complete your first quiz to see your grades.</p></div>';
+          document.getElementById('stat-avg-score').textContent = '—';
+          return;
+        }
+
+        let total = 0;
+        const items = snap.docs.map(doc => {
+          const r = doc.data();
+          total += r.percentage || 0;
+          const pct = r.percentage || 0;
+          const color = pct >= 70 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:var(--radius-md);border:1px solid var(--gray-100);margin-bottom:8px">
+        <div>
+          <div style="font-weight:600;font-size:.85rem;color:var(--gray-900)">${r.quizTitle || 'Quiz'}</div>
+          <div style="font-size:.75rem;color:var(--gray-400)">${r.submittedAt?.toDate ? r.submittedAt.toDate().toLocaleDateString() : 'N/A'}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--font-heading);font-weight:800;color:${color};font-size:1.1rem">${pct}%</div>
+          <div style="font-size:.7rem;color:var(--gray-400)">${r.score}/${r.totalQuestions}</div>
+        </div>
+      </div>`;
+        });
+
+        document.getElementById('stat-avg-score').textContent = Math.round(total / snap.size) + '%';
+        container.innerHTML = items.join('');
+      } catch (err) {
+        container.innerHTML = '<div class="empty-state" style="padding:24px 0;text-align:center"><i class="fas fa-star" style="color:var(--gray-300);font-size:1.8rem;margin-bottom:6px;display:block"></i><div style="font-size:.85rem;font-weight:600;color:var(--gray-700)">No Quiz Results Yet</div><p style="font-size:.78rem;color:var(--gray-400);margin-top:2px">Your grades will appear here after taking quizzes.</p></div>';
+        document.getElementById('stat-avg-score').textContent = '—';
+      }
+    }
+
+    // ── Render Progress Bars ──────────────────────────────────────
+    function renderProgressBars(courses) {
+      const container = document.getElementById('progress-bars-list');
+      if (!courses || !courses.length) {
+        container.innerHTML = `
+      <div class="empty-state" style="padding:32px 16px; text-align:center; background:var(--gray-50); border-radius:var(--radius-md); border:1px dashed var(--gray-200);">
+        <i class="fas fa-chart-line" style="font-size:2rem; color:var(--gray-300); margin-bottom:8px; display:block;"></i>
+        <div style="font-size:.9rem; font-weight:600; color:var(--gray-700);">No Learning Progress Yet</div>
+        <p style="font-size:.8rem; color:var(--gray-400); max-width:280px; margin:4px auto 14px;">Once you enroll in a course, your lesson completions, quiz results, and progress percentages will be tracked here.</p>
+        <a href="courses.html" class="btn btn-outline btn-sm" style="font-size:.8rem;"><i class="fas fa-plus-circle" style="margin-right:5px"></i>Browse & Enroll in Courses</a>
+      </div>`;
+        return;
+      }
+      container.innerHTML = courses.map(c => `
+    <div style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:.88rem;font-weight:600;color:var(--gray-700)">${getCourseEmoji(c.category)} ${c.courseName}</span>
+        <span style="font-size:.85rem;font-weight:700;color:var(--primary)">${c.progress}%</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${c.progress}%"></div></div>
+    </div>`).join('');
+    }
+
+    // ── Calendar Events (live from Firestore) ─────────────────────
+    async function loadCalendarEvents(hasCourses = false) {
+      const container = document.getElementById('calendar-events');
+      if (!hasCourses) {
+        container.innerHTML = `
+      <div style="text-align:center; padding:18px 12px; color:var(--gray-400); font-size:.82rem; background:var(--gray-50); border-radius:var(--radius-sm); border:1px dashed var(--gray-200);">
+        <i class="fas fa-calendar-check" style="margin-right:6px; color:var(--gray-300)"></i> No upcoming deadlines or events scheduled.
+      </div>`;
+        return;
+      }
+      try {
+        const now = new Date();
+        const events = [];
+
+        // Fetch upcoming assignments
+        const aSnap = await db.collection('assignments').limit(10).get();
+        aSnap.docs.forEach(doc => {
+          const a = doc.data();
+          const due = a.dueDate ? new Date(a.dueDate.toDate ? a.dueDate.toDate() : a.dueDate) : null;
+          if (due && due >= now) {
+            const month = due.toLocaleString('default', { month: 'short' });
+            events.push({ date: `${month} ${due.getDate()}`, rawDate: due, title: a.title || 'Assignment', type: 'assignment', color: 'var(--warning)' });
+          }
+        });
+
+        // Fetch quizzes (show upcoming ones with estimated dates)
+        const qSnap = await db.collection('quizzes').where('published', '==', true).limit(5).get();
+        qSnap.docs.forEach((doc, idx) => {
+          const q = doc.data();
+          const fd = new Date(now); fd.setDate(now.getDate() + (idx + 1) * 3);
+          const month = fd.toLocaleString('default', { month: 'short' });
+          events.push({ date: `${month} ${fd.getDate()}`, rawDate: fd, title: q.title || 'Quiz', type: 'quiz', color: 'var(--info)' });
+        });
+
+        events.sort((a, b) => a.rawDate - b.rawDate);
+        const shown = events.slice(0, 5);
+
+        if (!shown.length) {
+          container.innerHTML = `<div style="text-align:center;padding:18px 12px;color:var(--gray-400);font-size:.82rem;background:var(--gray-50);border-radius:var(--radius-sm);border:1px dashed var(--gray-200);"><i class="fas fa-calendar-check" style="margin-right:6px;color:var(--gray-300)"></i> No upcoming deadlines.</div>`;
+          return;
+        }
+
+        container.innerHTML = shown.map(ev => `
+    <div style="display:flex;align-items:center;gap:14px;padding:10px;border-radius:var(--radius-sm);margin-bottom:8px;border-left:3px solid ${ev.color};background:var(--gray-50)">
+      <div style="min-width:50px;text-align:center">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--gray-400)">${ev.date.split(' ')[0]}</div>
+        <div style="font-size:1.2rem;font-weight:800;color:var(--gray-800)">${ev.date.split(' ')[1]}</div>
+      </div>
+      <div>
+        <div style="font-weight:600;font-size:.88rem;color:var(--gray-800)">${ev.title}</div>
+        <span style="font-size:.72rem;font-weight:600;text-transform:capitalize;color:var(--gray-400)">${ev.type}</span>
+      </div>
+    </div>`).join('');
+      } catch (err) {
+        container.innerHTML = `<div style="text-align:center;padding:18px 12px;color:var(--gray-400);font-size:.82rem;"><i class="fas fa-calendar-check" style="margin-right:6px;"></i> Could not load events.</div>`;
+      }
+    }
+
+    // ── Load Upcoming Live Class for Banner ──────────────────────
+    async function loadUpcomingLiveClass() {
+      const bannerWrap = document.getElementById('live-class-banner-container');
+      if (!bannerWrap) return;
+      try {
+        const now = new Date();
+        let snap;
+        try {
+          snap = await db.collection('liveClasses').orderBy('scheduledAt', 'asc').limit(10).get();
+        } catch(e) {
+          snap = await db.collection('liveClasses').get();
+        }
+        if (snap.empty) return;
+        const classes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        classes.sort((a, b) => {
+          const tA = a.scheduledAt?.toDate ? a.scheduledAt.toDate().getTime() : new Date(a.scheduledAt || 0).getTime();
+          const tB = b.scheduledAt?.toDate ? b.scheduledAt.toDate().getTime() : new Date(b.scheduledAt || 0).getTime();
+          return tA - tB;
+        });
+        const activeOrNext = classes.find(c => {
+          const s = c.scheduledAt?.toDate ? c.scheduledAt.toDate() : new Date(c.scheduledAt);
+          const end = new Date(s.getTime() + (c.duration || 60) * 60000);
+          return end >= now;
+        });
+        if (!activeOrNext) return;
+
+        const sched = activeOrNext.scheduledAt?.toDate ? activeOrNext.scheduledAt.toDate() : new Date(activeOrNext.scheduledAt);
+        const end = new Date(sched.getTime() + (activeOrNext.duration || 60) * 60000);
+        const isLive = now >= sched && now <= end;
+        const timeStr = sched.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dateStr = sched.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+
+        bannerWrap.innerHTML = `
+          <div style="background:${isLive ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #4f46e5, #7c3aed)'}; border-radius:var(--radius-lg); padding:20px 24px; color:#fff; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:24px; box-shadow:0 10px 25px ${isLive ? 'rgba(239,68,68,.3)' : 'rgba(79,70,229,.25)'};" class="fade-in-up">
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="width:48px; height:48px; border-radius:14px; background:rgba(255,255,255,.2); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+                <i class="fas fa-${isLive ? 'broadcast-tower' : 'video'}"></i>
+              </div>
+              <div>
+                <div style="font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; opacity:.85; font-weight:700;">
+                  ${isLive ? '🔴 Live Session in Progress' : '📅 Upcoming Live Class'} · ${activeOrNext.courseName || 'Course'}
+                </div>
+                <div style="font-family:var(--font-heading); font-size:1.1rem; font-weight:700; margin-top:2px;">
+                  ${activeOrNext.title}
+                </div>
+                <div style="font-size:.82rem; opacity:.9; margin-top:2px;">
+                  ${dateStr} at ${timeStr} · ${activeOrNext.duration || 60} mins · Prof. ${activeOrNext.teacherName || 'Faculty'}
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <a href="live-classes.html" class="btn" style="background:#fff; color:${isLive ? '#dc2626' : 'var(--primary)'}; font-weight:700; padding:10px 22px; border-radius:var(--radius-full); text-decoration:none; box-shadow:0 4px 12px rgba(0,0,0,.15); transition:var(--transition);">
+                <i class="fas fa-play" style="font-size:.8rem; margin-right:6px"></i> ${isLive ? 'Join Live Class' : 'View Schedule'}
+              </a>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        console.error('Could not load live banner:', e);
+      }
+    }
+
+    // ── Course Emoji Mapping ──────────────────────────────────────
+    function getCourseEmoji(category) {
+      const map = {
+        cloud: '☁️', ai: '🧠', ml: '🤖', programming: '💻', python: '🐍',
+        data: '📊', web: '🌐', database: '🗄️', math: '📐', science: '🔬',
+        default: '📚'
+      };
+      const cat = (category || '').toLowerCase();
+      return map[cat] || map.default;
+    }
+
+    // ── Init Sidebar Toggle ───────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      initSidebarToggle();
+      markActiveNavLink();
+    });
+  </script>
+</body>
+
+</html>
+

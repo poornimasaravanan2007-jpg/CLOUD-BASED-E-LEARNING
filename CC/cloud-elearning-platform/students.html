@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Students Directory — CloudLearn</title>
+  <meta name="description" content="Manage enrolled students, monitor attendance, track academic progress, and manage enrollments on CloudLearn." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/student.css?v=3" />
+  <link rel="stylesheet" href="css/teacher.css?v=3" />
+  <link rel="stylesheet" href="css/responsive.css?v=3" />
+  <style>
+    /* ── Students Directory Styles ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .summary-metric-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      transition: var(--transition);
+    }
+    .summary-metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .summary-metric-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+    .summary-metric-icon.emerald { background: #d1fae5; color: #059669; }
+    .summary-metric-icon.blue    { background: #dbeafe; color: #2563eb; }
+    .summary-metric-icon.amber   { background: #fef3c7; color: #d97706; }
+    .summary-metric-icon.rose    { background: #ffe4e6; color: #e11d48; }
+    .summary-metric-val {
+      font-family: var(--font-heading);
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      line-height: 1.1;
+    }
+    .summary-metric-lbl {
+      font-size: .8rem;
+      color: var(--gray-500);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* ── Control Bar / Filter Bar ── */
+    .directory-toolbar {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      margin-bottom: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .toolbar-left-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+    .search-input-wrapper {
+      position: relative;
+      min-width: 240px;
+      flex: 1;
+      max-width: 380px;
+    }
+    .search-input-wrapper input {
+      width: 100%;
+      padding: 10px 16px 10px 42px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-full);
+      font-size: .88rem;
+      outline: none;
+      transition: var(--transition);
+      background: var(--gray-50);
+    }
+    .search-input-wrapper input:focus {
+      border-color: #059669;
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(5,150,105,.12);
+    }
+    .search-input-wrapper i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-400);
+      font-size: .95rem;
+    }
+    .filter-select {
+      padding: 10px 16px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-full);
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      background: var(--gray-50);
+      outline: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .filter-select:focus {
+      border-color: #059669;
+      background: var(--white);
+    }
+    .toolbar-right-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .view-toggle-btn-group {
+      display: flex;
+      background: var(--gray-100);
+      padding: 3px;
+      border-radius: var(--radius-full);
+    }
+    .view-toggle-btn {
+      border: none;
+      background: transparent;
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      font-size: .85rem;
+      color: var(--gray-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .view-toggle-btn.active {
+      background: var(--white);
+      color: #059669;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ── Table Container ── */
+    .table-container {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      overflow-x: auto;
+      margin-bottom: 24px;
+    }
+    .students-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .students-table th {
+      background: var(--gray-50);
+      padding: 14px 20px;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 700;
+      color: var(--gray-500);
+      border-bottom: 1px solid var(--gray-200);
+      white-space: nowrap;
+    }
+    .students-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--gray-100);
+      vertical-align: middle;
+      font-size: .88rem;
+    }
+    .students-table tr:last-child td {
+      border-bottom: none;
+    }
+    .students-table tr:hover td {
+      background: #fcfdfd;
+    }
+
+    /* ── Student Row Components ── */
+    .student-profile-cell {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .student-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--grad-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .95rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+    }
+    .student-name {
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 2px;
+    }
+    .student-sub-info {
+      font-size: .76rem;
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-roll {
+      background: var(--gray-100);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: .72rem;
+      color: var(--gray-700);
+      font-weight: 600;
+    }
+    .course-badge-pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: var(--radius-full);
+      font-size: .73rem;
+      font-weight: 600;
+      background: #eff6ff;
+      color: #2563eb;
+      margin: 2px 2px;
+    }
+    .course-badge-pill.green {
+      background: #ecfdf5;
+      color: #059669;
+    }
+    .course-badge-pill.purple {
+      background: #f5f3ff;
+      color: #7c3aed;
+    }
+
+    /* ── Progress & Grade ── */
+    .progress-cell {
+      min-width: 120px;
+    }
+    .progress-track {
+      background: var(--gray-200);
+      height: 7px;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .progress-fill-bar {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: linear-gradient(90deg, #10b981, #059669);
+      transition: width .4s ease;
+    }
+
+    /* ── Action Buttons in Table ── */
+    .action-btn-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .table-action-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      cursor: pointer;
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      color: var(--gray-600);
+      transition: var(--transition);
+    }
+    .table-action-btn:hover {
+      background: #ecfdf5;
+      color: #059669;
+      border-color: #a7f3d0;
+    }
+    .table-action-btn.danger:hover {
+      background: #fee2e2;
+      color: #ef4444;
+      border-color: #fca5a5;
+    }
+
+    /* ── Grid View ── */
+    .students-grid {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .student-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      position: relative;
+      transition: var(--transition);
+    }
+    .student-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--gray-200);
+    }
+    .student-card-header {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .student-card-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+    }
+    .card-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: var(--gray-50);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      margin: 14px 0;
+      font-size: .8rem;
+    }
+    .card-meta-item .lbl {
+      color: var(--gray-400);
+      font-size: .72rem;
+      margin-bottom: 2px;
+    }
+    .card-meta-item .val {
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+    .student-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid var(--gray-100);
+      margin-top: 14px;
+    }
+
+    /* ── Batch Selection Bar ── */
+    .batch-bar {
+      display: none;
+      background: linear-gradient(135deg, #064e3b, #065f46);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      margin-bottom: 18px;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 14px rgba(6,78,59,.25);
+      animation: fadeIn .2s ease;
+    }
+    .batch-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* ── Student Details Modal ── */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 20px;
+    }
+    @media (max-width: 680px) {
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+    .detail-profile-sidebar {
+      text-align: center;
+      background: var(--gray-50);
+      padding: 24px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-200);
+    }
+    .detail-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      margin: 0 auto 12px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 800;
+      box-shadow: 0 6px 16px rgba(0,0,0,.12);
+    }
+    .info-list {
+      text-align: left;
+      margin-top: 16px;
+      font-size: .85rem;
+    }
+    .info-list-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .info-list-item:last-child { border-bottom: none; }
+    .course-history-item {
+      padding: 12px 14px;
+      background: var(--gray-50);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--gray-200);
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<div class="dashboard-layout">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Faculty Portal</div>
+      </div>
+    </div>
+
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" role="navigation" aria-label="Teacher navigation">
+      <div class="nav-section-label">Main</div>
+      <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="manage-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="create-course.html" class="nav-link"><i class="fas fa-plus-circle"></i> Create Course</a>
+
+      <div class="nav-section-label">Content</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-upload"></i> Manage Materials</a>
+      <a href="manage-quizzes.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+      <a href="manage-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+
+      <div class="nav-section-label">Students</div>
+      <a href="students.html" class="nav-link active"><i class="fas fa-users"></i> Students</a>
+      <a href="student-performance.html" class="nav-link"><i class="fas fa-chart-bar"></i> Performance</a>
+      <a href="course-analytics.html" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════ -->
+  <main class="main-content" id="main-content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Students Directory</h1>
+          <p class="page-sub">Manage enrollments, inspect student academic standing, and send communications</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="exportStudentsCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+        <button class="btn btn-primary btn-sm" style="background:#059669; border-color:#059669;" onclick="openEnrollModal()"><i class="fas fa-user-plus"></i> Enroll Student</button>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- Summary Metrics -->
+      <div class="summary-grid">
+        <div class="summary-metric-card">
+          <div class="summary-metric-icon emerald"><i class="fas fa-user-graduate"></i></div>
+          <div>
+            <div class="summary-metric-val" id="metric-total">247</div>
+            <div class="summary-metric-lbl">Total Enrolled</div>
+          </div>
+        </div>
+        <div class="summary-metric-card">
+          <div class="summary-metric-icon blue"><i class="fas fa-user-check"></i></div>
+          <div>
+            <div class="summary-metric-val" id="metric-active">228</div>
+            <div class="summary-metric-lbl">Active This Week</div>
+          </div>
+        </div>
+        <div class="summary-metric-card">
+          <div class="summary-metric-icon amber"><i class="fas fa-chart-line"></i></div>
+          <div>
+            <div class="summary-metric-val">87.4%</div>
+            <div class="summary-metric-lbl">Avg Completion Rate</div>
+          </div>
+        </div>
+        <div class="summary-metric-card">
+          <div class="summary-metric-icon rose"><i class="fas fa-exclamation-triangle"></i></div>
+          <div>
+            <div class="summary-metric-val" id="metric-atrisk">12</div>
+            <div class="summary-metric-lbl">Students At-Risk</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batch Action Floating Banner -->
+      <div class="batch-bar" id="batch-bar">
+        <div>
+          <span style="font-weight:700;" id="batch-count">0</span> students selected
+        </div>
+        <div class="batch-actions">
+          <button class="btn btn-sm btn-outline" style="color:#fff; border-color:rgba(255,255,255,.4);" onclick="openBroadcastModal()"><i class="fas fa-paper-plane"></i> Message Selected</button>
+          <button class="btn btn-sm btn-outline" style="color:#fff; border-color:rgba(255,255,255,.4);" onclick="exportSelectedCSV()"><i class="fas fa-download"></i> Export Selected</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,.2); color:#fff; border:none;" onclick="clearSelection()">Deselect All</button>
+        </div>
+      </div>
+
+      <!-- Toolbar & Filters -->
+      <div class="directory-toolbar">
+        <div class="toolbar-left-group">
+          <div class="search-input-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="student-search-input" placeholder="Search by name, roll no, or email..." oninput="applyFilters()" />
+          </div>
+
+          <select class="filter-select" id="course-filter" onchange="applyFilters()">
+            <option value="all">All Courses</option>
+            <option value="aws">AWS Cloud Architecture</option>
+            <option value="k8s">Kubernetes & Containers</option>
+            <option value="devops">DevOps CI/CD Pipelines</option>
+            <option value="python">Python for Cloud Engineers</option>
+          </select>
+
+          <select class="filter-select" id="status-filter" onchange="applyFilters()">
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="at-risk">At Risk</option>
+            <option value="pending">Pending</option>
+          </select>
+
+          <select class="filter-select" id="sort-select" onchange="applyFilters()">
+            <option value="name-asc">Sort: Name (A-Z)</option>
+            <option value="name-desc">Sort: Name (Z-A)</option>
+            <option value="progress-desc">Sort: Progress (High to Low)</option>
+            <option value="grade-desc">Sort: Grade (High to Low)</option>
+          </select>
+        </div>
+
+        <div class="toolbar-right-group">
+          <div class="view-toggle-btn-group">
+            <button class="view-toggle-btn active" id="btn-view-table" onclick="setViewMode('table')">
+              <i class="fas fa-list"></i> Table
+            </button>
+            <button class="view-toggle-btn" id="btn-view-grid" onclick="setViewMode('grid')">
+              <i class="fas fa-th-large"></i> Grid
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table View -->
+      <div class="table-container" id="table-view-container">
+        <table class="students-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">
+                <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)" />
+              </th>
+              <th>Student</th>
+              <th>Enrolled Courses</th>
+              <th>Progress</th>
+              <th>Current Grade</th>
+              <th>Status</th>
+              <th>Last Active</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="students-table-body">
+            <!-- Populated dynamically via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Grid View (hidden by default) -->
+      <div class="students-grid" id="grid-view-container">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+      <!-- Empty Results State -->
+      <div class="empty-state" id="empty-state" style="display:none; background:var(--white); border-radius:var(--radius-lg); border:1px solid var(--gray-100);">
+        <i class="fas fa-user-slash" style="font-size:3rem; color:var(--gray-300);"></i>
+        <h3 style="font-size:1.1rem; color:var(--gray-700); margin:12px 0 6px;">No Students Found</h3>
+        <p style="font-size:.85rem; color:var(--gray-400);">No students match your search or filter criteria. Try adjusting your query.</p>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODALS
+═══════════════════════════════════════ -->
+
+<!-- Enroll Student Modal -->
+<div class="modal-overlay" id="enroll-modal" style="display:none;">
+  <div class="modal-box" style="max-width: 540px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:38px; height:38px; border-radius:10px; background:#d1fae5; color:#059669; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div>
+          <h3 style="font-size:1.15rem; font-weight:700; color:var(--gray-900);">Enroll New Student</h3>
+          <p style="font-size:.78rem; color:var(--gray-500); margin:0;">Register or assign a student to your courses</p>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('enroll-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="enroll-form" onsubmit="handleEnrollStudent(event)">
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="form-group">
+          <label class="form-label" for="new-student-name">Full Name *</label>
+          <input type="text" class="form-input" id="new-student-name" placeholder="e.g. Rachel Adams" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-student-email">Email Address *</label>
+          <input type="email" class="form-input" id="new-student-email" placeholder="rachel.adams@university.edu" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-student-id">Student ID / Roll No *</label>
+          <input type="text" class="form-input" id="new-student-id" placeholder="e.g. CS-2026-089" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-student-course">Assign Course *</label>
+          <select class="form-input" id="new-student-course" required>
+            <option value="AWS Cloud Architecture">AWS Cloud Architecture</option>
+            <option value="Kubernetes & Containers">Kubernetes & Containers</option>
+            <option value="DevOps CI/CD Pipelines">DevOps CI/CD Pipelines</option>
+            <option value="Python for Cloud Engineers">Python for Cloud Engineers</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="new-student-status">Initial Status</label>
+          <select class="form-input" id="new-student-status">
+            <option value="active">Active</option>
+            <option value="pending">Pending Invitation</option>
+          </select>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+          <input type="checkbox" id="send-welcome-email" checked />
+          <label for="send-welcome-email" style="font-size:.82rem; color:var(--gray-600); cursor:pointer;">Send welcome email with access instructions</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('enroll-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="background:#059669; border-color:#059669;"><i class="fas fa-check"></i> Enroll Student</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Student Profile View Modal -->
+<div class="modal-overlay" id="profile-modal" style="display:none;">
+  <div class="modal-box" style="max-width: 680px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <h3 style="font-size:1.15rem; font-weight:700; color:var(--gray-900);">Student Profile</h3>
+      </div>
+      <button class="modal-close" onclick="closeModal('profile-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="profile-modal-content">
+      <!-- Injected by openStudentProfile() -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('profile-modal')">Close</button>
+      <button class="btn btn-primary" style="background:#059669; border-color:#059669;" id="modal-msg-btn" onclick="openDirectMessage()"><i class="fas fa-envelope"></i> Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- Broadcast / Message Modal -->
+<div class="modal-overlay" id="message-modal" style="display:none;">
+  <div class="modal-box" style="max-width: 520px;">
+    <div class="modal-header">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:38px; height:38px; border-radius:10px; background:#dbeafe; color:#2563eb; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div>
+          <h3 style="font-size:1.15rem; font-weight:700; color:var(--gray-900);" id="msg-modal-title">Send Message</h3>
+          <p style="font-size:.78rem; color:var(--gray-500); margin:0;" id="msg-modal-recipient">To: Selected Student</p>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('message-modal')"><i class="fas fa-times"></i></button>
+    </div>
+    <form onsubmit="handleSendMessage(event)">
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Subject *</label>
+          <input type="text" class="form-input" id="msg-subject" placeholder="Important notice regarding upcoming submission" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message Content *</label>
+          <textarea class="form-input" id="msg-body" rows="4" placeholder="Type your message here..." required></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('message-modal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="background:#059669; border-color:#059669;"><i class="fas fa-paper-plane"></i> Send Now</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+  requireAuth('teacher');
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+  });
+
+  // ── Student Directory State ──
+  let students = [
+    {
+      id: 'STD-101',
+      name: 'Priya Sharma',
+      email: 'priya.sharma@student.edu',
+      rollNo: 'CS-2026-004',
+      courses: ['AWS Cloud Architecture', 'DevOps CI/CD Pipelines'],
+      courseKeys: ['aws', 'devops'],
+      progress: 96,
+      grade: 'A+ (97%)',
+      gradeScore: 97,
+      status: 'active',
+      lastActive: '12 minutes ago',
+      color: 'linear-gradient(135deg, #10b981, #059669)',
+      attendance: '98%',
+      quizzesDone: '12/12',
+      assignmentsDone: '8/8'
+    },
+    {
+      id: 'STD-102',
+      name: 'Rahul Verma',
+      email: 'rahul.verma@student.edu',
+      rollNo: 'CS-2026-012',
+      courses: ['AWS Cloud Architecture', 'Kubernetes & Containers'],
+      courseKeys: ['aws', 'k8s'],
+      progress: 91,
+      grade: 'A (92%)',
+      gradeScore: 92,
+      status: 'active',
+      lastActive: '1 hour ago',
+      color: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+      attendance: '94%',
+      quizzesDone: '11/12',
+      assignmentsDone: '8/8'
+    },
+    {
+      id: 'STD-103',
+      name: 'Sneha Patel',
+      email: 'sneha.patel@student.edu',
+      rollNo: 'CS-2026-023',
+      courses: ['Kubernetes & Containers'],
+      courseKeys: ['k8s'],
+      progress: 84,
+      grade: 'A- (88%)',
+      gradeScore: 88,
+      status: 'active',
+      lastActive: '3 hours ago',
+      color: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+      attendance: '89%',
+      quizzesDone: '10/12',
+      assignmentsDone: '7/8'
+    },
+    {
+      id: 'STD-104',
+      name: 'Aarav Mehta',
+      email: 'aarav.mehta@student.edu',
+      rollNo: 'CS-2026-034',
+      courses: ['Python for Cloud Engineers', 'AWS Cloud Architecture'],
+      courseKeys: ['python', 'aws'],
+      progress: 78,
+      grade: 'B+ (84%)',
+      gradeScore: 84,
+      status: 'active',
+      lastActive: 'Yesterday',
+      color: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+      attendance: '86%',
+      quizzesDone: '9/12',
+      assignmentsDone: '6/8'
+    },
+    {
+      id: 'STD-105',
+      name: 'Ananya Roy',
+      email: 'ananya.roy@student.edu',
+      rollNo: 'CS-2026-045',
+      courses: ['DevOps CI/CD Pipelines'],
+      courseKeys: ['devops'],
+      progress: 88,
+      grade: 'A (90%)',
+      gradeScore: 90,
+      status: 'active',
+      lastActive: '4 hours ago',
+      color: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+      attendance: '92%',
+      quizzesDone: '11/12',
+      assignmentsDone: '8/8'
+    },
+    {
+      id: 'STD-106',
+      name: 'Ankit Sinha',
+      email: 'ankit.sinha@student.edu',
+      rollNo: 'CS-2026-077',
+      courses: ['AWS Cloud Architecture'],
+      courseKeys: ['aws'],
+      progress: 22,
+      grade: 'F (38%)',
+      gradeScore: 38,
+      status: 'at-risk',
+      lastActive: '2 weeks ago',
+      color: 'linear-gradient(135deg, #ef4444, #dc2626)',
+      attendance: '40%',
+      quizzesDone: '3/12',
+      assignmentsDone: '2/8'
+    },
+    {
+      id: 'STD-107',
+      name: 'Vikram Joshi',
+      email: 'vikram.j@student.edu',
+      rollNo: 'CS-2026-081',
+      courses: ['Kubernetes & Containers', 'Python for Cloud Engineers'],
+      courseKeys: ['k8s', 'python'],
+      progress: 35,
+      grade: 'D (54%)',
+      gradeScore: 54,
+      status: 'at-risk',
+      lastActive: '9 days ago',
+      color: 'linear-gradient(135deg, #f97316, #ea580c)',
+      attendance: '55%',
+      quizzesDone: '5/12',
+      assignmentsDone: '3/8'
+    },
+    {
+      id: 'STD-108',
+      name: 'Meera Iyer',
+      email: 'meera.iyer@student.edu',
+      rollNo: 'CS-2026-092',
+      courses: ['Python for Cloud Engineers'],
+      courseKeys: ['python'],
+      progress: 0,
+      grade: 'Pending',
+      gradeScore: 0,
+      status: 'pending',
+      lastActive: 'Never',
+      color: 'linear-gradient(135deg, #94a3b8, #64748b)',
+      attendance: '—',
+      quizzesDone: '0/12',
+      assignmentsDone: '0/8'
+    }
+  ];
+
+  let selectedStudentIds = new Set();
+  let currentActiveStudent = null;
+
+  // ── Render Function ──
+  function renderStudents(list) {
+    const tbody = document.getElementById('students-table-body');
+    const grid = document.getElementById('grid-view-container');
+    const empty = document.getElementById('empty-state');
+
+    if (!list || list.length === 0) {
+      tbody.innerHTML = '';
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    // 1. Table rows
+    tbody.innerHTML = list.map(s => {
+      const initials = s.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+      const isChecked = selectedStudentIds.has(s.id) ? 'checked' : '';
+      
+      let statusBadge = '';
+      if (s.status === 'active') statusBadge = '<span class="badge badge-success" style="font-size:.75rem">Active</span>';
+      else if (s.status === 'at-risk') statusBadge = '<span class="badge badge-danger" style="font-size:.75rem"><i class="fas fa-exclamation-circle"></i> At Risk</span>';
+      else statusBadge = '<span class="badge badge-warning" style="font-size:.75rem">Pending</span>';
+
+      const courseTags = s.courses.map(c => `<span class="course-badge-pill">${c}</span>`).join('');
+
+      return `
+        <tr id="row-${s.id}">
+          <td>
+            <input type="checkbox" class="student-select-cb" value="${s.id}" ${isChecked} onchange="handleRowSelect('${s.id}', this.checked)" />
+          </td>
+          <td>
+            <div class="student-profile-cell">
+              <div class="student-avatar" style="background:${s.color}">${initials}</div>
+              <div>
+                <div class="student-name">${s.name}</div>
+                <div class="student-sub-info">
+                  <span class="badge-roll">${s.rollNo}</span>
+                  <span>${s.email}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td style="max-width:240px;">${courseTags}</td>
+          <td class="progress-cell">
+            <div style="display:flex; justify-content:space-between; font-size:.75rem; font-weight:700; color:var(--gray-700);">
+              <span>${s.progress}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill-bar" style="width:${s.progress}%; ${s.status === 'at-risk' ? 'background:#ef4444;' : ''}"></div>
+            </div>
+          </td>
+          <td>
+            <span style="font-weight:700; color:${s.status === 'at-risk' ? 'var(--danger)' : 'var(--gray-800)'}">${s.grade}</span>
+          </td>
+          <td>${statusBadge}</td>
+          <td style="font-size:.8rem; color:var(--gray-500);">${s.lastActive}</td>
+          <td style="text-align: right;">
+            <div class="action-btn-row" style="justify-content: flex-end;">
+              <button class="table-action-btn" title="View Details" onclick="openStudentProfile('${s.id}')">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="table-action-btn" title="Send Message" onclick="openDirectMessage('${s.id}')">
+                <i class="fas fa-comment"></i>
+              </button>
+              <button class="table-action-btn danger" title="Remove / Unenroll" onclick="handleRemoveStudent('${s.id}')">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    // 2. Grid cards
+    grid.innerHTML = list.map(s => {
+      const initials = s.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+      let statusBadge = '';
+      if (s.status === 'active') statusBadge = '<span class="badge badge-success" style="font-size:.72rem">Active</span>';
+      else if (s.status === 'at-risk') statusBadge = '<span class="badge badge-danger" style="font-size:.72rem">At Risk</span>';
+      else statusBadge = '<span class="badge badge-warning" style="font-size:.72rem">Pending</span>';
+
+      return `
+        <div class="student-card">
+          <div class="student-card-header">
+            <div class="student-card-avatar" style="background:${s.color}">${initials}</div>
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <h4 style="font-size:.95rem; font-weight:700; color:var(--gray-900); margin:0;">${s.name}</h4>
+                ${statusBadge}
+              </div>
+              <div style="font-size:.75rem; color:var(--gray-400); margin-top:2px;">${s.rollNo}</div>
+              <div style="font-size:.78rem; color:var(--gray-500); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${s.email}</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <div style="font-size:.75rem; color:var(--gray-400); margin-bottom:4px;">Enrolled In:</div>
+            <div>${s.courses.map(c => `<span class="course-badge-pill">${c}</span>`).join('')}</div>
+          </div>
+
+          <div class="card-meta-grid">
+            <div class="card-meta-item">
+              <div class="lbl">Grade</div>
+              <div class="val">${s.grade}</div>
+            </div>
+            <div class="card-meta-item">
+              <div class="lbl">Attendance</div>
+              <div class="val">${s.attendance}</div>
+            </div>
+            <div class="card-meta-item">
+              <div class="lbl">Progress</div>
+              <div class="val">${s.progress}%</div>
+            </div>
+            <div class="card-meta-item">
+              <div class="lbl">Last Active</div>
+              <div class="val" style="font-size:.75rem; font-weight:600;">${s.lastActive}</div>
+            </div>
+          </div>
+
+          <div class="student-card-footer">
+            <button class="btn btn-outline btn-sm" style="font-size:.78rem; padding:6px 12px;" onclick="openStudentProfile('${s.id}')">
+              <i class="fas fa-id-card"></i> Profile
+            </button>
+            <button class="btn btn-sm" style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; font-size:.78rem; padding:6px 12px;" onclick="openDirectMessage('${s.id}')">
+              <i class="fas fa-envelope"></i> Message
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    updateMetricCards();
+  }
+
+  // ── Filter & Search Logic ──
+  function applyFilters() {
+    const q = (document.getElementById('student-search-input').value || '').toLowerCase().trim();
+    const course = document.getElementById('course-filter').value;
+    const status = document.getElementById('status-filter').value;
+    const sort = document.getElementById('sort-select').value;
+
+    let filtered = students.filter(s => {
+      const matchQuery = !q || s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q) || s.rollNo.toLowerCase().includes(q);
+      const matchCourse = course === 'all' || s.courseKeys.includes(course);
+      const matchStatus = status === 'all' || s.status === status;
+      return matchQuery && matchCourse && matchStatus;
+    });
+
+    // Sort
+    if (sort === 'name-asc') {
+      filtered.sort((a,b) => a.name.localeCompare(b.name));
+    } else if (sort === 'name-desc') {
+      filtered.sort((a,b) => b.name.localeCompare(a.name));
+    } else if (sort === 'progress-desc') {
+      filtered.sort((a,b) => b.progress - a.progress);
+    } else if (sort === 'grade-desc') {
+      filtered.sort((a,b) => b.gradeScore - a.gradeScore);
+    }
+
+    renderStudents(filtered);
+  }
+
+  // ── View Toggle Mode ──
+  function setViewMode(mode) {
+    const tableContainer = document.getElementById('table-view-container');
+    const gridContainer = document.getElementById('grid-view-container');
+    const btnTable = document.getElementById('btn-view-table');
+    const btnGrid = document.getElementById('btn-view-grid');
+
+    if (mode === 'grid') {
+      tableContainer.style.display = 'none';
+      gridContainer.style.display = 'grid';
+      btnTable.classList.remove('active');
+      btnGrid.classList.add('active');
+    } else {
+      tableContainer.style.display = 'block';
+      gridContainer.style.display = 'none';
+      btnTable.classList.add('active');
+      btnGrid.classList.remove('active');
+    }
+  }
+
+  // ── Batch Selection ──
+  function handleRowSelect(id, checked) {
+    if (checked) selectedStudentIds.add(id);
+    else selectedStudentIds.delete(id);
+    updateBatchBar();
+  }
+
+  function toggleSelectAll(masterCb) {
+    const cbs = document.querySelectorAll('.student-select-cb');
+    cbs.forEach(cb => {
+      cb.checked = masterCb.checked;
+      if (masterCb.checked) selectedStudentIds.add(cb.value);
+      else selectedStudentIds.delete(cb.value);
+    });
+    updateBatchBar();
+  }
+
+  function clearSelection() {
+    selectedStudentIds.clear();
+    const cbs = document.querySelectorAll('.student-select-cb');
+    cbs.forEach(cb => cb.checked = false);
+    const master = document.getElementById('select-all-checkbox');
+    if (master) master.checked = false;
+    updateBatchBar();
+  }
+
+  function updateBatchBar() {
+    const bar = document.getElementById('batch-bar');
+    const countEl = document.getElementById('batch-count');
+    const count = selectedStudentIds.size;
+    countEl.textContent = count;
+    bar.style.display = count > 0 ? 'flex' : 'none';
+  }
+
+  // ── Update Summary Metrics ──
+  function updateMetricCards() {
+    document.getElementById('metric-total').textContent = students.length;
+    document.getElementById('metric-active').textContent = students.filter(s => s.status === 'active').length;
+    document.getElementById('metric-atrisk').textContent = students.filter(s => s.status === 'at-risk').length;
+  }
+
+  // ── Modals Handling ──
+  function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+
+  function openEnrollModal() {
+    document.getElementById('enroll-form').reset();
+    document.getElementById('enroll-modal').style.display = 'flex';
+  }
+
+  function handleEnrollStudent(e) {
+    e.preventDefault();
+    const name = document.getElementById('new-student-name').value.trim();
+    const email = document.getElementById('new-student-email').value.trim();
+    const rollNo = document.getElementById('new-student-id').value.trim();
+    const course = document.getElementById('new-student-course').value;
+    const status = document.getElementById('new-student-status').value;
+
+    const courseKeyMap = {
+      'AWS Cloud Architecture': 'aws',
+      'Kubernetes & Containers': 'k8s',
+      'DevOps CI/CD Pipelines': 'devops',
+      'Python for Cloud Engineers': 'python'
+    };
+
+    const newStudent = {
+      id: 'STD-' + (Math.floor(100 + Math.random() * 900)),
+      name,
+      email,
+      rollNo,
+      courses: [course],
+      courseKeys: [courseKeyMap[course] || 'aws'],
+      progress: 0,
+      grade: 'Pending',
+      gradeScore: 0,
+      status: status,
+      lastActive: 'Just now',
+      color: 'linear-gradient(135deg, #10b981, #06b6d4)',
+      attendance: '100%',
+      quizzesDone: '0/12',
+      assignmentsDone: '0/8'
+    };
+
+    students.unshift(newStudent);
+    closeModal('enroll-modal');
+    applyFilters();
+    showToast(`Successfully enrolled ${name}!`, 'success');
+  }
+
+  // ── Student Details Modal ──
+  function openStudentProfile(id) {
+    const student = students.find(s => s.id === id);
+    if (!student) return;
+    currentActiveStudent = student;
+
+    const initials = student.name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+    const container = document.getElementById('profile-modal-content');
+
+    container.innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-profile-sidebar">
+          <div class="detail-avatar" style="background:${student.color}">${initials}</div>
+          <h4 style="font-size:1.1rem; font-weight:800; color:var(--gray-900); margin:0;">${student.name}</h4>
+          <div style="font-size:.78rem; color:var(--gray-500); margin-top:2px;">${student.rollNo}</div>
+          <div style="margin-top:10px;">
+            ${student.status === 'active' ? '<span class="badge badge-success">Active</span>' : 
+              student.status === 'at-risk' ? '<span class="badge badge-danger">At Risk</span>' : '<span class="badge badge-warning">Pending</span>'}
+          </div>
+
+          <div class="info-list">
+            <div class="info-list-item">
+              <span style="color:var(--gray-400)">Email</span>
+              <span style="font-weight:600; color:var(--gray-700)">${student.email}</span>
+            </div>
+            <div class="info-list-item">
+              <span style="color:var(--gray-400)">Attendance</span>
+              <span style="font-weight:600; color:var(--gray-700)">${student.attendance}</span>
+            </div>
+            <div class="info-list-item">
+              <span style="color:var(--gray-400)">Quizzes</span>
+              <span style="font-weight:600; color:var(--gray-700)">${student.quizzesDone}</span>
+            </div>
+            <div class="info-list-item">
+              <span style="color:var(--gray-400)">Assignments</span>
+              <span style="font-weight:600; color:var(--gray-700)">${student.assignmentsDone}</span>
+            </div>
+            <div class="info-list-item">
+              <span style="color:var(--gray-400)">Last Active</span>
+              <span style="font-weight:600; color:var(--gray-700)">${student.lastActive}</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-size:.95rem; font-weight:700; color:var(--gray-800); margin-bottom:12px;">Active Course Enrollments</h4>
+          <div style="margin-bottom:16px;">
+            ${student.courses.map(c => `
+              <div class="course-history-item">
+                <div>
+                  <div style="font-weight:700; color:var(--gray-800); font-size:.85rem;">${c}</div>
+                  <div style="font-size:.75rem; color:var(--gray-400);">Current standing: <strong>${student.grade}</strong></div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-weight:800; color:#059669; font-size:.9rem;">${student.progress}%</div>
+                  <div style="font-size:.7rem; color:var(--gray-400)">completed</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <h4 style="font-size:.95rem; font-weight:700; color:var(--gray-800); margin-bottom:8px;">Instructor Notes & Remarks</h4>
+          <textarea class="form-input" rows="3" placeholder="Add private faculty notes about this student's progress or attendance..."></textarea>
+          <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+            <button class="btn btn-outline btn-sm" onclick="showToast('Remarks saved successfully!', 'success')"><i class="fas fa-save"></i> Save Notes</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('profile-modal').style.display = 'flex';
+  }
+
+  // ── Messaging ──
+  function openDirectMessage(id) {
+    if (id) {
+      const student = students.find(s => s.id === id);
+      if (student) currentActiveStudent = student;
+    }
+    closeModal('profile-modal');
+
+    const titleEl = document.getElementById('msg-modal-title');
+    const recipientEl = document.getElementById('msg-modal-recipient');
+
+    if (currentActiveStudent) {
+      titleEl.textContent = `Message ${currentActiveStudent.name}`;
+      recipientEl.textContent = `Recipient: ${currentActiveStudent.email} (${currentActiveStudent.rollNo})`;
+    } else {
+      titleEl.textContent = 'Direct Message';
+      recipientEl.textContent = 'Compose individual notification';
+    }
+
+    document.getElementById('msg-subject').value = '';
+    document.getElementById('msg-body').value = '';
+    document.getElementById('message-modal').style.display = 'flex';
+  }
+
+  function openBroadcastModal() {
+    currentActiveStudent = null;
+    document.getElementById('msg-modal-title').textContent = 'Broadcast to Selected Students';
+    document.getElementById('msg-modal-recipient').textContent = `Sending to ${selectedStudentIds.size} selected students`;
+    document.getElementById('msg-subject').value = '';
+    document.getElementById('msg-body').value = '';
+    document.getElementById('message-modal').style.display = 'flex';
+  }
+
+  function handleSendMessage(e) {
+    e.preventDefault();
+    const subject = document.getElementById('msg-subject').value;
+    closeModal('message-modal');
+    showToast(`Message "${subject}" dispatched successfully!`, 'success');
+  }
+
+  // ── Remove Student ──
+  function handleRemoveStudent(id) {
+    const student = students.find(s => s.id === id);
+    if (!student) return;
+    if (confirm(`Are you sure you want to unenroll ${student.name} (${student.rollNo})?`)) {
+      students = students.filter(s => s.id !== id);
+      selectedStudentIds.delete(id);
+      applyFilters();
+      updateBatchBar();
+      showToast(`${student.name} has been unenrolled.`, 'info');
+    }
+  }
+
+  // ── Export CSV ──
+  function exportStudentsCSV() {
+    exportDataAsCSV(students, 'all_enrolled_students.csv');
+  }
+
+  function exportSelectedCSV() {
+    const selected = students.filter(s => selectedStudentIds.has(s.id));
+    if (selected.length === 0) {
+      showToast('No students selected for export.', 'warning');
+      return;
+    }
+    exportDataAsCSV(selected, 'selected_students.csv');
+  }
+
+  function exportDataAsCSV(dataList, filename) {
+    const headers = ['ID', 'Name', 'Email', 'Roll No', 'Courses', 'Progress', 'Grade', 'Status', 'Last Active'];
+    const rows = dataList.map(s => [
+      s.id,
+      `"${s.name}"`,
+      s.email,
+      s.rollNo,
+      `"${s.courses.join(', ')}"`,
+      `${s.progress}%`,
+      `"${s.grade}"`,
+      s.status,
+      `"${s.lastActive}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Downloaded ${filename}`, 'success');
+  }
+
+  // ── Initialize on load ──
+  document.addEventListener('DOMContentLoaded', () => {
+    applyFilters();
+  });
+</script>
+</body>
+</html>
+

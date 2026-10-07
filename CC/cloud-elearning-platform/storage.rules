@@ -1,0 +1,93 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Helper Functions ───────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isTeacher() {
+      return isAuthenticated() &&
+             firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    // Validate file size (max 50MB)
+    function isValidSize() {
+      return request.resource.size <= 50 * 1024 * 1024;
+    }
+    // Validate content types for materials
+    function isValidMaterial() {
+      return request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('application/vnd.*') ||
+             request.resource.contentType.matches('video/.*') ||
+             request.resource.contentType.matches('image/.*');
+    }
+    // Validate submission content types
+    function isValidSubmission() {
+      return request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('application/vnd.*') ||
+             request.resource.contentType.matches('image/.*') ||
+             request.resource.contentType.matches('text/.*');
+    }
+
+    // Validate video file size (max 1GB)
+    function isValidVideoSize() {
+      return request.resource.size <= 1024 * 1024 * 1024;
+    }
+    // Validate video content types
+    function isValidVideo() {
+      return request.resource.contentType.matches('video/.*');
+    }
+
+    // ── Course Materials (teacher uploads) ─────────────────────
+    match /materials/{courseId}/{fileName} {
+      allow read:   if isAuthenticated();
+      allow write:  if isTeacher() && (isValidSize() || (isValidVideoSize() && isValidVideo())) && isValidMaterial();
+      allow delete: if isTeacher();
+    }
+
+    // ── Course Video Lessons (teacher uploads) ─────────────────
+    match /videos/{courseId}/{fileName} {
+      allow read:   if isAuthenticated();
+      allow write:  if isTeacher() && isValidVideoSize() && isValidVideo();
+      allow delete: if isTeacher();
+    }
+
+    // ── Live Class Recordings (teacher uploads) ────────────────
+    match /recordings/{courseId}/{fileName} {
+      allow read:   if isAuthenticated();
+      allow write:  if isTeacher() && isValidVideoSize() && isValidVideo();
+      allow delete: if isTeacher();
+    }
+
+    // ── Assignment Submissions (student uploads) ───────────────
+    match /submissions/{studentId}/{assignmentId}/{fileName} {
+      allow read:   if isAuthenticated() &&
+                      (isOwner(studentId) || isTeacher());
+      allow write:  if isAuthenticated() &&
+                       isOwner(studentId) &&
+                       isValidSize() &&
+                       isValidSubmission();
+      allow delete: if isAuthenticated() && isOwner(studentId);
+    }
+
+    // ── Course Images (teacher uploads) ────────────────────────
+    match /course-images/{courseId}/{fileName} {
+      allow read:   if isAuthenticated();
+      allow write:  if isTeacher() &&
+                       request.resource.size <= 5 * 1024 * 1024 &&
+                       request.resource.contentType.matches('image/.*');
+      allow delete: if isTeacher();
+    }
+
+    // ── Assignment Attachments (teacher) ───────────────────────
+    match /assignment-attachments/{assignmentId}/{fileName} {
+      allow read:   if isAuthenticated();
+      allow write:  if isTeacher() && isValidSize();
+      allow delete: if isTeacher();
+    }
+  }
+}
+

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Take Quiz — CloudLearn</title>
+  <meta name="description" content="Take your course quiz on CloudLearn." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/student.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <style>
+    .quiz-container { max-width: 780px; margin: 0 auto; }
+    .quiz-header-card {
+      background: var(--grad-primary);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      color: var(--white);
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .quiz-title { font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+    .quiz-meta { font-size: .85rem; opacity: .85; }
+    .timer-box { background: rgba(255,255,255,.15); border-radius: var(--radius-md); padding: 14px 24px; text-align: center; backdrop-filter: blur(8px); min-width: 110px; }
+    .timer-val { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; line-height: 1; }
+    .timer-lbl { font-size: .72rem; opacity: .8; margin-top: 4px; }
+    .timer-val.urgent { color: #fca5a5; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+    .progress-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .q-nav-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); border: 2px solid var(--gray-200); background: var(--white); font-size: .82rem; font-weight: 600; cursor: pointer; transition: var(--transition); color: var(--gray-600); }
+    .q-nav-btn.current { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .q-nav-btn.answered { border-color: var(--success); background: #d1fae5; color: var(--success); }
+    .q-nav-btn.skipped { border-color: var(--warning); background: #fef3c7; color: #92400e; }
+    .question-card { background: var(--white); border-radius: var(--radius-lg); padding: 28px 32px; box-shadow: var(--shadow-md); border: 1px solid var(--gray-100); }
+    .question-num { font-size: .82rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+    .question-text { font-family: var(--font-heading); font-size: 1.05rem; font-weight: 600; color: var(--gray-900); line-height: 1.6; margin-bottom: 24px; }
+    .option-list { display: flex; flex-direction: column; gap: 12px; }
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 2px solid var(--gray-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--white);
+    }
+    .option-item:hover { border-color: var(--primary); background: #f5f3ff; }
+    .option-item.selected { border-color: var(--primary); background: #ede9fe; }
+    .option-item.correct { border-color: var(--success); background: #d1fae5; }
+    .option-item.incorrect { border-color: var(--danger); background: #fee2e2; }
+    .option-letter {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--gray-100); color: var(--gray-600);
+      font-weight: 700; font-size: .85rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: var(--transition);
+    }
+    .option-item.selected .option-letter { background: var(--primary); color: #fff; }
+    .option-item.correct .option-letter { background: var(--success); color: #fff; }
+    .option-item.incorrect .option-letter { background: var(--danger); color: #fff; }
+    .option-text { font-size: .92rem; color: var(--gray-800); }
+    .question-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+    .quiz-lobby { text-align: center; padding: 60px 24px; }
+    .quiz-lobby h2 { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--gray-900); margin-bottom: 12px; }
+    .quiz-lobby .quiz-icon { font-size: 4rem; margin-bottom: 24px; }
+    .quiz-lobby .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin: 32px 0; }
+    .info-box { background: var(--white); border-radius: var(--radius-md); padding: 20px; border: 1px solid var(--gray-100); box-shadow: var(--shadow-sm); }
+    .info-box i { font-size: 1.5rem; color: var(--primary); margin-bottom: 8px; }
+    .info-box .val { font-weight: 700; font-size: 1.2rem; color: var(--gray-900); }
+    .info-box .lbl { font-size: .78rem; color: var(--gray-500); }
+    .results-view { text-align: center; padding: 32px; }
+    .score-circle { width: 160px; height: 160px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; position: relative; }
+    .score-circle svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+    .score-text { position: relative; z-index: 1; }
+    .score-num { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 800; }
+    .score-pct { font-size: .85rem; color: var(--gray-500); }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar student-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-cloud"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Student Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">🎓 Student</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Student navigation">
+      <div class="nav-section-label">Main Menu</div>
+      <a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <div class="nav-section-label">Learning</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-alt"></i> Study Materials</a>
+      <a href="quiz.html" class="nav-link active"><i class="fas fa-clipboard-list"></i> Quizzes</a>
+      <a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <a href="results.html" class="nav-link"><i class="fas fa-star"></i> Results</a>
+      <a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i> My Progress</a>
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+      <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Quizzes</h1>
+          <p class="page-sub">Test your knowledge and track your quiz results</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- LOBBY VIEW -->
+      <div id="view-lobby" class="quiz-container">
+        <div class="quiz-lobby card">
+          <div class="quiz-icon">📝</div>
+          <h2>Cloud Basics Assessment — Module 1</h2>
+          <p style="color:var(--gray-500); max-width:500px; margin:0 auto">Test your understanding of cloud computing fundamentals including deployment models, service types, and key cloud concepts.</p>
+          <div class="info-grid">
+            <div class="info-box"><i class="fas fa-list-ol"></i><div class="val">10</div><div class="lbl">Questions</div></div>
+            <div class="info-box"><i class="fas fa-clock"></i><div class="val">20 min</div><div class="lbl">Time Limit</div></div>
+            <div class="info-box"><i class="fas fa-trophy"></i><div class="val">60%</div><div class="lbl">To Pass</div></div>
+            <div class="info-box"><i class="fas fa-redo"></i><div class="val">2</div><div class="lbl">Attempts Left</div></div>
+          </div>
+          <div class="alert alert-info" style="text-align:left; max-width:500px; margin:0 auto 24px">
+            <i class="fas fa-info-circle"></i>
+            <span>Once started, the timer cannot be paused. Make sure you have 20 minutes available before beginning.</span>
+          </div>
+          <button class="btn btn-primary btn-lg" onclick="startQuiz()"><i class="fas fa-play"></i> Start Quiz</button>
+          <br /><br />
+          <a href="results.html" style="color:var(--primary); font-size:.88rem"><i class="fas fa-history"></i> View Past Attempts</a>
+        </div>
+
+        <!-- Available Quizzes List -->
+        <div style="margin-top:28px">
+          <h3 style="font-family:var(--font-heading); font-size:1.1rem; font-weight:600; color:var(--gray-800); margin-bottom:16px">All Available Quizzes</h3>
+          <div class="card" style="padding:0; overflow:hidden">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead><tr><th>Quiz Title</th><th>Course</th><th>Questions</th><th>Time</th><th>Best Score</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Cloud Basics Assessment</strong></td>
+                    <td>Cloud Fundamentals</td><td>10</td><td>20 min</td>
+                    <td><span class="perf-score">85%</span></td>
+                    <td><span class="badge badge-success">Passed</span></td>
+                    <td><button class="btn btn-secondary btn-sm" onclick="startQuiz()">Retake</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>AWS Services Assessment</strong></td>
+                    <td>Cloud Fundamentals</td><td>15</td><td>30 min</td>
+                    <td>—</td>
+                    <td><span class="badge badge-primary">Not Taken</span></td>
+                    <td><button class="btn btn-primary btn-sm" onclick="startQuiz()">Start</button></td>
+                  </tr>
+                  <tr>
+                    <td><strong>SQL Fundamentals Quiz</strong></td>
+                    <td>Database Systems</td><td>12</td><td>25 min</td>
+                    <td><span class="perf-score">92%</span></td>
+                    <td><span class="badge badge-success">Passed</span></td>
+                    <td><span style="font-size:.8rem; color:var(--gray-400)">No retakes</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Python Basics Quiz</strong></td>
+                    <td>Machine Learning</td><td>15</td><td>20 min</td>
+                    <td><span class="perf-score low">48%</span></td>
+                    <td><span class="badge badge-danger">Failed</span></td>
+                    <td><button class="btn btn-primary btn-sm" onclick="startQuiz()">Retake</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUIZ VIEW -->
+      <div id="view-quiz" class="quiz-container" style="display:none">
+        <div class="quiz-header-card">
+          <div>
+            <div class="quiz-title">Cloud Basics Assessment — Module 1</div>
+            <div class="quiz-meta">Question <span id="q-current">1</span> of <span id="q-total">10</span> &nbsp;·&nbsp; Cloud Fundamentals</div>
+          </div>
+          <div class="timer-box">
+            <div class="timer-val" id="timer-display">20:00</div>
+            <div class="timer-lbl">⏱ Remaining</div>
+          </div>
+        </div>
+
+        <div class="progress-nav" id="q-nav">
+          <!-- Injected by JS -->
+        </div>
+
+        <div class="question-card">
+          <div class="question-num">Question <span id="q-num-display">1</span></div>
+          <div class="question-text" id="question-text">What is the primary benefit of cloud computing over traditional on-premise infrastructure?</div>
+          <div class="option-list" id="options-list">
+            <!-- Injected by JS -->
+          </div>
+          <div class="question-footer">
+            <button class="btn btn-secondary btn-sm" id="prev-btn" onclick="prevQuestion()" disabled><i class="fas fa-arrow-left"></i> Previous</button>
+            <button class="btn btn-sm" style="background:var(--gray-100); color:var(--gray-600)" onclick="skipQuestion()"><i class="fas fa-forward"></i> Skip</button>
+            <button class="btn btn-primary btn-sm" id="next-btn" onclick="nextQuestion()">Next <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top:20px">
+          <button class="btn btn-danger btn-sm" onclick="confirmSubmit()"><i class="fas fa-paper-plane"></i> Submit Quiz Early</button>
+        </div>
+      </div>
+
+      <!-- RESULTS VIEW -->
+      <div id="view-results" class="quiz-container" style="display:none">
+        <div class="results-view card">
+          <h2 style="font-family:var(--font-heading); font-size:1.4rem; font-weight:700; margin-bottom:24px">Quiz Complete! 🎉</h2>
+          <div class="score-circle">
+            <svg viewBox="0 0 160 160" width="160" height="160">
+              <circle cx="80" cy="80" r="70" fill="none" stroke="#e2e8f0" stroke-width="12"/>
+              <circle cx="80" cy="80" r="70" fill="none" stroke="#4f46e5" stroke-width="12" stroke-dasharray="395 440" stroke-linecap="round"/>
+            </svg>
+            <div class="score-text">
+              <div class="score-num" id="final-score" style="color:var(--primary)">80%</div>
+              <div class="score-pct">Final Score</div>
+            </div>
+          </div>
+          <div id="result-badge" style="margin-bottom:20px"></div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:420px; margin:0 auto 28px">
+            <div style="text-align:center; padding:14px; background:var(--gray-50); border-radius:var(--radius-md)">
+              <div style="font-weight:800; font-size:1.3rem; color:var(--success)" id="correct-count">8</div>
+              <div style="font-size:.72rem; color:var(--gray-500)">Correct</div>
+            </div>
+            <div style="text-align:center; padding:14px; background:var(--gray-50); border-radius:var(--radius-md)">
+              <div style="font-weight:800; font-size:1.3rem; color:var(--danger)" id="wrong-count">2</div>
+              <div style="font-size:.72rem; color:var(--gray-500)">Incorrect</div>
+            </div>
+            <div style="text-align:center; padding:14px; background:var(--gray-50); border-radius:var(--radius-md)">
+              <div style="font-weight:800; font-size:1.3rem; color:var(--warning)" id="time-used">12:34</div>
+              <div style="font-size:.72rem; color:var(--gray-500)">Time Used</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+            <button class="btn btn-secondary" onclick="showLobby()"><i class="fas fa-home"></i> Back to Quizzes</button>
+            <a href="results.html" class="btn btn-primary"><i class="fas fa-chart-bar"></i> View All Results</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  requireAuth('student');
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+  });
+
+  // Quiz Data
+  const questions = [
+    { q: "What is the primary benefit of cloud computing over traditional on-premise infrastructure?", options: ["Unlimited free storage", "On-demand scalability and pay-as-you-go pricing", "Faster processor speeds", "No internet required"], correct: 1 },
+    { q: "Which of the following is an example of SaaS (Software as a Service)?", options: ["Amazon EC2", "Google App Engine", "Microsoft Office 365", "AWS VPC"], correct: 2 },
+    { q: "What does 'IaaS' stand for in cloud computing?", options: ["Internet as a Service", "Infrastructure as a Service", "Integration as a Service", "Information as a Service"], correct: 1 },
+    { q: "Which cloud deployment model uses resources shared across multiple organizations?", options: ["Private Cloud", "Hybrid Cloud", "Public Cloud", "Community Cloud"], correct: 3 },
+    { q: "What is 'elasticity' in cloud computing?", options: ["The ability to stretch cables further", "Automatically scaling resources up or down based on demand", "Running multiple OS on one server", "Encrypting data at rest"], correct: 1 },
+    { q: "Which AWS service is primarily used for object storage?", options: ["EC2", "RDS", "S3", "Lambda"], correct: 2 },
+    { q: "What is a key characteristic of a Private Cloud?", options: ["Shared across the public internet", "Owned and used by a single organization", "Free to use", "Managed by third-party vendors only"], correct: 1 },
+    { q: "Which of the following best describes 'PaaS'?", options: ["Raw compute and storage resources", "Finished applications delivered over the internet", "A platform for developers to build and deploy apps", "Physical data center services"], correct: 2 },
+    { q: "What is the primary purpose of a CDN (Content Delivery Network)?", options: ["Database management", "Load distribution and faster content delivery", "User authentication", "Serverless computing"], correct: 1 },
+    { q: "Which term describes moving workloads from on-premise to the cloud?", options: ["Cloud lifting", "Cloud migration", "Cloud cloning", "Cloud bridging"], correct: 1 }
+  ];
+
+  let currentQ = 0;
+  let answers = new Array(questions.length).fill(null);
+  let timerInterval;
+  let timeLeft = 20 * 60;
+  let quizStartTime;
+
+  function startQuiz() {
+    document.getElementById('view-lobby').style.display = 'none';
+    document.getElementById('view-quiz').style.display = 'block';
+    document.getElementById('q-total').textContent = questions.length;
+    buildNavBtns();
+    renderQuestion(0);
+    startTimer();
+    quizStartTime = Date.now();
+  }
+
+  function buildNavBtns() {
+    const nav = document.getElementById('q-nav');
+    nav.innerHTML = '';
+    questions.forEach((_, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'q-nav-btn' + (i === 0 ? ' current' : '');
+      btn.textContent = i + 1;
+      btn.onclick = () => jumpTo(i);
+      nav.appendChild(btn);
+    });
+  }
+
+  function renderQuestion(idx) {
+    const q = questions[idx];
+    document.getElementById('q-num-display').textContent = idx + 1;
+    document.getElementById('q-current').textContent = idx + 1;
+    document.getElementById('question-text').textContent = q.q;
+    const opts = document.getElementById('options-list');
+    opts.innerHTML = '';
+    const letters = ['A','B','C','D'];
+    q.options.forEach((opt, i) => {
+      const div = document.createElement('div');
+      div.className = 'option-item' + (answers[idx] === i ? ' selected' : '');
+      div.innerHTML = `<div class="option-letter">${letters[i]}</div><div class="option-text">${opt}</div>`;
+      div.onclick = () => selectOption(idx, i, div);
+      opts.appendChild(div);
+    });
+    document.getElementById('prev-btn').disabled = idx === 0;
+    document.getElementById('next-btn').textContent = idx === questions.length - 1 ? 'Submit' : 'Next ›';
+    document.getElementById('next-btn').onclick = idx === questions.length - 1 ? confirmSubmit : nextQuestion;
+    updateNavHighlight(idx);
+  }
+
+  function selectOption(qIdx, optIdx, el) {
+    answers[qIdx] = optIdx;
+    document.querySelectorAll('.option-item').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    const navBtns = document.querySelectorAll('.q-nav-btn');
+    navBtns[qIdx].classList.add('answered');
+    navBtns[qIdx].classList.remove('skipped');
+  }
+
+  function updateNavHighlight(idx) {
+    document.querySelectorAll('.q-nav-btn').forEach((btn, i) => btn.classList.toggle('current', i === idx));
+  }
+
+  function nextQuestion() { if (currentQ < questions.length - 1) { currentQ++; renderQuestion(currentQ); } }
+  function prevQuestion() { if (currentQ > 0) { currentQ--; renderQuestion(currentQ); } }
+  function jumpTo(idx) { currentQ = idx; renderQuestion(idx); }
+
+  function skipQuestion() {
+    const navBtns = document.querySelectorAll('.q-nav-btn');
+    if (answers[currentQ] === null) navBtns[currentQ].classList.add('skipped');
+    nextQuestion();
+  }
+
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const s = (timeLeft % 60).toString().padStart(2, '0');
+      const display = document.getElementById('timer-display');
+      display.textContent = `${m}:${s}`;
+      if (timeLeft <= 60) display.classList.add('urgent');
+      if (timeLeft <= 0) { clearInterval(timerInterval); submitQuiz(); }
+    }, 1000);
+  }
+
+  function confirmSubmit() {
+    const unanswered = answers.filter(a => a === null).length;
+    if (unanswered > 0) {
+      if (!confirm(`You have ${unanswered} unanswered question(s). Submit anyway?`)) return;
+    }
+    submitQuiz();
+  }
+
+  function submitQuiz() {
+    clearInterval(timerInterval);
+    const correct = answers.filter((a, i) => a === questions[i].correct).length;
+    const total = questions.length;
+    const score = Math.round((correct / total) * 100);
+    const elapsed = Math.round((Date.now() - quizStartTime) / 1000);
+    const em = Math.floor(elapsed / 60).toString().padStart(2,'0');
+    const es = (elapsed % 60).toString().padStart(2,'0');
+    document.getElementById('view-quiz').style.display = 'none';
+    document.getElementById('view-results').style.display = 'block';
+    document.getElementById('final-score').textContent = score + '%';
+    document.getElementById('final-score').style.color = score >= 60 ? 'var(--success)' : 'var(--danger)';
+    document.getElementById('correct-count').textContent = correct;
+    document.getElementById('wrong-count').textContent = total - correct;
+    document.getElementById('time-used').textContent = `${em}:${es}`;
+    document.getElementById('result-badge').innerHTML = score >= 60
+      ? '<span class="badge badge-success" style="font-size:.9rem; padding:8px 20px">🏆 PASSED</span>'
+      : '<span class="badge badge-danger" style="font-size:.9rem; padding:8px 20px">❌ Not Passed — Try Again</span>';
+  }
+
+  function showLobby() {
+    document.getElementById('view-results').style.display = 'none';
+    document.getElementById('view-lobby').style.display = 'block';
+    answers = new Array(questions.length).fill(null);
+    timeLeft = 20 * 60;
+    currentQ = 0;
+  }
+</script>
+</body>
+</html>
+

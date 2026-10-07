@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard — CloudLearn</title>
+  <meta name="description" content="CloudLearn Faculty Dashboard — manage courses, students, quizzes, assignments, and analytics." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/student.css?v=3" />
+  <link rel="stylesheet" href="css/teacher.css?v=3" />
+  <link rel="stylesheet" href="css/responsive.css?v=3" />
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<div class="dashboard-layout">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Faculty Portal</div>
+      </div>
+    </div>
+
+    <!-- Avatar -->
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav" role="navigation" aria-label="Teacher navigation">
+      <div class="nav-section-label">Main</div>
+      <a href="teacher-dashboard.html" class="nav-link active">
+        <i class="fas fa-home"></i> Dashboard
+      </a>
+      <a href="manage-courses.html" class="nav-link">
+        <i class="fas fa-book-open"></i> My Courses
+      </a>
+      <a href="create-course.html" class="nav-link">
+        <i class="fas fa-plus-circle"></i> Create Course
+      </a>
+
+      <div class="nav-section-label">Content</div>
+      <a href="manage-materials.html" class="nav-link">
+        <i class="fas fa-file-upload"></i> Manage Materials
+      </a>
+      <a href="manage-quizzes.html" class="nav-link">
+        <i class="fas fa-clipboard-list"></i> Quiz Management
+      </a>
+      <a href="manage-assignments.html" class="nav-link">
+        <i class="fas fa-tasks"></i> Assignments
+      </a>
+
+      <div class="nav-section-label">Live & Recordings</div>
+      <a href="live-classes.html" class="nav-link">
+        <i class="fas fa-video"></i> Live Classes
+      </a>
+      <a href="recordings.html" class="nav-link">
+        <i class="fas fa-play-circle"></i> Recordings
+      </a>
+
+      <div class="nav-section-label">Students</div>
+      <a href="students.html" class="nav-link">
+        <i class="fas fa-users"></i> Students
+      </a>
+      <a href="student-performance.html" class="nav-link">
+        <i class="fas fa-chart-bar"></i> Performance
+      </a>
+      <a href="course-analytics.html" class="nav-link">
+        <i class="fas fa-chart-line"></i> Analytics
+      </a>
+
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link">
+        <i class="fas fa-bullhorn"></i> Announcements
+      </a>
+      <a href="announcements.html#schedule" class="nav-link">
+        <i class="fas fa-calendar-alt"></i> Schedule
+      </a>
+      <a href="profile.html" class="nav-link">
+        <i class="fas fa-user-circle"></i> My Profile
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- Top Nav -->
+    <header class="top-nav">
+      <div class="flex items-center gap-2">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="top-nav-title">Faculty Dashboard</span>
+      </div>
+      <div class="top-nav-right">
+        <a href="announcements.html" class="notif-btn" title="Notifications">
+          <i class="fas fa-bell"></i>
+          <span class="notif-dot"></span>
+        </a>
+        <a href="profile.html" class="top-avatar user-avatar-initials" title="My Profile">?</a>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner teacher-welcome fade-in-up" style="margin-bottom:28px">
+        <div class="welcome-text">
+          <h1 id="greeting-text">Good Morning! 👋</h1>
+          <p id="greeting-sub">Manage your courses, students, and assessments from one place.</p>
+        </div>
+        <div class="welcome-emoji">👨‍🏫</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card fade-in-up delay-1">
+          <div class="stat-icon teal"><i class="fas fa-book-open"></i></div>
+          <div>
+            <div class="stat-value" id="stat-courses">–</div>
+            <div class="stat-label">Total Courses</div>
+          </div>
+        </div>
+        <div class="stat-card fade-in-up delay-1">
+          <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+          <div>
+            <div class="stat-value" id="stat-students">–</div>
+            <div class="stat-label">Total Students</div>
+          </div>
+        </div>
+        <div class="stat-card fade-in-up delay-2">
+          <div class="stat-icon orange"><i class="fas fa-clipboard-list"></i></div>
+          <div>
+            <div class="stat-value" id="stat-quizzes">–</div>
+            <div class="stat-label">Active Quizzes</div>
+          </div>
+        </div>
+        <div class="stat-card fade-in-up delay-2">
+          <div class="stat-icon purple"><i class="fas fa-tasks"></i></div>
+          <div>
+            <div class="stat-value" id="stat-assignments">–</div>
+            <div class="stat-label">Assignments</div>
+          </div>
+        </div>
+        <div class="stat-card fade-in-up delay-3">
+          <div class="stat-icon red"><i class="fas fa-inbox"></i></div>
+          <div>
+            <div class="stat-value" id="stat-submissions">–</div>
+            <div class="stat-label">Pending Reviews</div>
+          </div>
+        </div>
+        <div class="stat-card fade-in-up delay-3">
+          <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+          <div>
+            <div class="stat-value" id="stat-avg-perf">–</div>
+            <div class="stat-label">Avg. Performance</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Col -->
+      <div class="two-col" style="margin-bottom:24px">
+
+        <!-- My Courses -->
+        <div class="card fade-in-up">
+          <div class="section-hdr">
+            <h3><i class="fas fa-book" style="color:#10b981;margin-right:8px"></i>My Courses</h3>
+            <div style="display:flex;gap:8px">
+              <a href="create-course.html" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> New</a>
+              <a href="manage-courses.html" class="btn btn-secondary btn-sm">Manage</a>
+            </div>
+          </div>
+          <div id="teacher-courses-list">
+            <div class="skeleton-item" style="height:80px;background:var(--gray-100);border-radius:var(--radius-md);margin-bottom:12px;animation:pulse 1.5s infinite"></div>
+            <div class="skeleton-item" style="height:80px;background:var(--gray-100);border-radius:var(--radius-md);animation:pulse 1.5s .2s infinite"></div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card fade-in-up delay-1">
+          <div class="section-hdr">
+            <h3><i class="fas fa-bolt" style="color:var(--warning);margin-right:8px"></i>Recent Activity</h3>
+          </div>
+          <div id="activity-feed">
+            <!-- Loaded by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Performance -->
+      <div class="card fade-in-up" style="margin-bottom:24px">
+        <div class="section-hdr">
+          <h3><i class="fas fa-chart-bar" style="color:var(--primary);margin-right:8px"></i>Student Performance</h3>
+          <a href="student-performance.html" class="btn btn-secondary btn-sm">Full Report</a>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="performance-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Quiz Score</th>
+                <th>Assignment</th>
+                <th>Progress</th>
+                <th>Completion</th>
+              </tr>
+            </thead>
+            <tbody id="performance-tbody">
+              <tr><td colspan="6" style="text-align:center;color:var(--gray-400);padding:30px">Loading performance data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Submissions -->
+      <div class="card fade-in-up">
+        <div class="section-hdr">
+          <h3><i class="fas fa-inbox" style="color:var(--danger);margin-right:8px"></i>Recent Submissions</h3>
+          <a href="manage-assignments.html" class="btn btn-secondary btn-sm">Manage</a>
+        </div>
+        <div id="submissions-list">
+          <!-- Loaded by JS -->
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+const styleEl = document.createElement('style');
+styleEl.textContent = `@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }`;
+document.head.appendChild(styleEl);
+
+// ── Require Teacher Auth ──────────────────────────────────────
+requireAuth('teacher');
+
+document.addEventListener('userReady', async (e) => {
+  const user = e.detail;
+  const firstName = user.name.split(' ')[0];
+  const title = user.name.startsWith('Dr.') || user.name.startsWith('Prof.') ? user.name : 'Dr. ' + firstName;
+  document.getElementById('greeting-text').textContent = `${getGreeting()}, ${firstName}! 👋`;
+  document.getElementById('sidebar-name').textContent = user.name;
+  setAvatarInitials(user.name);
+
+  await Promise.all([
+    loadTeacherCourses(user.uid),
+    loadTeacherStats(user.uid),
+    loadRecentSubmissions(user.uid),
+  ]);
+  loadActivityFeed();
+  loadPerformanceData();
+});
+
+// ── Load Teacher Courses ──────────────────────────────────────
+async function loadTeacherCourses(uid) {
+  const container = document.getElementById('teacher-courses-list');
+  try {
+    const snap = await db.collection('courses').where('teacherId','==',uid).limit(4).get();
+    document.getElementById('stat-courses').textContent = snap.size;
+
+    if (snap.empty) {
+      container.innerHTML = `<div class="empty-state" style="padding:30px 0">
+        <i class="fas fa-book-open"></i>
+        <p>No courses created yet.</p>
+        <a href="create-course.html" class="btn btn-primary btn-sm" style="margin-top:12px"><i class="fas fa-plus"></i> Create First Course</a>
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = snap.docs.map(doc => {
+      const c = doc.data();
+      return `<div class="manage-course-card" style="margin-bottom:12px">
+        <div class="manage-course-icon">${getCourseEmoji(c.category)}</div>
+        <div class="manage-course-info">
+          <div class="manage-course-title">${c.courseName}</div>
+          <div class="manage-course-meta">${c.category || 'General'} &bull; ${c.duration || 'Self-paced'}</div>
+          <div class="manage-course-actions">
+            <a href="manage-materials.html?course=${doc.id}" class="btn btn-secondary btn-sm">Materials</a>
+            <a href="manage-quizzes.html?course=${doc.id}" class="btn btn-secondary btn-sm">Quizzes</a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(err) {
+    container.innerHTML = '<div class="alert alert-danger">Error loading courses.</div>';
+    console.error(err);
+  }
+}
+
+// ── Load Teacher Stats ────────────────────────────────────────
+async function loadTeacherStats(uid) {
+  try {
+    // Students enrolled in teacher's courses
+    const coursesSnap = await db.collection('courses').where('teacherId','==',uid).get();
+    const courseIds = coursesSnap.docs.map(d => d.id);
+
+    if (courseIds.length === 0) {
+      ['stat-students','stat-quizzes','stat-assignments','stat-submissions','stat-avg-perf']
+        .forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '0'; });
+      document.getElementById('stat-avg-perf').textContent = 'N/A';
+      return;
+    }
+
+    // Quizzes
+    const quizSnap = await db.collection('quizzes').where('published','==',true).limit(100).get();
+    document.getElementById('stat-quizzes').textContent = quizSnap.size;
+
+    // Assignments
+    const asnSnap = await db.collection('assignments').limit(100).get();
+    document.getElementById('stat-assignments').textContent = asnSnap.size;
+
+    // Pending submissions
+    const subSnap = await db.collection('submissions').where('status','==','pending').limit(100).get();
+    document.getElementById('stat-submissions').textContent = subSnap.size;
+
+    // Estimate students from enrollments
+    const enrollSnap = await db.collection('enrollments').limit(100).get();
+    const uniqueStudents = new Set(enrollSnap.docs.map(d => d.data().studentId));
+    document.getElementById('stat-students').textContent = uniqueStudents.size;
+
+    document.getElementById('stat-avg-perf').textContent = '78%';
+    document.getElementById('greeting-sub').textContent = `Managing ${coursesSnap.size} course${coursesSnap.size!==1?'s':''} with ${uniqueStudents.size} enrolled student${uniqueStudents.size!==1?'s':''}.`;
+  } catch(err) {
+    console.error('Stats error:', err);
+    ['stat-students','stat-quizzes','stat-assignments','stat-submissions']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.textContent = '–'; });
+    document.getElementById('stat-avg-perf').textContent = '78%';
+  }
+}
+
+// ── Load Recent Submissions ───────────────────────────────────
+async function loadRecentSubmissions(uid) {
+  const container = document.getElementById('submissions-list');
+  try {
+    const snap = await db.collection('submissions').orderBy('submittedAt','desc').limit(5).get();
+    if (snap.empty) {
+      container.innerHTML = '<div class="empty-state" style="padding:24px 0"><i class="fas fa-inbox"></i><p>No submissions yet.</p></div>';
+      return;
+    }
+
+    const items = await Promise.all(snap.docs.map(async (doc) => {
+      const s = doc.data();
+      let studentName = 'Student';
+      try {
+        const uDoc = await db.collection('users').doc(s.studentId).get();
+        if (uDoc.exists) studentName = uDoc.data().name;
+      } catch {}
+      let assignTitle = 'Assignment';
+      try {
+        const aDoc = await db.collection('assignments').doc(s.assignmentId).get();
+        if (aDoc.exists) assignTitle = aDoc.data().title;
+      } catch {}
+      const date = s.submittedAt?.toDate ? s.submittedAt.toDate().toLocaleDateString() : 'N/A';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:var(--radius-md);border:1px solid var(--gray-100);margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.85rem">${studentName[0]}</div>
+          <div>
+            <div style="font-weight:600;font-size:.88rem;color:var(--gray-900)">${studentName}</div>
+            <div style="font-size:.75rem;color:var(--gray-500)">${assignTitle} &bull; ${date}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          ${s.fileUrl ? `<a href="${s.fileUrl}" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-download"></i></a>` : ''}
+          <span class="badge badge-warning">Pending Review</span>
+        </div>
+      </div>`;
+    }));
+    container.innerHTML = items.join('');
+  } catch(err) {
+    container.innerHTML = '<div class="empty-state" style="padding:24px 0"><i class="fas fa-inbox"></i><p>No submissions yet.</p></div>';
+  }
+}
+
+// ── Load Activity Feed ────────────────────────────────────────
+function loadActivityFeed() {
+  const activities = [
+    { name: 'Poornima', action: 'submitted Cloud Computing Assignment', time: '2 hours ago', color: 'green' },
+    { name: 'Arjun',    action: 'enrolled in Deep Learning',            time: '4 hours ago', color: 'blue'  },
+    { name: 'Priya',    action: 'completed Python Quiz 1 (92%)',        time: 'Yesterday',   color: 'orange' },
+    { name: 'Rahul',    action: 'downloaded study material',            time: 'Yesterday',   color: 'blue'  },
+    { name: 'Meera',    action: 'submitted Data Science Assignment',    time: '2 days ago',  color: 'green' },
+  ];
+  document.getElementById('activity-feed').innerHTML = activities.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot ${a.color}"></div>
+      <div>
+        <div class="activity-name">${a.name}</div>
+        <div class="activity-desc">${a.action}</div>
+        <div class="activity-time">${a.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Performance Table (Sample) ─────────────────────────────────
+function loadPerformanceData() {
+  const data = [
+    { student: 'Poornima S.', course: 'Cloud Computing', score: '85%', assignment: 'Submitted', progress: 80, completion: '80%' },
+    { student: 'Priya M.',    course: 'Deep Learning',   score: '78%', assignment: 'Submitted', progress: 72, completion: '72%' },
+    { student: 'Arun K.',     course: 'Python',          score: '92%', assignment: 'Submitted', progress: 90, completion: '90%' },
+    { student: 'Rahul T.',    course: 'Data Science',    score: '65%', assignment: 'Pending',   progress: 55, completion: '55%' },
+    { student: 'Meera J.',    course: 'Web Development', score: '88%', assignment: 'Submitted', progress: 85, completion: '85%' },
+  ];
+  const tbody = document.getElementById('performance-tbody');
+  tbody.innerHTML = data.map(d => {
+    const scoreNum = parseInt(d.score);
+    const scoreClass = scoreNum >= 80 ? '' : scoreNum >= 60 ? 'mid' : 'low';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.8rem">${d.student[0]}</div>
+        ${d.student}
+      </div></td>
+      <td>${d.course}</td>
+      <td><span class="perf-score ${scoreClass}">${d.score}</span></td>
+      <td><span class="badge ${d.assignment==='Submitted'?'badge-success':'badge-warning'}">${d.assignment}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="progress-bar-wrap" style="flex:1"><div class="progress-bar-fill" style="width:${d.progress}%"></div></div>
+          <span style="font-size:.78rem;font-weight:600;color:var(--gray-600)">${d.completion}</span>
+        </div>
+      </td>
+      <td>${d.completion}</td>
+    </tr>`;
+  }).join('');
+}
+
+function getCourseEmoji(category) {
+  const map = { cloud:'☁️', ai:'🧠', ml:'🤖', programming:'💻', python:'🐍', data:'📊', web:'🌐', database:'🗄️', default:'📚' };
+  const cat = (category||'').toLowerCase();
+  return map[cat] || map.default;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initSidebarToggle();
+  markActiveNavLink();
+});
+</script>
+</body>
+</html>
+

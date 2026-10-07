@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Study Materials — CloudLearn</title>
+  <meta name="description" content="Upload and manage course study materials on CloudLearn." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/student.css?v=3" />
+  <link rel="stylesheet" href="css/teacher.css?v=3" />
+  <link rel="stylesheet" href="css/responsive.css?v=3" />
+  <style>
+    /* Shared between teacher and student view */
+    .material-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: var(--transition);
+      margin-bottom: 10px;
+    }
+    .material-card:hover { box-shadow: var(--shadow-md); }
+    .material-type-icon { width: 46px; height: 46px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .type-pdf   { background: #fee2e2; color: var(--danger); }
+    .type-video { background: #ede9fe; color: var(--primary); }
+    .type-ppt   { background: #fff7ed; color: #ea580c; }
+    .type-zip   { background: #fef3c7; color: #92400e; }
+    .type-link  { background: #dbeafe; color: #2563eb; }
+    .material-info { flex: 1; min-width: 0; }
+    .material-name { font-weight: 600; font-size: .92rem; color: var(--gray-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .material-meta { font-size: .78rem; color: var(--gray-500); margin-top: 3px; display: flex; gap: 14px; flex-wrap: wrap; }
+    .material-actions { display: flex; gap: 8px; }
+    .icon-btn { width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .85rem; cursor: pointer; transition: var(--transition); border: none; }
+    .icon-btn.dl  { background: #d1fae5; color: var(--success); }
+    .icon-btn.dl:hover { background: var(--success); color: #fff; }
+    .icon-btn.del { background: #fee2e2; color: var(--danger); }
+    .icon-btn.del:hover { background: var(--danger); color: #fff; }
+    .upload-zone { border: 2px dashed var(--gray-300); border-radius: var(--radius-lg); padding: 48px 24px; text-align: center; cursor: pointer; transition: var(--transition); background: var(--gray-50); margin-bottom: 28px; }
+    .upload-zone:hover { border-color: var(--primary); background: #f5f3ff; }
+    .upload-zone i { font-size: 3rem; color: var(--gray-300); margin-bottom: 16px; }
+    .upload-zone h3 { font-family: var(--font-heading); font-size: 1.1rem; color: var(--gray-700); margin-bottom: 8px; }
+    .upload-zone p { font-size: .88rem; color: var(--gray-500); }
+    .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .search-box { position: relative; flex: 1; min-width: 200px; }
+    .search-box input { width: 100%; padding: 10px 16px 10px 40px; border: 2px solid var(--gray-200); border-radius: var(--radius-full); font-size: .88rem; outline: none; transition: var(--transition); }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+    .module-group { margin-bottom: 28px; }
+    .module-group-title { font-family: var(--font-heading); font-size: .95rem; font-weight: 700; color: var(--gray-700); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-left: 4px solid var(--primary); padding-left: 12px; }
+    /* ── Video Upload Progress ── */
+    .vid-upload-progress { margin-top: 16px; display: none; }
+    .vid-upload-label { display: flex; justify-content: space-between; font-size: .82rem; color: var(--gray-600); margin-bottom: 6px; }
+    .vid-upload-bar { height: 10px; background: var(--gray-200); border-radius: var(--radius-full); overflow: hidden; }
+    .vid-upload-fill { height: 100%; background: var(--grad-primary); border-radius: var(--radius-full); transition: width .3s ease; width: 0%; }
+    /* ── Video Player Inline ── */
+    .video-inline-player { margin-top: 12px; border-radius: var(--radius-md); overflow: hidden; background: #000; max-width: 600px; }
+    .video-inline-player video { width: 100%; display: block; }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR — role-sensitive, defaults teacher; JS swaps if student -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub" id="portal-label">Faculty Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag" id="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Navigation" id="sidebar-nav">
+      <!-- Injected by JS based on role -->
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Study Materials</h1>
+          <p class="page-sub">Access and manage course learning resources</p>
+        </div>
+      </div>
+      <div class="topbar-right" id="upload-btn-wrap">
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('upload-modal').style.display='flex'">
+          <i class="fas fa-upload"></i> Upload Material
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Upload Zone (teacher only) -->
+      <div id="upload-zone-section">
+        <div class="upload-zone" onclick="document.getElementById('upload-modal').style.display='flex'">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <h3>Drag & Drop or Click to Upload</h3>
+          <p>Supports PDF, PPT, DOCX, MP4, ZIP and external links<br />Max 500MB per file</p>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search materials..." oninput="filterMaterials(this.value)" />
+        </div>
+        <select class="form-control" style="width:auto; padding:10px 16px;" onchange="filterMaterials('', this.value)">
+          <option value="">All Courses</option>
+          <option>Cloud Fundamentals</option>
+          <option>Database Systems</option>
+          <option>Machine Learning Basics</option>
+        </select>
+        <select class="form-control" style="width:auto; padding:10px 16px;">
+          <option>All Types</option>
+          <option>PDF</option>
+          <option>Video</option>
+          <option>Presentation</option>
+          <option>Lab Files</option>
+        </select>
+      </div>
+
+      <!-- Module 1 Materials -->
+      <div class="module-group">
+        <div class="module-group-title"><span>📖</span> Cloud Fundamentals — Module 1: Introduction</div>
+        <div id="materials-list">
+          <div class="material-card">
+            <div class="material-type-icon type-pdf"><i class="fas fa-file-pdf"></i></div>
+            <div class="material-info">
+              <div class="material-name">Cloud_Computing_Foundations.pdf</div>
+              <div class="material-meta">
+                <span><i class="fas fa-book"></i> Cloud Fundamentals</span>
+                <span><i class="fas fa-hdd"></i> 2.4 MB</span>
+                <span><i class="fas fa-calendar"></i> Sep 1, 2026</span>
+                <span><i class="fas fa-eye"></i> 145 views</span>
+              </div>
+            </div>
+            <span class="badge badge-success" style="font-size:.72rem">PDF</span>
+            <div class="material-actions">
+              <button class="icon-btn dl" title="Download"><i class="fas fa-download"></i></button>
+              <button class="icon-btn del" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+
+          <div class="material-card">
+            <div class="material-type-icon type-video"><i class="fas fa-play-circle"></i></div>
+            <div class="material-info">
+              <div class="material-name">Intro_to_Cloud_Lecture1.mp4</div>
+              <div class="material-meta">
+                <span><i class="fas fa-book"></i> Cloud Fundamentals</span>
+                <span><i class="fas fa-hdd"></i> 128 MB</span>
+                <span><i class="fas fa-clock"></i> 42:15</span>
+                <span><i class="fas fa-eye"></i> 201 views</span>
+              </div>
+            </div>
+            <span class="badge badge-primary" style="font-size:.72rem">Video</span>
+            <div class="material-actions">
+              <button class="icon-btn dl" title="Download"><i class="fas fa-download"></i></button>
+              <button class="icon-btn del" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+
+          <div class="material-card">
+            <div class="material-type-icon type-ppt"><i class="fas fa-file-powerpoint"></i></div>
+            <div class="material-info">
+              <div class="material-name">SaaS_PaaS_IaaS_Slides.pptx</div>
+              <div class="material-meta">
+                <span><i class="fas fa-book"></i> Cloud Fundamentals</span>
+                <span><i class="fas fa-hdd"></i> 5.1 MB</span>
+                <span><i class="fas fa-calendar"></i> Sep 2, 2026</span>
+                <span><i class="fas fa-eye"></i> 178 views</span>
+              </div>
+            </div>
+            <span class="badge badge-warning" style="font-size:.72rem">PPT</span>
+            <div class="material-actions">
+              <button class="icon-btn dl" title="Download"><i class="fas fa-download"></i></button>
+              <button class="icon-btn del" title="Delete"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 2 -->
+      <div class="module-group">
+        <div class="module-group-title"><span>📖</span> Database Systems — Module 2: SQL Fundamentals</div>
+        <div class="material-card">
+          <div class="material-type-icon type-pdf"><i class="fas fa-file-pdf"></i></div>
+          <div class="material-info">
+            <div class="material-name">SQL_Complete_Reference_Guide.pdf</div>
+            <div class="material-meta">
+              <span><i class="fas fa-book"></i> Database Systems</span>
+              <span><i class="fas fa-hdd"></i> 8.7 MB</span>
+              <span><i class="fas fa-eye"></i> 312 views</span>
+            </div>
+          </div>
+          <span class="badge badge-success" style="font-size:.72rem">PDF</span>
+          <div class="material-actions">
+            <button class="icon-btn dl" title="Download"><i class="fas fa-download"></i></button>
+            <button class="icon-btn del" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <div class="material-card">
+          <div class="material-type-icon type-zip"><i class="fas fa-file-archive"></i></div>
+          <div class="material-info">
+            <div class="material-name">DB_Lab_Files_Module2.zip</div>
+            <div class="material-meta">
+              <span><i class="fas fa-book"></i> Database Systems</span>
+              <span><i class="fas fa-hdd"></i> 14.2 MB</span>
+              <span><i class="fas fa-file-code"></i> Lab files</span>
+              <span><i class="fas fa-eye"></i> 97 downloads</span>
+            </div>
+          </div>
+          <span class="badge badge-warning" style="font-size:.72rem">ZIP</span>
+          <div class="material-actions">
+            <button class="icon-btn dl" title="Download"><i class="fas fa-download"></i></button>
+            <button class="icon-btn del" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        <div class="material-card">
+          <div class="material-type-icon type-link"><i class="fas fa-external-link-alt"></i></div>
+          <div class="material-info">
+            <div class="material-name">Interactive SQL Playground — SQLZoo</div>
+            <div class="material-meta">
+              <span><i class="fas fa-book"></i> Database Systems</span>
+              <span><i class="fas fa-link"></i> External Resource</span>
+            </div>
+          </div>
+          <span class="badge badge-info" style="font-size:.72rem">Link</span>
+          <div class="material-actions">
+            <button class="icon-btn dl" title="Open" onclick="window.open('https://sqlzoo.net', '_blank')" style="background:#dbeafe; color:#2563eb"><i class="fas fa-external-link-alt"></i></button>
+            <button class="icon-btn del" title="Remove"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal-overlay" id="upload-modal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-heading); font-size:1.1rem">📤 Upload Study Material</h3>
+      <button class="modal-close" onclick="document.getElementById('upload-modal').style.display='none'"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Course *</label>
+        <select class="form-control">
+          <option>Cloud Fundamentals</option>
+          <option>Database Systems</option>
+          <option>Machine Learning Basics</option>
+          <option>Web Development</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Module</label>
+        <select class="form-control">
+          <option>Module 1: Introduction</option>
+          <option>Module 2: Core Services</option>
+          <option>Module 3: Advanced Topics</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Material Type *</label>
+        <select class="form-control" id="material-type">
+          <option value="file">File Upload (PDF, PPT, DOCX, ZIP)</option>
+          <option value="video">Video Upload (MP4, WebM, MOV)</option>
+          <option value="link">External Link</option>
+        </select>
+      </div>
+      <div class="form-group" id="file-section">
+        <label class="form-label">Select File</label>
+        <div class="upload-zone" style="padding:24px" onclick="document.getElementById('mat-file').click()" id="file-drop-zone">
+          <i class="fas fa-cloud-upload-alt" style="font-size:2rem; margin-bottom:8px"></i>
+          <p id="file-label">Click to select a file</p>
+        </div>
+        <input type="file" id="mat-file" style="display:none" onchange="handleMatFileSelect(this)" />
+      </div>
+      <div class="form-group" id="video-section" style="display:none">
+        <label class="form-label">Select Video <span style="font-weight:400; color:var(--gray-400)">(MP4, WebM, MOV — max 1GB)</span></label>
+        <div class="upload-zone" style="padding:24px" onclick="document.getElementById('vid-file').click()" id="vid-drop-zone">
+          <i class="fas fa-film" style="font-size:2rem; margin-bottom:8px"></i>
+          <p id="vid-file-label">Click to select a video file</p>
+          <p style="font-size:.75rem; color:var(--gray-400); margin-top:6px">Supports large files up to 1GB</p>
+        </div>
+        <input type="file" id="vid-file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov" style="display:none" onchange="handleVidFileSelect(this)" />
+        <div class="vid-upload-progress" id="vid-upload-progress">
+          <div class="vid-upload-label">
+            <span id="vid-upload-status">Uploading...</span>
+            <span id="vid-upload-pct">0%</span>
+          </div>
+          <div class="vid-upload-bar">
+            <div class="vid-upload-fill" id="vid-upload-fill"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" id="link-section" style="display:none">
+        <label class="form-label">URL *</label>
+        <input type="url" class="form-control" id="link-url" placeholder="https://example.com/resource" />
+        <label class="form-label" style="margin-top:12px">Display Title *</label>
+        <input type="text" class="form-control" id="link-title" placeholder="Resource name for students" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('upload-modal').style.display='none'" id="btn-cancel-mat">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="uploadMaterial()" id="btn-upload-mat"><i class="fas fa-upload"></i> Upload</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  // Works for both teacher and student roles
+  requireAuth(null);
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+
+    if (user.role === 'student') {
+      // Adapt sidebar for student
+      document.getElementById('sidebar').classList.remove('teacher-sidebar');
+      document.getElementById('sidebar').classList.add('student-sidebar');
+      document.querySelector('.sidebar-brand-icon').innerHTML = '<i class="fas fa-cloud"></i>';
+      document.getElementById('portal-label').textContent = 'Student Portal';
+      document.getElementById('role-tag').textContent = '🎓 Student';
+      document.getElementById('sidebar-nav').innerHTML = `
+        <div class="nav-section-label">Main Menu</div>
+        <a href="student-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+        <div class="nav-section-label">Learning</div>
+        <a href="manage-materials.html" class="nav-link active"><i class="fas fa-file-alt"></i> Study Materials</a>
+        <a href="quiz.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quizzes</a>
+        <a href="assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+        <a href="results.html" class="nav-link"><i class="fas fa-star"></i> Results</a>
+        <a href="student-progress.html" class="nav-link"><i class="fas fa-chart-line"></i> My Progress</a>
+        <div class="nav-section-label">Live & Recordings</div>
+        <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+        <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+        <div class="nav-section-label">More</div>
+        <a href="announcements.html" class="nav-link"><i class="fas fa-bell"></i> Notifications</a>
+        <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+      `;
+      // Hide upload for students
+      document.getElementById('upload-btn-wrap').style.display = 'none';
+      document.getElementById('upload-zone-section').style.display = 'none';
+    } else {
+      // Teacher sidebar nav
+      document.getElementById('sidebar-nav').innerHTML = `
+        <div class="nav-section-label">Main</div>
+        <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="manage-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+        <a href="create-course.html" class="nav-link"><i class="fas fa-plus-circle"></i> Create Course</a>
+        <div class="nav-section-label">Content</div>
+        <a href="manage-materials.html" class="nav-link active"><i class="fas fa-file-upload"></i> Manage Materials</a>
+        <a href="manage-quizzes.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+        <a href="manage-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+        <div class="nav-section-label">Live & Recordings</div>
+        <a href="live-classes.html" class="nav-link"><i class="fas fa-video"></i> Live Classes</a>
+        <a href="recordings.html" class="nav-link"><i class="fas fa-play-circle"></i> Recordings</a>
+        <div class="nav-section-label">Students</div>
+        <a href="students.html" class="nav-link"><i class="fas fa-users"></i> Students</a>
+        <a href="student-performance.html" class="nav-link"><i class="fas fa-chart-bar"></i> Performance</a>
+        <a href="course-analytics.html" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+        <div class="nav-section-label">More</div>
+        <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+        <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+      `;
+    }
+  });
+
+  let selectedMatFile = null;
+  let selectedVidFile = null;
+  let vidUploadTask = null;
+
+  document.getElementById('material-type').addEventListener('change', function() {
+    document.getElementById('file-section').style.display = this.value === 'file' ? '' : 'none';
+    document.getElementById('video-section').style.display = this.value === 'video' ? '' : 'none';
+    document.getElementById('link-section').style.display = this.value === 'link' ? '' : 'none';
+  });
+
+  function handleMatFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    selectedMatFile = file;
+    const sizeMB = (file.size / (1024*1024)).toFixed(1);
+    document.getElementById('file-label').innerHTML = `<i class="fas fa-check-circle" style="color:var(--success); margin-right:6px"></i> ${file.name} (${sizeMB} MB)`;
+    document.getElementById('file-drop-zone').style.borderColor = 'var(--success)';
+  }
+
+  function handleVidFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const maxSize = 1024 * 1024 * 1024; // 1GB
+    if (file.size > maxSize) {
+      showToast('File too large. Maximum size is 1GB.', 'error');
+      input.value = '';
+      return;
+    }
+    const validTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+    if (!validTypes.includes(file.type)) {
+      showToast('Invalid file type. Please upload MP4, WebM, or MOV.', 'error');
+      input.value = '';
+      return;
+    }
+    selectedVidFile = file;
+    const sizeMB = (file.size / (1024*1024)).toFixed(1);
+    document.getElementById('vid-file-label').innerHTML = `<i class="fas fa-check-circle" style="color:var(--success); margin-right:6px"></i> ${file.name} <span style="color:var(--gray-400)">(${sizeMB} MB)</span>`;
+    document.getElementById('vid-drop-zone').style.borderColor = 'var(--success)';
+    document.getElementById('vid-drop-zone').style.background = '#f0fdf4';
+  }
+
+  function filterMaterials(query) {
+    document.querySelectorAll('.material-card').forEach(card => {
+      const name = card.querySelector('.material-name').textContent.toLowerCase();
+      card.style.display = name.includes(query.toLowerCase()) ? '' : 'none';
+    });
+  }
+
+  async function uploadMaterial() {
+    const type = document.getElementById('material-type').value;
+
+    if (type === 'video') {
+      // Video upload to Firebase Storage
+      if (!selectedVidFile) { showToast('Please select a video file.', 'warning'); return; }
+
+      const storagePath = `videos/materials/${Date.now()}_${selectedVidFile.name}`;
+      const storageRef = storage.ref(storagePath);
+
+      document.getElementById('vid-upload-progress').style.display = 'block';
+      document.getElementById('btn-upload-mat').disabled = true;
+      document.getElementById('btn-upload-mat').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+      vidUploadTask = storageRef.put(selectedVidFile);
+
+      vidUploadTask.on('state_changed',
+        (snapshot) => {
+          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+          document.getElementById('vid-upload-fill').style.width = pct + '%';
+          document.getElementById('vid-upload-pct').textContent = pct + '%';
+          const mbDone = (snapshot.bytesTransferred / (1024*1024)).toFixed(1);
+          const mbTotal = (snapshot.totalBytes / (1024*1024)).toFixed(1);
+          document.getElementById('vid-upload-status').textContent = `Uploading... ${mbDone} / ${mbTotal} MB`;
+        },
+        (error) => {
+          if (error.code === 'storage/canceled') {
+            showToast('Upload cancelled.', 'info');
+          } else {
+            showToast('Upload failed: ' + error.message, 'error');
+          }
+          resetUploadUI();
+          vidUploadTask = null;
+        },
+        async () => {
+          const videoUrl = await storageRef.getDownloadURL();
+          showToast('Video uploaded successfully! 🎬', 'success');
+          document.getElementById('upload-modal').style.display = 'none';
+          resetUploadUI();
+          vidUploadTask = null;
+          // You can save the videoUrl to a Firestore lesson document here
+        }
+      );
+    } else if (type === 'file') {
+      if (!selectedMatFile) { showToast('Please select a file.', 'warning'); return; }
+      showLoading();
+      try {
+        const storagePath = `materials/files/${Date.now()}_${selectedMatFile.name}`;
+        const storageRef = storage.ref(storagePath);
+        await storageRef.put(selectedMatFile);
+        const url = await storageRef.getDownloadURL();
+        hideLoading();
+        document.getElementById('upload-modal').style.display = 'none';
+        showToast('File uploaded successfully!', 'success');
+      } catch (err) {
+        hideLoading();
+        showToast('Upload failed: ' + err.message, 'error');
+      }
+    } else {
+      // Link
+      const url = document.getElementById('link-url').value.trim();
+      const title = document.getElementById('link-title').value.trim();
+      if (!url || !title) { showToast('Please fill in both URL and title.', 'warning'); return; }
+      showLoading();
+      setTimeout(() => {
+        hideLoading();
+        document.getElementById('upload-modal').style.display = 'none';
+        showToast('Link added successfully!', 'success');
+      }, 500);
+    }
+  }
+
+  function resetUploadUI() {
+    document.getElementById('btn-upload-mat').disabled = false;
+    document.getElementById('btn-upload-mat').innerHTML = '<i class="fas fa-upload"></i> Upload';
+    document.getElementById('vid-upload-progress').style.display = 'none';
+    document.getElementById('vid-upload-fill').style.width = '0%';
+    selectedVidFile = null;
+    selectedMatFile = null;
+  }
+</script>
+</body>
+</html>
+

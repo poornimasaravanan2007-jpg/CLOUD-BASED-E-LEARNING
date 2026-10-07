@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Management — CloudLearn</title>
+  <meta name="description" content="Create and manage quizzes for your CloudLearn courses." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/student.css?v=3" />
+  <link rel="stylesheet" href="css/teacher.css?v=3" />
+  <link rel="stylesheet" href="css/responsive.css?v=3" />
+  <style>
+    .quiz-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-100);
+      margin-bottom: 14px;
+      transition: var(--transition);
+    }
+    .quiz-card:hover { box-shadow: var(--shadow-md); }
+    .quiz-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; }
+    .quiz-card-title { font-family: var(--font-heading); font-size: 1rem; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+    .quiz-card-sub { font-size: .8rem; color: var(--gray-500); }
+    .quiz-stats-row { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 14px; }
+    .quiz-stat { text-align: center; }
+    .quiz-stat .val { font-weight: 700; font-size: 1.1rem; color: var(--gray-800); }
+    .quiz-stat .lbl { font-size: .7rem; color: var(--gray-400); }
+    .quiz-card-footer { display: flex; gap: 8px; flex-wrap: wrap; }
+    .question-builder { background: var(--gray-50); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; border: 1px solid var(--gray-200); }
+    .question-builder-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .option-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .option-radio { width: 18px; height: 18px; accent-color: var(--success); cursor: pointer; }
+    .option-input { flex: 1; padding: 8px 12px; border: 2px solid var(--gray-200); border-radius: var(--radius-sm); font-size: .88rem; outline: none; }
+    .option-input:focus { border-color: var(--primary); }
+    .option-correct { border-color: var(--success) !important; background: #f0fdf4; }
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .summary-card { background: var(--white); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); text-align: center; border: 1px solid var(--gray-100); }
+    .summary-val { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--gray-900); }
+    .summary-lbl { font-size: .75rem; color: var(--gray-500); margin-top: 4px; }
+    .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .search-box { position: relative; flex: 1; min-width: 200px; }
+    .search-box input { width: 100%; padding: 10px 16px 10px 40px; border: 2px solid var(--gray-200); border-radius: var(--radius-full); font-size: .88rem; outline: none; transition: var(--transition); }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-400); }
+  </style>
+</head>
+<body>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar teacher-sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="sidebar-brand-text">
+        <div class="brand-name">CloudLearn</div>
+        <div class="brand-sub">Faculty Portal</div>
+      </div>
+    </div>
+    <div class="student-avatar-wrap">
+      <div class="avatar user-avatar-initials">?</div>
+      <div class="avatar-info">
+        <div class="name" id="sidebar-name">Loading...</div>
+        <div class="role-tag">👨‍🏫 Faculty</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" role="navigation" aria-label="Teacher navigation">
+      <div class="nav-section-label">Main</div>
+      <a href="teacher-dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="manage-courses.html" class="nav-link"><i class="fas fa-book-open"></i> My Courses</a>
+      <a href="create-course.html" class="nav-link"><i class="fas fa-plus-circle"></i> Create Course</a>
+      <div class="nav-section-label">Content</div>
+      <a href="manage-materials.html" class="nav-link"><i class="fas fa-file-upload"></i> Manage Materials</a>
+      <a href="manage-quizzes.html" class="nav-link active"><i class="fas fa-clipboard-list"></i> Quiz Management</a>
+      <a href="manage-assignments.html" class="nav-link"><i class="fas fa-tasks"></i> Assignments</a>
+      <div class="nav-section-label">Students</div>
+      <a href="students.html" class="nav-link"><i class="fas fa-users"></i> Students</a>
+      <a href="student-performance.html" class="nav-link"><i class="fas fa-chart-bar"></i> Performance</a>
+      <a href="course-analytics.html" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+      <div class="nav-section-label">More</div>
+      <a href="announcements.html" class="nav-link"><i class="fas fa-bullhorn"></i> Announcements</a>
+      <a href="profile.html" class="nav-link"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-logout" onclick="logout()" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+        <div>
+          <h1 class="page-title">Quiz Management</h1>
+          <p class="page-sub">Create, edit, and track quiz performance across your courses</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('create-quiz-modal').style.display='flex'">
+          <i class="fas fa-plus"></i> Create Quiz
+        </button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- Summary -->
+      <div class="summary-row">
+        <div class="summary-card">
+          <div class="summary-val">18</div>
+          <div class="summary-lbl">📝 Total Quizzes</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--success)">92%</div>
+          <div class="summary-lbl">✅ Avg Pass Rate</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val" style="color:var(--primary)">74%</div>
+          <div class="summary-lbl">📊 Avg Score</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-val">843</div>
+          <div class="summary-lbl">🎓 Attempts Total</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search quizzes..." />
+        </div>
+        <select class="form-control" style="width:auto; padding:10px 16px;">
+          <option>All Courses</option>
+          <option>Cloud Fundamentals</option>
+          <option>Database Systems</option>
+          <option>Machine Learning Basics</option>
+        </select>
+        <select class="form-control" style="width:auto; padding:10px 16px;">
+          <option>All Status</option>
+          <option>Active</option>
+          <option>Draft</option>
+          <option>Closed</option>
+        </select>
+      </div>
+
+      <!-- Quizzes -->
+      <div class="quiz-card">
+        <div class="quiz-card-header">
+          <div>
+            <div class="quiz-card-title">Cloud Basics Assessment — Module 1</div>
+            <div class="quiz-card-sub"><i class="fas fa-book"></i> Cloud Fundamentals &nbsp;|&nbsp; <i class="fas fa-clock"></i> 20 min &nbsp;|&nbsp; <i class="fas fa-list-ol"></i> 10 questions &nbsp;|&nbsp; <i class="fas fa-redo"></i> 2 attempts allowed</div>
+          </div>
+          <span class="badge badge-success">Active</span>
+        </div>
+        <div class="quiz-stats-row">
+          <div class="quiz-stat"><div class="val">72</div><div class="lbl">Attempts</div></div>
+          <div class="quiz-stat"><div class="val" style="color:var(--success)">94%</div><div class="lbl">Pass Rate</div></div>
+          <div class="quiz-stat"><div class="val" style="color:var(--primary)">82%</div><div class="lbl">Avg Score</div></div>
+          <div class="quiz-stat"><div class="val">78%</div><div class="lbl">Completed</div></div>
+        </div>
+        <div class="quiz-card-footer">
+          <button class="btn btn-primary btn-sm" onclick="showToast('Opening quiz editor...', 'info')"><i class="fas fa-edit"></i> Edit Quiz</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('results-modal').style.display='flex'"><i class="fas fa-chart-bar"></i> View Results</button>
+          <button class="btn btn-sm" style="background:var(--gray-100); color:var(--gray-600)"><i class="fas fa-copy"></i> Duplicate</button>
+          <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-card-header">
+          <div>
+            <div class="quiz-card-title">AWS Services Assessment — Module 2</div>
+            <div class="quiz-card-sub"><i class="fas fa-book"></i> Cloud Fundamentals &nbsp;|&nbsp; <i class="fas fa-clock"></i> 30 min &nbsp;|&nbsp; <i class="fas fa-list-ol"></i> 15 questions &nbsp;|&nbsp; <i class="fas fa-redo"></i> 1 attempt allowed</div>
+          </div>
+          <span class="badge badge-primary">Active</span>
+        </div>
+        <div class="quiz-stats-row">
+          <div class="quiz-stat"><div class="val">45</div><div class="lbl">Attempts</div></div>
+          <div class="quiz-stat"><div class="val" style="color:var(--success)">88%</div><div class="lbl">Pass Rate</div></div>
+          <div class="quiz-stat"><div class="val" style="color:var(--primary)">76%</div><div class="lbl">Avg Score</div></div>
+          <div class="quiz-stat"><div class="val">58%</div><div class="lbl">Completed</div></div>
+        </div>
+        <div class="quiz-card-footer">
+          <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit Quiz</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('results-modal').style.display='flex'"><i class="fas fa-chart-bar"></i> View Results</button>
+          <button class="btn btn-sm" style="background:var(--gray-100); color:var(--gray-600)"><i class="fas fa-copy"></i> Duplicate</button>
+          <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+
+      <div class="quiz-card">
+        <div class="quiz-card-header">
+          <div>
+            <div class="quiz-card-title">SQL Fundamentals Quiz — Week 3</div>
+            <div class="quiz-card-sub"><i class="fas fa-book"></i> Database Systems &nbsp;|&nbsp; <i class="fas fa-clock"></i> 25 min &nbsp;|&nbsp; <i class="fas fa-list-ol"></i> 12 questions</div>
+          </div>
+          <span class="badge badge-success">Closed</span>
+        </div>
+        <div class="quiz-stats-row">
+          <div class="quiz-stat"><div class="val">63</div><div class="lbl">Attempts</div></div>
+          <div class="quiz-stat"><div class="val" style="color:var(--success)">97%</div><div class="lbl">Pass Rate</div></div>
+          <div class="quiz-stat"><div class="val" style="color:var(--success)">88%</div><div class="lbl">Avg Score</div></div>
+          <div class="quiz-stat"><div class="val">97%</div><div class="lbl">Completed</div></div>
+        </div>
+        <div class="quiz-card-footer">
+          <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit Quiz</button>
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('results-modal').style.display='flex'"><i class="fas fa-chart-bar"></i> View Results</button>
+          <button class="btn btn-sm" style="background:var(--gray-100); color:var(--gray-600)"><i class="fas fa-copy"></i> Duplicate</button>
+          <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+
+      <div class="quiz-card" style="border-left: 4px solid var(--warning);">
+        <div class="quiz-card-header">
+          <div>
+            <div class="quiz-card-title">Machine Learning Mid-Term Quiz</div>
+            <div class="quiz-card-sub"><i class="fas fa-book"></i> Machine Learning Basics &nbsp;|&nbsp; <i class="fas fa-clock"></i> 45 min &nbsp;|&nbsp; <i class="fas fa-list-ol"></i> 20 questions</div>
+          </div>
+          <span class="badge badge-warning">Draft</span>
+        </div>
+        <div style="padding:12px; background:var(--gray-50); border-radius:var(--radius-md); font-size:.85rem; color:var(--gray-500)">
+          <i class="fas fa-info-circle" style="color:var(--warning)"></i> This quiz is not yet published. Publish it when ready for students.
+        </div>
+        <div class="quiz-card-footer" style="margin-top:14px">
+          <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit Draft</button>
+          <button class="btn btn-success btn-sm" onclick="showToast('Quiz published!', 'success')"><i class="fas fa-paper-plane"></i> Publish</button>
+          <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Create Quiz Modal -->
+<div class="modal-overlay" id="create-quiz-modal" style="display:none">
+  <div class="modal-box" style="max-width:680px">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-heading); font-size:1.1rem">📝 Create New Quiz</h3>
+      <button class="modal-close" onclick="document.getElementById('create-quiz-modal').style.display='none'"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Quiz Title *</label>
+          <input type="text" class="form-control" placeholder="e.g., Cloud Basics Assessment — Module 1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Course *</label>
+          <select class="form-control">
+            <option>Cloud Fundamentals</option>
+            <option>Database Systems</option>
+            <option>Machine Learning Basics</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time Limit (minutes)</label>
+          <input type="number" class="form-control" value="20" min="5" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Passing Score (%)</label>
+          <input type="number" class="form-control" value="60" min="0" max="100" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Attempts</label>
+          <input type="number" class="form-control" value="2" min="1" />
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--gray-200); padding-top:16px; margin-top:4px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
+          <h4 style="font-family:var(--font-heading); font-size:.95rem">Questions</h4>
+          <button class="btn btn-secondary btn-sm" onclick="addQuestion()"><i class="fas fa-plus"></i> Add Question</button>
+        </div>
+        <div id="questions-container">
+          <div class="question-builder">
+            <div class="question-builder-header">
+              <span style="font-size:.82rem; font-weight:700; color:var(--gray-700)">Q1 · Multiple Choice</span>
+              <button style="background:none; border:none; cursor:pointer; color:var(--danger)" onclick="this.closest('.question-builder').remove()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-group" style="margin-bottom:12px">
+              <input type="text" class="form-control" placeholder="Enter your question here..." />
+            </div>
+            <div id="options-q1">
+              <div class="option-item"><input type="radio" name="correct-q1" class="option-radio"><input type="text" class="option-input" placeholder="Option A" /></div>
+              <div class="option-item"><input type="radio" name="correct-q1" class="option-radio"><input type="text" class="option-input" placeholder="Option B" /></div>
+              <div class="option-item"><input type="radio" name="correct-q1" class="option-radio"><input type="text" class="option-input" placeholder="Option C" /></div>
+              <div class="option-item"><input type="radio" name="correct-q1" class="option-radio"><input type="text" class="option-input" placeholder="Option D" /></div>
+            </div>
+            <div style="font-size:.75rem; color:var(--gray-400); margin-top:8px">⬆️ Select the radio button next to the correct answer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('create-quiz-modal').style.display='none'">Cancel</button>
+      <button class="btn btn-sm" style="background:var(--gray-100); color:var(--gray-600)" onclick="saveQuiz('draft')"><i class="fas fa-save"></i> Save Draft</button>
+      <button class="btn btn-primary btn-sm" onclick="saveQuiz('publish')"><i class="fas fa-paper-plane"></i> Publish Quiz</button>
+    </div>
+  </div>
+</div>
+
+<!-- Results Modal -->
+<div class="modal-overlay" id="results-modal" style="display:none">
+  <div class="modal-box" style="max-width:650px">
+    <div class="modal-header">
+      <h3 style="font-family:var(--font-heading); font-size:1.1rem">📊 Quiz Results — Cloud Basics Assessment</h3>
+      <button class="modal-close" onclick="document.getElementById('results-modal').style.display='none'"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px">
+        <div style="text-align:center; padding:12px; background:var(--gray-50); border-radius:var(--radius-md)">
+          <div style="font-weight:800; font-size:1.5rem">72</div><div style="font-size:.72rem; color:var(--gray-500)">Attempts</div>
+        </div>
+        <div style="text-align:center; padding:12px; background:#d1fae5; border-radius:var(--radius-md)">
+          <div style="font-weight:800; font-size:1.5rem; color:var(--success)">94%</div><div style="font-size:.72rem; color:var(--gray-500)">Pass Rate</div>
+        </div>
+        <div style="text-align:center; padding:12px; background:#ede9fe; border-radius:var(--radius-md)">
+          <div style="font-weight:800; font-size:1.5rem; color:var(--primary)">82%</div><div style="font-size:.72rem; color:var(--gray-500)">Avg Score</div>
+        </div>
+        <div style="text-align:center; padding:12px; background:#fef3c7; border-radius:var(--radius-md)">
+          <div style="font-weight:800; font-size:1.5rem; color:#92400e">16 min</div><div style="font-size:.72rem; color:var(--gray-500)">Avg Duration</div>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table" style="font-size:.82rem">
+          <thead><tr><th>Student</th><th>Score</th><th>Time</th><th>Attempt</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Arjun Sharma</td><td><span class="perf-score">95%</span></td><td>14 min</td><td>1st</td><td><span class="badge badge-success">Pass</span></td></tr>
+            <tr><td>Priya Nair</td><td><span class="perf-score">90%</span></td><td>18 min</td><td>1st</td><td><span class="badge badge-success">Pass</span></td></tr>
+            <tr><td>Rohan Verma</td><td><span class="perf-score mid">72%</span></td><td>20 min</td><td>2nd</td><td><span class="badge badge-success">Pass</span></td></tr>
+            <tr><td>Sneha Patel</td><td><span class="perf-score low">48%</span></td><td>19 min</td><td>2nd</td><td><span class="badge badge-danger">Fail</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('results-modal').style.display='none'">Close</button>
+      <button class="btn btn-primary btn-sm"><i class="fas fa-download"></i> Export CSV</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/env.js"></script><script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  requireAuth('teacher');
+  initSidebarToggle();
+  markActiveNavLink();
+
+  document.addEventListener('userReady', (e) => {
+    const user = e.detail;
+    setAvatarInitials(user.displayName || user.email);
+    document.getElementById('sidebar-name').textContent = user.displayName || user.email;
+  });
+
+  let qCount = 1;
+  function addQuestion() {
+    qCount++;
+    const container = document.getElementById('questions-container');
+    const div = document.createElement('div');
+    div.className = 'question-builder';
+    div.innerHTML = `
+      <div class="question-builder-header">
+        <span style="font-size:.82rem; font-weight:700; color:var(--gray-700)">Q${qCount} · Multiple Choice</span>
+        <button style="background:none; border:none; cursor:pointer; color:var(--danger)" onclick="this.closest('.question-builder').remove()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="form-group" style="margin-bottom:12px"><input type="text" class="form-control" placeholder="Enter your question here..." /></div>
+      <div>
+        <div class="option-item"><input type="radio" name="correct-q${qCount}" class="option-radio"><input type="text" class="option-input" placeholder="Option A" /></div>
+        <div class="option-item"><input type="radio" name="correct-q${qCount}" class="option-radio"><input type="text" class="option-input" placeholder="Option B" /></div>
+        <div class="option-item"><input type="radio" name="correct-q${qCount}" class="option-radio"><input type="text" class="option-input" placeholder="Option C" /></div>
+        <div class="option-item"><input type="radio" name="correct-q${qCount}" class="option-radio"><input type="text" class="option-input" placeholder="Option D" /></div>
+      </div>
+      <div style="font-size:.75rem; color:var(--gray-400); margin-top:8px">⬆️ Select the radio button next to the correct answer</div>
+    `;
+    container.appendChild(div);
+  }
+
+  function saveQuiz(mode) {
+    showLoading();
+    setTimeout(() => {
+      hideLoading();
+      document.getElementById('create-quiz-modal').style.display = 'none';
+      showToast(mode === 'publish' ? 'Quiz published successfully!' : 'Quiz saved as draft!', 'success');
+    }, 1200);
+  }
+</script>
+</body>
+</html>
+
